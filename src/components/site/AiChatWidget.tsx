@@ -35,12 +35,29 @@ const INITIAL: UIMessage[] = [
   } as UIMessage,
 ];
 
+const COOKIE_KEY = "ec-cookie-consent-v1";
+
+function hasCookieConsent(): boolean {
+  try {
+    return !!localStorage.getItem(COOKIE_KEY);
+  } catch {
+    return false;
+  }
+}
+
 export function AiChatWidget() {
+  const [cookiesAccepted, setCookiesAccepted] = useState(hasCookieConsent);
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const transport = useRef(new DefaultChatTransport({ api: "/api/chat" })).current;
+
+  useEffect(() => {
+    const handler = () => setCookiesAccepted(true);
+    window.addEventListener("cookie-consent-accepted", handler);
+    return () => window.removeEventListener("cookie-consent-accepted", handler);
+  }, []);
 
   const { messages, sendMessage, status, error, setMessages, clearError, stop } = useChat({
     id: "site-assistant",
@@ -81,6 +98,8 @@ export function AiChatWidget() {
     setResetCount((c) => c + 1);
   };
 
+  if (!cookiesAccepted) return null;
+
   return (
     <>
       <button
@@ -88,7 +107,7 @@ export function AiChatWidget() {
         aria-label={open ? "Chat schließen" : "Prime Assistent öffnen"}
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          "fixed bottom-5 right-5 z-[60] grid h-14 w-14 place-items-center rounded-full text-primary-foreground shadow-hero transition-all hover:scale-105",
+          "fixed bottom-5 right-5 z-40 grid h-14 w-14 place-items-center rounded-full text-primary-foreground shadow-hero transition-all hover:scale-105",
           "bg-gradient-to-br from-primary to-success",
         )}
       >
@@ -104,7 +123,7 @@ export function AiChatWidget() {
         <div
           role="dialog"
           aria-label="Prime Assistent"
-          className="fixed bottom-24 right-5 z-[60] flex h-[min(620px,calc(100vh-7rem))] w-[min(380px,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-hero animate-in slide-in-from-bottom-4 fade-in"
+          className="fixed bottom-24 right-5 z-40 flex h-[min(620px,calc(100vh-7rem))] w-[min(380px,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-hero animate-in slide-in-from-bottom-4 fade-in"
         >
           <header className="flex items-center gap-3 border-b border-border bg-primary px-4 py-3 text-primary-foreground">
             <div className="grid h-9 w-9 place-items-center rounded-full bg-success/20">

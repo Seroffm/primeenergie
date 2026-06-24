@@ -31,6 +31,7 @@ export function CookieConsent() {
       /* ignore */
     }
     setOpen(false);
+    window.dispatchEvent(new Event("cookie-consent-accepted"));
   };
 
   return (
