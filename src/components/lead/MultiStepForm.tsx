@@ -149,7 +149,7 @@ export function MultiStepForm({
       track("lead_submitted", { leadId: res.leadId });
       if (payload.rechnungDateiname) track("invoice_uploaded");
       sessionStorage.removeItem(STORAGE_KEY);
-      navigate({ to: "/danke", search: { id: res.leadId } });
+      navigate({ to: "/danke", search: { id: res.leadId, nr: res.leadNumber } });
     } catch (e) {
       console.error(e);
       setError("Übermittlung fehlgeschlagen. Bitte versuchen Sie es erneut.");

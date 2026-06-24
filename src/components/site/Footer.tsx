@@ -10,7 +10,6 @@ const columns: Col[] = [
     links: [
       { to: "/strom", label: "Stromtarife" },
       { to: "/angebot", label: "Tarifrechner" },
-      { to: "/strom", label: "Ökostrom" },
       { to: "/gewerbestrom", label: "Gewerbestrom" },
       { to: "/ablauf", label: "Anbieterwechsel" },
     ],
@@ -20,7 +19,6 @@ const columns: Col[] = [
     links: [
       { to: "/gas", label: "Gastarife" },
       { to: "/angebot", label: "Gasrechner" },
-      { to: "/gas", label: "Bio-Gas" },
       { to: "/gewerbegas", label: "Gewerbegas" },
       { to: "/ablauf", label: "Gasanbieter wechseln" },
     ],
@@ -37,10 +35,10 @@ const columns: Col[] = [
   {
     title: "Über PRIME ENERGIE",
     links: [
-      { to: "/ueber-uns", label: "Unternehmen" },
-      { to: "/ueber-uns", label: "Karriere" },
-      { to: "/ueber-uns", label: "Presse" },
+      { to: "/ueber-uns", label: "Über uns" },
       { to: "/freunde-werben", label: "Partnerprogramm" },
+      { to: "/kontakt", label: "Kontakt" },
+      { to: "/wissen", label: "Ratgeber" },
     ],
   },
 ];

@@ -4,7 +4,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
 
-const search = z.object({ id: z.string().optional() }).optional();
+const search = z.object({ id: z.string().optional(), nr: z.string().optional() }).optional();
 
 export const Route = createFileRoute("/danke")({
   validateSearch: (s) => search.parse(s) ?? {},
@@ -19,7 +19,8 @@ export const Route = createFileRoute("/danke")({
 });
 
 function ThanksPage() {
-  const { id } = Route.useSearch();
+  const { id, nr } = Route.useSearch();
+  const vorgangsnummer = nr ?? id;
   return (
     <SiteLayout>
       <section className="mx-auto max-w-2xl px-4 py-20 text-center">
@@ -33,15 +34,15 @@ function ThanksPage() {
           Wir prüfen jetzt passende Strom- und Gasangebote für Sie. Ein Berater meldet sich
           innerhalb der nächsten <strong className="text-foreground">24 Stunden</strong>.
         </p>
-        {id && (
-          <div className="mt-6 flex justify-center">
-            <div className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-4 py-2 text-sm">
-              <span className="text-muted-foreground">Ihre Vorgangsnummer:</span>
-              <span className="font-mono font-semibold text-primary">{id}</span>
+        {vorgangsnummer && (
+          <div className="mt-8">
+            <div className="text-sm text-muted-foreground">Ihre Vorgangsnummer</div>
+            <div className="mt-1 font-mono text-2xl font-bold tracking-widest text-primary">
+              {vorgangsnummer}
             </div>
           </div>
         )}
-        <div className="mt-10 flex justify-center">
+        <div className="mt-10">
           <Button asChild variant="outline">
             <Link to="/">
               Zurück zur Startseite <ArrowRight className="ml-1 h-4 w-4" />
