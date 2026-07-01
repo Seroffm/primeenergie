@@ -33,6 +33,7 @@ import {
   type LeadInput,
 } from "@/lib/lead-schema";
 import { submitLead } from "@/lib/api/lead";
+import { generateLeadNumber } from "@/lib/lead-number";
 
 type Draft = Partial<LeadInput> & { ziele: LeadInput["ziele"] };
 
@@ -149,7 +150,8 @@ export function MultiStepForm({
       track("lead_submitted", { leadId: res.leadId });
       if (payload.rechnungDateiname) track("invoice_uploaded");
       sessionStorage.removeItem(STORAGE_KEY);
-      navigate({ to: "/danke", search: { id: res.leadId, nr: res.leadNumber } });
+      const displayNumber = res.leadNumber || generateLeadNumber();
+      navigate({ to: "/danke", search: { id: res.leadId, nr: displayNumber } });
     } catch (e) {
       console.error(e);
       setError("Übermittlung fehlgeschlagen. Bitte versuchen Sie es erneut.");
