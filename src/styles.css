@@ -67,14 +67,14 @@
   --secondary: #f5f9ee;
   --secondary-foreground: #0a1f44;
   --muted: #f5f9ee;
-  --muted-foreground: #3d4f6a;
+  --muted-foreground: #2e3d55;
   --accent: #f0fad6;
   --accent-foreground: #3d6b00;
   --destructive: #e23b3b;
   --destructive-foreground: #ffffff;
 
-  --border: #d0d8e0;
-  --input: #b8c6d0;
+  --border: #bcc8d4;
+  --input: #94a8b8;
   --ring: #88cc27;
 }
 
