@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CheckCircle2, ArrowRight } from "lucide-react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { isValidLeadNumber } from "@/lib/lead-number";
 
 const search = z.object({ id: z.string().optional(), nr: z.string().optional() }).optional();
 
@@ -20,7 +22,14 @@ export const Route = createFileRoute("/danke")({
 
 function ThanksPage() {
   const { id, nr } = Route.useSearch();
-  const vorgangsnummer = nr ?? id;
+  const [vorgangsnummer] = useState<string>(() => {
+    if (nr && isValidLeadNumber(nr)) return nr;
+    if (typeof window !== "undefined") {
+      const stored = sessionStorage.getItem("prime-lead-nr");
+      if (stored && isValidLeadNumber(stored)) return stored;
+    }
+    return id ?? "";
+  });
   return (
     <SiteLayout>
       <section className="mx-auto max-w-2xl px-4 py-20 text-center">

@@ -151,6 +151,7 @@ export function MultiStepForm({
       if (payload.rechnungDateiname) track("invoice_uploaded");
       sessionStorage.removeItem(STORAGE_KEY);
       const displayNumber = res.leadNumber || generateLeadNumber();
+      sessionStorage.setItem("prime-lead-nr", displayNumber);
       navigate({ to: "/danke", search: { id: res.leadId, nr: displayNumber } });
     } catch (e) {
       console.error(e);
