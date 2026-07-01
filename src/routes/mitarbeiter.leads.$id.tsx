@@ -143,10 +143,10 @@ export const Route = createFileRoute("/mitarbeiter/leads/$id")({
   head: () => ({
     meta: [{ title: "Lead Detail – Mitarbeiter" }, { name: "robots", content: "noindex,nofollow" }],
   }),
-  loader: async ({ params }): Promise<{ lead: Lead; assignedToId: string | null }> => {
+  loader: async ({ params }): Promise<{ lead: Lead; assignedToId: string | null; leadNumber: string | null }> => {
     try {
       const raw = await getBackendLead(params.id);
-      return { lead: mapBackendToLead(raw), assignedToId: raw.assigned_to ?? null };
+      return { lead: mapBackendToLead(raw), assignedToId: raw.assigned_to ?? null, leadNumber: raw.lead_number ?? null };
     } catch {
       throw notFound();
     }
@@ -202,9 +202,10 @@ const commTypeIcon: Record<string, typeof Inbox> = {
 };
 
 function LeadDetail() {
-  const { lead: loaderLead, assignedToId: loaderAssignedToId } = Route.useLoaderData() as {
+  const { lead: loaderLead, assignedToId: loaderAssignedToId, leadNumber } = Route.useLoaderData() as {
     lead: Lead;
     assignedToId: string | null;
+    leadNumber: string | null;
   };
   const { id } = Route.useParams();
   const lead = loaderLead;
@@ -431,7 +432,7 @@ function LeadDetail() {
   return (
     <AdminShell
       title={lead.name}
-      subtitle={`${lead.id} · ${typeLabel[lead.type]} · ${lead.plz} ${lead.city}`}
+      subtitle={`${leadNumber ?? lead.id} · ${typeLabel[lead.type]} · ${lead.plz} ${lead.city}`}
       actions={
         <>
           <Button asChild variant="outline" size="sm">
@@ -1089,7 +1090,7 @@ function LeadDetail() {
           <div className="space-y-4">
             <div className="rounded-lg border bg-muted/30 p-5 text-center">
               <div className="text-lg font-semibold">{lead.name}</div>
-              <div className="text-xs text-muted-foreground">{lead.id}</div>
+              <div className="text-xs text-muted-foreground">{leadNumber ?? lead.id}</div>
               <a
                 href={`tel:${lead.phone.replace(/\s/g, "")}`}
                 className="mt-3 block text-3xl font-bold tracking-wider text-primary hover:underline"
