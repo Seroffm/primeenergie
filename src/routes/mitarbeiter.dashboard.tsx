@@ -97,7 +97,8 @@ function Dashboard() {
     () =>
       leads.find((l) => l.backendStatus === "follow_up") ??
       leads.find((l) => l.backendStatus === "question_open") ??
-      leads.find((l) => l.backendStatus === "new"),
+      leads.find((l) => l.backendStatus === "new") ??
+      leads.find((l) => l.backendStatus === "in_review"),
     [leads],
   );
 

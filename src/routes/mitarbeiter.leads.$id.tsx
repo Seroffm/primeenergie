@@ -67,6 +67,7 @@ import {
 import { DEFAULT_WIEDERVORLAGE_TIME } from "@/lib/mock-tasks";
 import {
   getLead as getBackendLead,
+  getLeads,
   getNotes,
   postNote,
   getDocuments,
@@ -84,6 +85,7 @@ import {
   mapLeadStatus,
   mapLeadType,
   mapLeadStatusToBackend,
+  type BackendLeadStatus,
   type BackendLeadDetail,
   type BackendNote,
   type BackendDocument,
@@ -280,6 +282,13 @@ function LeadDetail() {
     queryFn: getTeam,
   });
 
+  // Alle Leads für "Nächste Aufgabe öffnen" — teilt Cache mit dem Dashboard-Query
+  const allLeadsQuery = useQuery({
+    queryKey: ["leads"],
+    queryFn: () => getLeads({ pageSize: 200 }),
+    staleTime: 30_000,
+  });
+
   const notes: BackendNote[] = notesQuery.data?.data ?? [];
   const docs: BackendDocument[] = docsQuery.data?.data ?? [];
   const comms: BackendCommunication[] = commsQuery.data?.data ?? [];
@@ -402,8 +411,30 @@ function LeadDetail() {
     toast.success("Aufgabe als erledigt markiert");
   }
 
+  // Status die als offene Aufgaben zählen — identisch mit Dashboard-Zähler
+  const OPEN_TASK_STATUSES: BackendLeadStatus[] = ["follow_up", "question_open", "new", "in_review"];
+
   function handleOpenNextTask() {
-    setAllDoneOpen(true);
+    if (allLeadsQuery.isLoading) {
+      toast.info("Leads werden geladen…");
+      return;
+    }
+    const allLeads = allLeadsQuery.data?.data ?? [];
+    const candidates = allLeads.filter(
+      (l) => OPEN_TASK_STATUSES.includes(l.status) && l.id !== id,
+    );
+    // Priorität: Wiedervorlage → Rückfrage → Neu → In Prüfung
+    const next =
+      candidates.find((l) => l.status === "follow_up") ??
+      candidates.find((l) => l.status === "question_open") ??
+      candidates.find((l) => l.status === "new") ??
+      candidates.find((l) => l.status === "in_review");
+
+    if (next) {
+      navigate({ to: "/mitarbeiter/leads/$id", params: { id: next.id } });
+    } else {
+      setAllDoneOpen(true);
+    }
   }
 
   function handleFilesSelected(e: React.ChangeEvent<HTMLInputElement>) {
