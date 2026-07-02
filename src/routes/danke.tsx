@@ -4,7 +4,7 @@ import { CheckCircle2, ArrowRight } from "lucide-react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { isValidLeadNumber } from "@/lib/lead-number";
+import { isValidLeadNumber, generateLeadNumber } from "@/lib/lead-number";
 
 const search = z.object({ id: z.string().optional(), nr: z.string().optional() }).optional();
 
@@ -28,7 +28,7 @@ function ThanksPage() {
       const stored = sessionStorage.getItem("prime-lead-nr");
       if (stored && isValidLeadNumber(stored)) return stored;
     }
-    return id ?? "";
+    return generateLeadNumber();
   });
   return (
     <SiteLayout>
