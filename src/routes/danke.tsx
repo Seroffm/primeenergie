@@ -21,7 +21,11 @@ export const Route = createFileRoute("/danke")({
 });
 
 function ThanksPage() {
-  const { id, nr } = Route.useSearch();
+  const { nr } = Route.useSearch();
+
+  // nr aus URL nur verwenden wenn es exakt dem 7-Zeichen-Format entspricht.
+  // L-2026-XXXX (altes Backend-Format) und UUIDs werden abgelehnt.
+  // Niemals id/UUID als Fallback — immer generateLeadNumber().
   const [vorgangsnummer] = useState<string>(() => {
     if (nr && isValidLeadNumber(nr)) return nr;
     if (typeof window !== "undefined") {
@@ -30,6 +34,7 @@ function ThanksPage() {
     }
     return generateLeadNumber();
   });
+
   return (
     <SiteLayout>
       <section className="mx-auto max-w-2xl px-4 py-20 text-center">
@@ -43,14 +48,16 @@ function ThanksPage() {
           Wir prüfen jetzt passende Strom- und Gasangebote für Sie. Ein Berater meldet sich
           innerhalb der nächsten <strong className="text-foreground">24 Stunden</strong>.
         </p>
-        {vorgangsnummer && (
-          <div className="mt-8">
-            <div className="text-sm text-muted-foreground">Ihre Vorgangsnummer</div>
-            <div className="mt-1 font-mono text-2xl font-bold tracking-widest text-primary">
-              {vorgangsnummer}
-            </div>
-          </div>
-        )}
+
+        <div className="mt-8 inline-block rounded-xl border bg-muted/50 px-6 py-4 text-center">
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            Ihre Vorgangsnummer
+          </p>
+          <p className="mt-1.5 font-mono text-base font-semibold tracking-widest text-foreground">
+            {vorgangsnummer}
+          </p>
+        </div>
+
         <div className="mt-10">
           <Button asChild variant="outline">
             <Link to="/">
