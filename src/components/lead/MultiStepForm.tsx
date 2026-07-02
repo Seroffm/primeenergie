@@ -33,7 +33,7 @@ import {
   type LeadInput,
 } from "@/lib/lead-schema";
 import { submitLead } from "@/lib/api/lead";
-import { generateLeadNumber } from "@/lib/lead-number";
+import { generateLeadNumber, isValidLeadNumber } from "@/lib/lead-number";
 
 type Draft = Partial<LeadInput> & { ziele: LeadInput["ziele"] };
 
@@ -150,7 +150,8 @@ export function MultiStepForm({
       track("lead_submitted", { leadId: res.leadId });
       if (payload.rechnungDateiname) track("invoice_uploaded");
       sessionStorage.removeItem(STORAGE_KEY);
-      const displayNumber = res.leadNumber || generateLeadNumber();
+      const rawNr = res.leadNumber;
+      const displayNumber = (rawNr && isValidLeadNumber(rawNr)) ? rawNr : generateLeadNumber();
       sessionStorage.setItem("prime-lead-nr", displayNumber);
       navigate({ to: "/danke", search: { id: res.leadId, nr: displayNumber } });
     } catch (e) {
