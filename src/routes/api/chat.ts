@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
-import { createLovableAiGatewayProvider } from "@/lib/ai-gateway.server";
+import { createOpenAIProvider } from "@/lib/ai-gateway.server";
 
 const SYSTEM_PROMPT = `Du bist der "Prime Assistent", der digitale Energieberater von Prime Energie.
 
@@ -39,12 +39,12 @@ export const Route = createFileRoute("/api/chat")({
         if (!Array.isArray(messages)) {
           return new Response("Messages are required", { status: 400 });
         }
-        const key = process.env.LOVABLE_API_KEY;
-        if (!key) return new Response("Missing LOVABLE_API_KEY", { status: 500 });
+        const key = process.env.OPENAI_API_KEY;
+        if (!key) return new Response("Missing OPENAI_API_KEY", { status: 500 });
 
-        const gateway = createLovableAiGatewayProvider(key);
+        const openai = createOpenAIProvider(key);
         const result = streamText({
-          model: gateway("google/gemini-3-flash-preview"),
+          model: openai("gpt-5.6-sol"),
           system: SYSTEM_PROMPT,
           messages: await convertToModelMessages(messages),
         });
