@@ -1,6 +1,7 @@
 import { createFileRoute, Link, Outlet, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { z } from "zod";
 import {
   Filter,
   Plus,
@@ -19,17 +20,20 @@ import { Input } from "@/components/ui/input";
 import { AdminShell } from "@/components/mitarbeiter/AdminShell";
 import { statusColor, statusLabel, typeLabel, type LeadStatus } from "@/lib/mock-leads";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { getLeads } from "@/lib/api-client";
 import { mapLeadStatus, mapLeadType } from "@/lib/api-types";
 import type { BackendLead } from "@/lib/api-types";
 import { isValidLeadNumber } from "@/lib/lead-number";
 
+const leadsSearchSchema = z
+  .object({
+    q: z.string().trim().max(200).optional(),
+  })
+  .optional();
+
 export const Route = createFileRoute("/mitarbeiter/leads")({
+  validateSearch: (search) => leadsSearchSchema.parse(search) ?? {},
   head: () => ({
     meta: [{ title: "Leads – Mitarbeiter" }, { name: "robots", content: "noindex,nofollow" }],
   }),
@@ -69,8 +73,9 @@ const filterStatuses: { value: LeadStatus | "alle"; label: string }[] = [
 function LeadsPage() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
+  const search = Route.useSearch();
 
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState(search.q ?? "");
   const [filter, setFilter] = useState<LeadStatus | "alle">("alle");
   const [filterOpen, setFilterOpen] = useState(false);
   const [page, setPage] = useState(1);
@@ -90,8 +95,13 @@ function LeadsPage() {
         if (filter !== "alle" && l.status !== filter) return false;
         return true;
       }),
-    [leads, q, filter],
+    [leads, filter],
   );
+
+  useEffect(() => {
+    setQ(search.q ?? "");
+    setPage(1);
+  }, [search.q]);
 
   useEffect(() => {
     const normalized = q.trim().toUpperCase();
@@ -163,11 +173,7 @@ function LeadsPage() {
   function getVisiblePages(): number[] {
     const delta = 2;
     const pages: number[] = [];
-    for (
-      let i = Math.max(1, page - delta);
-      i <= Math.min(totalPages, page + delta);
-      i++
-    ) {
+    for (let i = Math.max(1, page - delta); i <= Math.min(totalPages, page + delta); i++) {
       pages.push(i);
     }
     if (pages.length > 5) return pages.slice(0, 5);
@@ -186,10 +192,7 @@ function LeadsPage() {
           </Button>
           <Popover open={filterOpen} onOpenChange={setFilterOpen}>
             <PopoverTrigger asChild>
-              <Button
-                variant={filter !== "alle" ? "default" : "outline"}
-                size="sm"
-              >
+              <Button variant={filter !== "alle" ? "default" : "outline"} size="sm">
                 <Filter className="mr-2 h-4 w-4" />
                 Filter
                 {filter !== "alle" && (
@@ -207,7 +210,10 @@ function LeadsPage() {
                     variant="ghost"
                     size="sm"
                     className="h-6 px-2 text-xs"
-                    onClick={() => { handleFilterChange("alle"); setFilterOpen(false); }}
+                    onClick={() => {
+                      handleFilterChange("alle");
+                      setFilterOpen(false);
+                    }}
                   >
                     <X className="mr-1 h-3 w-3" />
                     Zurücksetzen
@@ -219,7 +225,10 @@ function LeadsPage() {
                   <button
                     key={s.value}
                     className={`w-full rounded-md px-3 py-1.5 text-left text-sm transition-colors hover:bg-muted ${filter === s.value ? "bg-primary/10 font-medium text-primary" : ""}`}
-                    onClick={() => { handleFilterChange(s.value); setFilterOpen(false); }}
+                    onClick={() => {
+                      handleFilterChange(s.value);
+                      setFilterOpen(false);
+                    }}
                   >
                     {s.label}
                   </button>
