@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Zap, Lock, Mail, ArrowRight, ShieldCheck, AlertCircle } from "lucide-react";
+import { Lock, Mail, ArrowRight, ShieldCheck, AlertCircle } from "lucide-react";
+import { BrandLogo } from "@/components/site/BrandLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,11 +43,11 @@ function LoginPage() {
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
       <div className="hidden bg-gradient-to-br from-primary via-primary to-emerald-600 p-12 text-primary-foreground lg:flex lg:flex-col lg:justify-between">
-        <div className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/15">
-            <Zap className="h-5 w-5" />
-          </div>
-          <span className="text-lg font-semibold">PRIME ENERGIE CRM</span>
+        <div>
+          <BrandLogo variant="white" priority className="w-64" />
+          <span className="mt-3 block text-sm font-semibold tracking-wide text-primary-foreground/80">
+            Mitarbeiter-CRM
+          </span>
         </div>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -111,7 +112,10 @@ function LoginPage() {
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Passwort</Label>
-                <Link to="/mitarbeiter/passwort-vergessen" className="text-xs text-primary hover:underline">
+                <Link
+                  to="/mitarbeiter/passwort-vergessen"
+                  className="text-xs text-primary hover:underline"
+                >
                   Passwort vergessen?
                 </Link>
               </div>

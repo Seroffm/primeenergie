@@ -8,7 +8,6 @@ import {
   LogOut,
   Bell,
   Search,
-  Zap,
   Building2,
   Tag,
   UserCog,
@@ -23,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Toaster } from "@/components/ui/sonner";
+import { BrandLogo } from "@/components/site/BrandLogo";
 import { useAuth, roleBadgeLabel } from "@/lib/auth-context";
 import type { Role } from "@/lib/mock-leads";
 
@@ -93,12 +93,9 @@ export function AdminShell({
     <div className="min-h-screen bg-muted/30">
       <Toaster position="top-right" richColors closeButton />
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r bg-background lg:flex">
-        <div className="flex h-16 items-center gap-2 border-b px-6">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Zap className="h-5 w-5" />
-          </div>
+        <div className="flex h-20 items-center border-b px-5">
           <div>
-            <div className="text-sm font-semibold">PRIME ENERGIE</div>
+            <BrandLogo priority className="w-44" />
             <div className="text-xs text-muted-foreground">Mitarbeiter-CRM</div>
           </div>
         </div>

@@ -270,8 +270,8 @@ function AngebotPage() {
       {/* ─── FINAL CTA — centered (single-focus close) ─── */}
       <section className="bg-primary py-16 md:py-20">
         <div className="mx-auto max-w-xl px-4 text-center">
-          <div className="mx-auto mb-8 w-fit rounded-2xl bg-white px-5 py-3 shadow-xl">
-            <BrandLogo className="w-44 sm:w-52" />
+          <div className="mx-auto mb-8 w-fit">
+            <BrandLogo variant="white" className="w-52 sm:w-60" />
           </div>
           <h2 className="font-display text-3xl font-extrabold text-primary-foreground md:text-4xl">
             Bereit, zu wechseln?

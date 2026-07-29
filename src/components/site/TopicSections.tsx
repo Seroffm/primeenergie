@@ -189,11 +189,8 @@ export function FinalCta({ title, body, image }: { title: string; body: string; 
       />
       <div className="absolute inset-0 -z-10 bg-primary/85" />
       <div className="mx-auto max-w-5xl px-4 py-20 text-center text-primary-foreground md:py-28">
-        <motion.div
-          {...fadeUp}
-          className="mx-auto mb-8 w-fit rounded-2xl bg-white px-5 py-3 shadow-xl"
-        >
-          <BrandLogo className="w-48 sm:w-56" />
+        <motion.div {...fadeUp} className="mx-auto mb-8 w-fit">
+          <BrandLogo variant="white" className="w-56 sm:w-64" />
         </motion.div>
         <motion.h2 {...fadeUp} className="text-3xl font-bold md:text-5xl">
           {title}
