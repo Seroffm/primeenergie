@@ -8,7 +8,7 @@ import {
   ShieldCheck,
   Send,
   Building2,
-  Sparkles,
+  Phone,
   FileText,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
@@ -80,9 +80,16 @@ function KontaktPage() {
         <div className="mx-auto max-w-4xl px-4 py-20 md:py-28 text-center">
           <motion.div
             {...fadeUp}
-            className="inline-flex items-center gap-2 rounded-full border border-success/30 bg-success/10 px-4 py-1.5 text-xs font-medium text-success"
+            className="inline-flex items-start gap-3 rounded-2xl border border-success/30 bg-success/10 px-5 py-3 text-left text-xs font-medium text-success"
           >
-            <Sparkles className="h-3.5 w-3.5" /> Echte Menschen. Keine Warteschleifen.
+            <Phone className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>
+              <a href="tel:08001234567" className="block text-sm font-bold hover:underline">
+                0800 123 4567
+              </a>
+              <span className="mt-1 block">Mo–Fr: 08:00–16:00 Uhr</span>
+              <span className="block">Sa: 10:00–14:00 Uhr</span>
+            </span>
           </motion.div>
           <motion.h1
             {...fadeUp}

@@ -36,26 +36,6 @@ const mainNav: NavItem[] = [
         { label: "Anbieter wechseln. So geht's", to: "/ablauf" },
         { label: "Alles über Strom. Ratgeber", to: "/wissen" },
       ],
-      articles: [
-        {
-          to: "/wissen/$slug",
-          params: { slug: "strompreis-2026" },
-          title: "Strompreis 2026: Was Haushalte jetzt wissen müssen",
-          image: imgAutostrom,
-        },
-        {
-          to: "/wissen/$slug",
-          params: { slug: "oekostrom-labels" },
-          title: "Ökostrom erkennen: Echte Labels im Vergleich",
-          image: imgSolar,
-        },
-        {
-          to: "/wissen/$slug",
-          params: { slug: "e-auto-laden" },
-          title: "E-Auto laden zuhause: Der günstigste Weg",
-          image: imgWaerme,
-        },
-      ],
     },
   },
   {
@@ -229,6 +209,8 @@ export function Header() {
   // the stale-closure bug where AnimatePresence exit elements reopen the menu.
   const activeItemRef = useRef<typeof activeItem>(undefined);
   activeItemRef.current = activeItem;
+  const dropdownHasArticles = Boolean(activeItem?.dropdown?.articles?.length);
+  const dropdownWidth = dropdownHasArticles ? 820 : 320;
 
   useLayoutEffect(() => {
     if (!activeItem || !navRef.current) return;
@@ -236,10 +218,10 @@ export function Header() {
     if (!el) return;
     const navRect = navRef.current.getBoundingClientRect();
     const itemRect = el.getBoundingClientRect();
-    // Panel is right-0 (820px wide), so caret position is relative to panel's left edge
-    const panelWidth = Math.min(820, window.innerWidth - 32);
+    // Panel is right-aligned, so caret position is relative to the active panel width.
+    const panelWidth = Math.min(dropdownWidth, window.innerWidth - 32);
     setCaretLeft(itemRect.left + itemRect.width / 2 - navRect.right + panelWidth);
-  }, [activeItem]);
+  }, [activeItem, dropdownWidth]);
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-background">
@@ -356,12 +338,13 @@ export function Header() {
                   if (item) open(item.label);
                 }}
                 onMouseLeave={scheduleClose}
-                className="absolute right-0 top-full z-50 mt-2 w-[820px] max-w-[calc(100vw-2rem)] origin-top"
+                className="absolute right-0 top-full z-50 mt-2 max-w-[calc(100vw-2rem)] origin-top"
+                style={{ width: dropdownWidth }}
               >
                 {/* Caret. Slides smoothly between triggers */}
                 <motion.div
                   className="absolute -top-1.5 h-3 w-3 rotate-45 bg-background border-l border-t border-border"
-                  animate={{ left: Math.max(16, Math.min(caretLeft - 6, 820 - 24)) }}
+                  animate={{ left: Math.max(16, Math.min(caretLeft - 6, dropdownWidth - 24)) }}
                   transition={{ type: "spring", stiffness: 420, damping: 36 }}
                   aria-hidden
                 />
@@ -373,7 +356,10 @@ export function Header() {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -16 }}
                       transition={{ type: "spring", stiffness: 380, damping: 34, mass: 0.7 }}
-                      className="grid grid-cols-[minmax(220px,1fr)_1.6fr]"
+                      className={cn(
+                        "grid",
+                        dropdownHasArticles && "grid-cols-[minmax(220px,1fr)_1.6fr]",
+                      )}
                     >
                       {/* Left column */}
                       <div className="bg-background p-7">
@@ -415,30 +401,32 @@ export function Header() {
                       </div>
 
                       {/* Right column. Articles */}
-                      <div className="bg-muted/60 p-7">
-                        <div className="grid grid-cols-2 gap-5">
-                          {activeItem.dropdown.articles?.map((a) => (
-                            <Link
-                              key={a.title}
-                              to={a.to}
-                              params={a.params}
-                              onClick={() => setOpenKey(null)}
-                              className="group block"
-                            >
-                              <div className="overflow-hidden rounded-lg bg-background">
-                                <img
-                                  src={a.image}
-                                  alt=""
-                                  className="h-28 w-full object-cover transition duration-500 group-hover:scale-105"
-                                />
-                              </div>
-                              <div className="mt-2 text-sm font-medium leading-snug text-primary transition group-hover:text-success">
-                                {a.title}
-                              </div>
-                            </Link>
-                          ))}
+                      {dropdownHasArticles && (
+                        <div className="bg-muted/60 p-7">
+                          <div className="grid grid-cols-2 gap-5">
+                            {activeItem.dropdown.articles?.map((a) => (
+                              <Link
+                                key={a.title}
+                                to={a.to}
+                                params={a.params}
+                                onClick={() => setOpenKey(null)}
+                                className="group block"
+                              >
+                                <div className="overflow-hidden rounded-lg bg-background">
+                                  <img
+                                    src={a.image}
+                                    alt=""
+                                    className="h-28 w-full object-cover transition duration-500 group-hover:scale-105"
+                                  />
+                                </div>
+                                <div className="mt-2 text-sm font-medium leading-snug text-primary transition group-hover:text-success">
+                                  {a.title}
+                                </div>
+                              </Link>
+                            ))}
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </motion.div>
                   </AnimatePresence>
                 </div>
