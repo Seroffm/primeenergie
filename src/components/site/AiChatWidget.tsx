@@ -243,7 +243,7 @@ export function AiChatWidget() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ihre Frage zu Strom oder Gas…"
-              className="flex-1 rounded-full border border-border bg-surface px-4 py-2 text-sm outline-none transition focus:border-success"
+              className="min-w-0 flex-1 rounded-full border border-border bg-surface px-4 py-2 text-base outline-none transition focus:border-success sm:text-sm"
               disabled={busy}
             />
             <button
