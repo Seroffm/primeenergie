@@ -44,7 +44,7 @@ function LoginPage() {
     <div className="grid min-h-screen lg:grid-cols-2">
       <div className="hidden bg-gradient-to-br from-primary via-primary to-emerald-600 p-12 text-primary-foreground lg:flex lg:flex-col lg:justify-between">
         <div>
-          <BrandLogo variant="white" priority className="w-64" />
+          <BrandLogo variant="white" priority className="w-[18.4rem]" />
           <span className="mt-3 block text-sm font-semibold tracking-wide text-primary-foreground/80">
             Mitarbeiter-CRM
           </span>

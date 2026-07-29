@@ -57,7 +57,7 @@ const services = [
     title: "Persönliche Beratung",
     desc: "Kostenlos, deutschlandweit, echte Menschen. Rückrufzeit bequem im Formular wählen.",
     to: "/kontakt",
-    cta: "Rückruf anfordern",
+    cta: "Anrufen",
   },
   {
     icon: HelpCircle,
@@ -315,7 +315,7 @@ function ServicePage() {
               to="/kontakt"
               className="inline-flex items-center gap-2 rounded-full bg-success px-6 py-3 text-sm font-bold text-success-foreground transition hover:bg-success/90"
             >
-              <Phone className="h-4 w-4" /> Rückruf anfordern
+              <Phone className="h-4 w-4" /> Anrufen
             </Link>
             <Link
               to="/kontakt"

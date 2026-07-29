@@ -110,6 +110,7 @@ export function AiChatWidget() {
         className={cn(
           "fixed bottom-5 right-5 z-40 grid h-14 w-14 place-items-center rounded-full text-primary-foreground shadow-hero transition-all hover:scale-105",
           "bg-gradient-to-br from-primary to-success",
+          open && "hidden sm:grid",
         )}
       >
         {open ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
@@ -124,7 +125,7 @@ export function AiChatWidget() {
         <div
           role="dialog"
           aria-label="Prime Assistent"
-          className="fixed bottom-24 right-5 z-40 flex h-[min(620px,calc(100vh-7rem))] w-[min(380px,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-hero animate-in slide-in-from-bottom-4 fade-in"
+          className="fixed inset-x-0 bottom-0 z-50 flex h-[calc(100dvh-4rem)] w-full flex-col overflow-hidden rounded-t-2xl border border-border bg-background shadow-hero animate-in slide-in-from-bottom-4 fade-in sm:inset-x-auto sm:bottom-24 sm:right-5 sm:z-40 sm:h-[min(620px,calc(100vh-7rem))] sm:w-[min(380px,calc(100vw-2.5rem))] sm:rounded-2xl"
         >
           <header className="flex items-center gap-3 border-b border-border bg-primary px-4 py-3 text-primary-foreground">
             <div className="grid h-9 w-9 place-items-center rounded-full bg-success/20">
@@ -146,9 +147,20 @@ export function AiChatWidget() {
                 className={cn("h-4 w-4", resetCount > 0 && "animate-[spin_0.4s_ease-in-out]")}
               />
             </button>
+            <button
+              type="button"
+              aria-label="Chat schließen"
+              onClick={() => setOpen(false)}
+              className="grid h-9 w-9 flex-none place-items-center rounded-full text-primary-foreground transition hover:bg-primary-foreground/10 sm:hidden"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </header>
 
-          <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-surface px-4 py-4">
+          <div
+            ref={scrollRef}
+            className="flex-1 space-y-3 overflow-y-auto bg-surface px-3 py-3 sm:px-4 sm:py-4"
+          >
             {messages.map((m) => {
               const text = m.parts.map((p) => (p.type === "text" ? p.text : "")).join("");
               const isUser = m.role === "user";
@@ -162,7 +174,7 @@ export function AiChatWidget() {
                 >
                   <div
                     className={cn(
-                      "max-w-[85%] whitespace-pre-wrap rounded-2xl px-3 py-2 text-sm shadow-soft",
+                      "max-w-full whitespace-pre-wrap rounded-2xl px-3 py-2 text-sm shadow-soft sm:max-w-[85%]",
                       isUser
                         ? "rounded-br-sm bg-primary text-primary-foreground"
                         : "rounded-bl-sm bg-background text-foreground",
@@ -171,7 +183,7 @@ export function AiChatWidget() {
                     {body || (busy && !isUser ? "…" : "")}
                   </div>
                   {!isUser && actions.length > 0 && (
-                    <div className="flex w-[85%] flex-col gap-1.5">
+                    <div className="flex w-full flex-col gap-1.5 sm:w-[85%]">
                       {actions.map((a, i) => (
                         <button
                           key={`${m.id}-a-${i}`}
@@ -228,7 +240,6 @@ export function AiChatWidget() {
             className="flex items-center gap-2 border-t border-border bg-background px-3 py-3"
           >
             <input
-              autoFocus
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ihre Frage zu Strom oder Gas…"
@@ -244,7 +255,7 @@ export function AiChatWidget() {
               <Send className="h-4 w-4" />
             </button>
           </form>
-          <div className="px-3 pb-2 text-[10px] text-muted-foreground">
+          <div className="px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] text-[10px] text-muted-foreground">
             Automatisierte Antworten. Keine verbindliche Beratung.
           </div>
         </div>

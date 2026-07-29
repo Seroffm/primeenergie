@@ -95,7 +95,7 @@ export function AdminShell({
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r bg-background lg:flex">
         <div className="flex h-20 items-center border-b px-5">
           <div>
-            <BrandLogo priority className="w-44" />
+            <BrandLogo priority className="w-[12.65rem]" />
             <div className="text-xs text-muted-foreground">Mitarbeiter-CRM</div>
           </div>
         </div>

@@ -18,7 +18,7 @@ export function BrandLogo({ className, priority = false, variant = "black" }: Br
       loading={priority ? "eager" : "lazy"}
       fetchPriority={priority ? "high" : "auto"}
       decoding="async"
-      className={cn("block h-auto scale-[1.15] object-contain", className)}
+      className={cn("block h-auto object-contain", className)}
     />
   );
 }

@@ -55,7 +55,7 @@ export function Footer() {
             aria-label="PRIME ENERGIE Startseite"
             className="inline-flex w-fit rounded-lg transition-opacity hover:opacity-80"
           >
-            <BrandLogo className="w-64 sm:w-72" />
+            <BrandLogo className="w-[18.4rem] sm:w-[20.7rem]" />
           </Link>
           <button
             type="button"
@@ -99,7 +99,7 @@ export function Footer() {
               <span className="grid h-10 w-10 place-items-center rounded-full bg-success/10 text-success">
                 <Phone className="h-4 w-4" />
               </span>
-              Rückruf anfordern
+              Anrufen
             </Link>
             <div className="mt-2 text-sm text-muted-foreground">
               Wunschzeit im Formular auswählen · kostenlos & unverbindlich

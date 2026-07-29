@@ -1689,7 +1689,7 @@ function FinalCta() {
         <div className="relative grid items-center gap-6 md:grid-cols-[1fr_auto]">
           <div>
             <div className="mb-7 w-fit">
-              <BrandLogo variant="white" className="w-52 sm:w-60" />
+              <BrandLogo variant="white" className="w-[15rem] sm:w-[17.25rem]" />
             </div>
             <h2 className="font-display text-3xl font-extrabold md:text-4xl">
               Bereit, weniger zu zahlen?

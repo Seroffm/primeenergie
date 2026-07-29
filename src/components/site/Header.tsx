@@ -251,7 +251,7 @@ export function Header() {
             aria-label="PRIME ENERGIE Startseite"
             className="flex items-center rounded-md transition-opacity hover:opacity-80"
           >
-            <BrandLogo priority className="w-40 sm:w-48" />
+            <BrandLogo priority className="w-[11.5rem] sm:w-[13.8rem]" />
           </Link>
 
           <div />
@@ -262,7 +262,7 @@ export function Header() {
               className="hidden items-center gap-2 text-sm font-semibold text-primary transition hover:text-success md:inline-flex"
             >
               <Phone className="h-4 w-4 text-success" />
-              <span>Rückruf anfordern</span>
+              <span>Anrufen</span>
             </Link>
             <Link
               to="/freunde-werben"
@@ -468,7 +468,7 @@ export function Header() {
                   onClick={() => setMobileOpen(false)}
                   className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-3 py-2 text-sm font-semibold text-primary"
                 >
-                  <Phone className="h-4 w-4 text-success" /> Rückruf
+                  <Phone className="h-4 w-4 text-success" /> Anrufen
                 </Link>
                 <Link
                   to="/angebot"

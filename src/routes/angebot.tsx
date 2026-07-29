@@ -88,7 +88,7 @@ function AngebotPage() {
             aria-label="PRIME ENERGIE Startseite"
             className="rounded-md transition-opacity hover:opacity-80"
           >
-            <BrandLogo priority className="w-36 sm:w-44" />
+            <BrandLogo priority className="w-[10.4rem] sm:w-[12.65rem]" />
           </Link>
 
           <div className="hidden items-center gap-5 text-xs text-muted-foreground sm:flex">
@@ -111,7 +111,7 @@ function AngebotPage() {
             className="inline-flex items-center gap-2 rounded-full border border-success/30 bg-success/10 px-4 py-2 text-sm font-semibold text-primary transition hover:bg-success/20"
           >
             <Phone className="h-4 w-4 text-success" />
-            <span className="hidden sm:inline">Rückruf anfordern</span>
+            <span className="hidden sm:inline">Anrufen</span>
           </Link>
         </div>
       </header>
@@ -271,7 +271,7 @@ function AngebotPage() {
       <section className="bg-primary py-16 md:py-20">
         <div className="mx-auto max-w-xl px-4 text-center">
           <div className="mx-auto mb-8 w-fit">
-            <BrandLogo variant="white" className="w-52 sm:w-60" />
+            <BrandLogo variant="white" className="w-[15rem] sm:w-[17.25rem]" />
           </div>
           <h2 className="font-display text-3xl font-extrabold text-primary-foreground md:text-4xl">
             Bereit, zu wechseln?
