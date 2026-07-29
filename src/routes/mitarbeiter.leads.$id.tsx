@@ -15,6 +15,8 @@ import {
   CheckCircle2,
   Upload,
   Download,
+  Eye,
+  ExternalLink,
   Clock,
   RefreshCw,
   AlertCircle,
@@ -23,7 +25,7 @@ import {
   CalendarClock,
   Loader2,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -145,10 +147,16 @@ export const Route = createFileRoute("/mitarbeiter/leads/$id")({
   head: () => ({
     meta: [{ title: "Lead Detail – Mitarbeiter" }, { name: "robots", content: "noindex,nofollow" }],
   }),
-  loader: async ({ params }): Promise<{ lead: Lead; assignedToId: string | null; leadNumber: string | null }> => {
+  loader: async ({
+    params,
+  }): Promise<{ lead: Lead; assignedToId: string | null; leadNumber: string | null }> => {
     try {
       const raw = await getBackendLead(params.id);
-      return { lead: mapBackendToLead(raw), assignedToId: raw.assigned_to ?? null, leadNumber: raw.lead_number ?? null };
+      return {
+        lead: mapBackendToLead(raw),
+        assignedToId: raw.assigned_to ?? null,
+        leadNumber: raw.lead_number ?? null,
+      };
     } catch {
       throw notFound();
     }
@@ -204,7 +212,11 @@ const commTypeIcon: Record<string, typeof Inbox> = {
 };
 
 function LeadDetail() {
-  const { lead: loaderLead, assignedToId: loaderAssignedToId, leadNumber } = Route.useLoaderData() as {
+  const {
+    lead: loaderLead,
+    assignedToId: loaderAssignedToId,
+    leadNumber,
+  } = Route.useLoaderData() as {
     lead: Lead;
     assignedToId: string | null;
     leadNumber: string | null;
@@ -308,8 +320,7 @@ function LeadDetail() {
   });
 
   const statusMutation = useMutation({
-    mutationFn: (newStatus: LeadStatus) =>
-      patchLeadStatus(id, mapLeadStatusToBackend(newStatus)),
+    mutationFn: (newStatus: LeadStatus) => patchLeadStatus(id, mapLeadStatusToBackend(newStatus)),
     onSuccess: (_data, newStatus) => {
       queryClient.invalidateQueries({ queryKey: ["lead-status-history", id] });
       queryClient.invalidateQueries({ queryKey: ["leads"] });
@@ -349,6 +360,38 @@ function LeadDetail() {
   // Optimistic toggle (kein Backend-Endpoint für is_important)
   const [importantIds, setImportantIds] = useState<Set<string>>(new Set());
   const [downloadingDocId, setDownloadingDocId] = useState<string | null>(null);
+  const [previewingDocId, setPreviewingDocId] = useState<string | null>(null);
+  const [previewDocument, setPreviewDocument] = useState<{
+    fileName: string;
+    mimeType: string;
+    url: string;
+  } | null>(null);
+
+  useEffect(
+    () => () => {
+      if (previewDocument?.url) URL.revokeObjectURL(previewDocument.url);
+    },
+    [previewDocument],
+  );
+
+  async function handleDocumentPreview(document: BackendDocument) {
+    setPreviewingDocId(document.id);
+    try {
+      const { url } = await getDocumentDownloadUrl(id, document.id);
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Dokument konnte nicht geladen werden");
+      const blob = await response.blob();
+      setPreviewDocument({
+        fileName: document.file_name,
+        mimeType: blob.type || document.mime_type || "",
+        url: URL.createObjectURL(blob),
+      });
+    } catch {
+      toast.error("Vorschau konnte nicht geladen werden. Bitte erneut versuchen.");
+    } finally {
+      setPreviewingDocId(null);
+    }
+  }
 
   async function handleDocumentDownload(docId: string, fileName: string) {
     setDownloadingDocId(docId);
@@ -370,7 +413,8 @@ function LeadDetail() {
   function toggleImportant(noteId: string) {
     setImportantIds((prev) => {
       const next = new Set(prev);
-      next.has(noteId) ? next.delete(noteId) : next.add(noteId);
+      if (next.has(noteId)) next.delete(noteId);
+      else next.add(noteId);
       return next;
     });
   }
@@ -412,7 +456,12 @@ function LeadDetail() {
   }
 
   // Status die als offene Aufgaben zählen — identisch mit Dashboard-Zähler
-  const OPEN_TASK_STATUSES: BackendLeadStatus[] = ["follow_up", "question_open", "new", "in_review"];
+  const OPEN_TASK_STATUSES: BackendLeadStatus[] = [
+    "follow_up",
+    "question_open",
+    "new",
+    "in_review",
+  ];
 
   function handleOpenNextTask() {
     if (allLeadsQuery.isLoading) {
@@ -420,9 +469,7 @@ function LeadDetail() {
       return;
     }
     const allLeads = allLeadsQuery.data?.data ?? [];
-    const candidates = allLeads.filter(
-      (l) => OPEN_TASK_STATUSES.includes(l.status) && l.id !== id,
-    );
+    const candidates = allLeads.filter((l) => OPEN_TASK_STATUSES.includes(l.status) && l.id !== id);
     // Priorität: Wiedervorlage → Rückfrage → Neu → In Prüfung
     const next =
       candidates.find((l) => l.status === "follow_up") ??
@@ -506,9 +553,7 @@ function LeadDetail() {
                 {user.role === "admin" || user.role === "manager" ? (
                   <Select
                     value={assignedToId ?? "unassigned"}
-                    onValueChange={(v) =>
-                      assignMutation.mutate(v === "unassigned" ? null : v)
-                    }
+                    onValueChange={(v) => assignMutation.mutate(v === "unassigned" ? null : v)}
                     disabled={assignMutation.isPending}
                   >
                     <SelectTrigger className="max-w-xs">
@@ -528,9 +573,9 @@ function LeadDetail() {
                 ) : (
                   <span className="text-sm font-medium">
                     {assignedToId
-                      ? (teamQuery.data ?? []).find(
+                      ? ((teamQuery.data ?? []).find(
                           (m: TeamMember) => m.auth_user_id === assignedToId,
-                        )?.full_name ?? assignedToId.slice(0, 8) + "…"
+                        )?.full_name ?? assignedToId.slice(0, 8) + "…")
                       : "Nicht zugewiesen"}
                   </span>
                 )}
@@ -672,26 +717,39 @@ function LeadDetail() {
                   {docs.map((d) => (
                     <div
                       key={d.id}
-                      className="flex items-center justify-between rounded-lg border p-3"
+                      className="flex flex-col items-stretch gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between"
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex min-w-0 items-center gap-3">
                         <div className="grid h-10 w-10 place-items-center rounded-md bg-muted">
                           <FileText className="h-5 w-5 text-muted-foreground" />
                         </div>
-                        <div>
-                          <div className="text-sm font-medium">{d.file_name}</div>
+                        <div className="min-w-0">
+                          <div className="break-words text-sm font-medium">{d.file_name}</div>
                           <div className="text-xs text-muted-foreground">
                             {d.file_size_bytes ? formatFileSize(d.file_size_bytes) : "—"} ·{" "}
                             {formatDateDe(d.created_at)}
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-between gap-2 sm:justify-end">
                         <Badge
                           className={`${docColor[d.document_type] ?? docColor.sonstiges} border-0 capitalize`}
                         >
                           {d.document_type}
                         </Badge>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={previewingDocId === d.id}
+                          onClick={() => handleDocumentPreview(d)}
+                        >
+                          {previewingDocId === d.id ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : (
+                            <Eye className="mr-2 h-4 w-4" />
+                          )}
+                          Vorschau
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -744,11 +802,7 @@ function LeadDetail() {
                         <div
                           className={`mt-0.5 grid h-8 w-8 flex-none place-items-center rounded-full ${isIn ? "bg-blue-500/15 text-blue-600" : "bg-emerald-500/15 text-emerald-600"}`}
                         >
-                          {isIn ? (
-                            <Inbox className="h-4 w-4" />
-                          ) : (
-                            <Icon className="h-3.5 w-3.5" />
-                          )}
+                          {isIn ? <Inbox className="h-4 w-4" /> : <Icon className="h-3.5 w-3.5" />}
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex justify-between gap-2">
@@ -1059,6 +1113,51 @@ function LeadDetail() {
       </div>
 
       {/* ── DIALOGE ─────────────────────────────────────────────────────────── */}
+
+      <Dialog
+        open={!!previewDocument}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) setPreviewDocument(null);
+        }}
+      >
+        <DialogContent className="flex h-[min(90dvh,850px)] w-[calc(100vw-1rem)] max-w-5xl flex-col gap-0 overflow-hidden p-0 sm:w-[calc(100vw-3rem)]">
+          <DialogHeader className="border-b px-4 py-3 pr-12 text-left">
+            <div className="flex min-w-0 items-center justify-between gap-3">
+              <DialogTitle className="truncate text-base">
+                {previewDocument?.fileName ?? "Dokumentvorschau"}
+              </DialogTitle>
+              {previewDocument && (
+                <Button asChild variant="outline" size="sm" className="shrink-0">
+                  <a href={previewDocument.url} target="_blank" rel="noreferrer">
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    <span className="hidden sm:inline">Separat öffnen</span>
+                    <span className="sm:hidden">Öffnen</span>
+                  </a>
+                </Button>
+              )}
+            </div>
+          </DialogHeader>
+          <div className="min-h-0 flex-1 bg-muted/50">
+            {previewDocument &&
+            (previewDocument.mimeType.startsWith("image/") ||
+              /\.(png|jpe?g|webp|gif)$/i.test(previewDocument.fileName)) ? (
+              <div className="flex h-full items-center justify-center overflow-auto p-3">
+                <img
+                  src={previewDocument.url}
+                  alt={previewDocument.fileName}
+                  className="max-h-full max-w-full rounded object-contain shadow-sm"
+                />
+              </div>
+            ) : previewDocument ? (
+              <iframe
+                src={previewDocument.url}
+                title={`Vorschau von ${previewDocument.fileName}`}
+                className="h-full w-full border-0 bg-white"
+              />
+            ) : null}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={wvOpen} onOpenChange={setWvOpen}>
         <DialogContent>

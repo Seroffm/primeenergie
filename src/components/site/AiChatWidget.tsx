@@ -49,6 +49,11 @@ export function AiChatWidget() {
   const [cookiesAccepted, setCookiesAccepted] = useState(false);
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
+  const [keyboardViewport, setKeyboardViewport] = useState<{
+    top: number;
+    height: number;
+  } | null>(null);
+  const viewportBaselineRef = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const transport = useRef(new DefaultChatTransport({ api: "/api/chat" })).current;
@@ -76,6 +81,57 @@ export function AiChatWidget() {
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, open]);
+
+  useEffect(() => {
+    if (!open || typeof window === "undefined" || !window.visualViewport) {
+      setKeyboardViewport(null);
+      return;
+    }
+
+    const viewport = window.visualViewport;
+    viewportBaselineRef.current = viewport.height;
+
+    const updateViewport = () => {
+      const isMobile = window.matchMedia("(max-width: 639px)").matches;
+      const visibleHeightLoss = Math.max(
+        window.innerHeight - viewport.height,
+        viewportBaselineRef.current - viewport.height,
+      );
+      const keyboardIsOpen = isMobile && visibleHeightLoss > 150;
+
+      if (!keyboardIsOpen) {
+        viewportBaselineRef.current = Math.max(viewportBaselineRef.current, viewport.height);
+      }
+
+      setKeyboardViewport(
+        keyboardIsOpen
+          ? {
+              top: viewport.offsetTop + 4,
+              height: Math.max(120, viewport.height - 8),
+            }
+          : null,
+      );
+
+      requestAnimationFrame(() => {
+        if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      });
+    };
+
+    updateViewport();
+    viewport.addEventListener("resize", updateViewport);
+    viewport.addEventListener("scroll", updateViewport);
+    const handleOrientationChange = () => {
+      viewportBaselineRef.current = viewport.height;
+      updateViewport();
+    };
+    window.addEventListener("orientationchange", handleOrientationChange);
+
+    return () => {
+      viewport.removeEventListener("resize", updateViewport);
+      viewport.removeEventListener("scroll", updateViewport);
+      window.removeEventListener("orientationchange", handleOrientationChange);
+    };
+  }, [open]);
 
   const send = (text: string) => {
     if (!text.trim() || busy) return;
@@ -125,11 +181,20 @@ export function AiChatWidget() {
         <div
           role="dialog"
           aria-label="Prime Assistent"
-          className="fixed inset-x-0 bottom-0 z-50 flex h-[calc(100dvh-4rem)] w-full flex-col overflow-hidden rounded-t-2xl border border-border bg-background shadow-hero animate-in slide-in-from-bottom-4 fade-in sm:inset-x-auto sm:bottom-24 sm:right-5 sm:z-40 sm:h-[min(620px,calc(100vh-7rem))] sm:w-[min(380px,calc(100vw-2.5rem))] sm:rounded-2xl"
+          style={
+            keyboardViewport
+              ? {
+                  top: keyboardViewport.top,
+                  bottom: "auto",
+                  height: keyboardViewport.height,
+                }
+              : undefined
+          }
+          className="fixed inset-x-2 bottom-[max(0.5rem,env(safe-area-inset-bottom))] z-50 flex h-[min(72dvh,34rem)] max-h-[calc(100dvh-1rem)] flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-hero animate-in slide-in-from-bottom-4 fade-in sm:inset-x-auto sm:bottom-24 sm:right-5 sm:z-40 sm:h-[min(620px,calc(100vh-7rem))] sm:max-h-none sm:w-[min(380px,calc(100vw-2.5rem))]"
         >
-          <header className="flex items-center gap-3 border-b border-border bg-primary px-4 py-3 text-primary-foreground">
-            <div className="grid h-9 w-9 place-items-center rounded-full bg-success/20">
-              <Sparkles className="h-5 w-5 text-success" />
+          <header className="flex items-center gap-2.5 border-b border-border bg-primary px-3 py-2.5 text-primary-foreground sm:gap-3 sm:px-4 sm:py-3">
+            <div className="grid h-8 w-8 place-items-center rounded-full bg-success/20 sm:h-9 sm:w-9">
+              <Sparkles className="h-4 w-4 text-success sm:h-5 sm:w-5" />
             </div>
             <div className="flex-1">
               <div className="text-sm font-semibold">Prime Assistent</div>
@@ -237,7 +302,7 @@ export function AiChatWidget() {
 
           <form
             onSubmit={onSubmit}
-            className="flex items-center gap-2 border-t border-border bg-background px-3 py-3"
+            className="flex items-center gap-2 border-t border-border bg-background px-2.5 py-2 sm:px-3 sm:py-3"
           >
             <input
               value={input}
