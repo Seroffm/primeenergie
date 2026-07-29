@@ -12,6 +12,7 @@ export const Route = createFileRoute("/datenschutz")({
     <StaticPage
       title="Datenschutzerklärung"
       lead="Wir verarbeiten Ihre Daten ausschließlich gemäß DSGVO."
+      centered
     >
       <h2>1. Verantwortlicher</h2>
       <p>

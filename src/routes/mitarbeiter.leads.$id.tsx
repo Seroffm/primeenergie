@@ -638,8 +638,8 @@ function LeadDetail() {
           <Card>
             <CardContent className="p-0">
               <Tabs defaultValue="timeline">
-                <div className="border-b px-4">
-                  <TabsList className="bg-transparent">
+                <div className="overflow-x-auto border-b px-4">
+                  <TabsList className="h-auto w-max min-w-full bg-transparent">
                     <TabsTrigger value="timeline">Verlauf</TabsTrigger>
                     <TabsTrigger value="notes">
                       Notizen ({notesQuery.isLoading ? "…" : notes.length})
@@ -648,7 +648,7 @@ function LeadDetail() {
                       Dokumente ({docsQuery.isLoading ? "…" : docs.length})
                     </TabsTrigger>
                     <TabsTrigger value="emails">
-                      Komm. ({commsQuery.isLoading ? "…" : comms.length})
+                      Mails ({commsQuery.isLoading ? "…" : comms.length})
                     </TabsTrigger>
                     <TabsTrigger value="offers">
                       Angebote ({offersQuery.isLoading ? "…" : offers.length})
@@ -851,13 +851,19 @@ function LeadDetail() {
                   </Button>
                 </TabsContent>
 
-                {/* ── KOMMUNIKATION ───────────────────────────────────────── */}
+                {/* ── MAILS ───────────────────────────────────────────────── */}
                 <TabsContent value="emails" className="space-y-3 p-6">
+                  <div className="mb-4">
+                    <h3 className="font-semibold text-primary">Mails</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Gesendete und empfangene Nachrichten sowie deren Versandstatus.
+                    </p>
+                  </div>
                   {commsQuery.isLoading && (
-                    <p className="text-sm text-muted-foreground">Kommunikation wird geladen…</p>
+                    <p className="text-sm text-muted-foreground">Mails werden geladen…</p>
                   )}
                   {!commsQuery.isLoading && comms.length === 0 && (
-                    <p className="text-sm text-muted-foreground">Noch keine Kommunikation.</p>
+                    <p className="text-sm text-muted-foreground">Noch keine Mails vorhanden.</p>
                   )}
                   {comms.map((c) => {
                     const Icon = commTypeIcon[c.communication_type] ?? MessageSquare;
@@ -879,7 +885,17 @@ function LeadDetail() {
                             </span>
                           </div>
                           <div className="mt-0.5 text-xs text-muted-foreground capitalize">
-                            {c.direction} · {c.communication_type} · {c.status}
+                            {c.direction === "inbound"
+                              ? "Empfangen"
+                              : c.direction === "outbound"
+                                ? "Gesendet"
+                                : "Intern"}{" "}
+                            · {c.communication_type === "email" ? "E-Mail" : c.communication_type} ·{" "}
+                            {c.status === "success"
+                              ? "Erfolgreich"
+                              : c.status === "pending"
+                                ? "Ausstehend"
+                                : "Fehlgeschlagen"}
                           </div>
                           {c.content_summary && (
                             <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
