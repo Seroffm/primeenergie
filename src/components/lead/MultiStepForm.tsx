@@ -15,6 +15,7 @@ import {
   Loader2,
   Upload,
   CheckCircle2,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -73,8 +74,8 @@ export function MultiStepForm({
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [invoiceFile, setInvoiceFile] = useState<File | null>(() =>
-    typeof window === "undefined" ? null : getPendingInvoice(),
+  const [invoiceFiles, setInvoiceFiles] = useState<File[]>(() =>
+    typeof window === "undefined" ? [] : getPendingInvoice(),
   );
   const [invoiceError, setInvoiceError] = useState<string | null>(null);
 
@@ -125,19 +126,27 @@ export function MultiStepForm({
   }, [data]);
 
   useEffect(() => {
-    if (!invoiceFile) return;
+    const invoiceFile = invoiceFiles[0];
+    if (!invoiceFile) {
+      setData((current) => ({
+        ...current,
+        rechnungDateiname: undefined,
+        rechnungGroesseKb: undefined,
+      }));
+      return;
+    }
     setData((current) => ({
       ...current,
       rechnungDateiname: invoiceFile.name,
       rechnungGroesseKb: Math.round(invoiceFile.size / 1024),
     }));
-  }, [invoiceFile]);
+  }, [invoiceFiles]);
 
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setData((d) => ({ ...d, [k]: v }));
 
   const canContinue = useMemo(
-    () => validateStep(step, data, Boolean(invoiceFile)),
-    [step, data, invoiceFile],
+    () => validateStep(step, data, invoiceFiles.length > 0),
+    [step, data, invoiceFiles],
   );
 
   const next = () => {
@@ -168,6 +177,7 @@ export function MultiStepForm({
     try {
       // Finalize numeric estimates
       const payload = finalizePayload(data);
+      const invoiceFile = invoiceFiles[0] ?? null;
       const res = await submitLead(payload, undefined, referralCode, invoiceFile);
       track("lead_submitted", { leadId: res.leadId });
       if (invoiceFile && res.invoiceUploaded) track("invoice_uploaded");
@@ -216,17 +226,30 @@ export function MultiStepForm({
             step={step}
             data={data}
             set={set}
-            invoiceFile={invoiceFile}
+            invoiceFiles={invoiceFiles}
             invoiceError={invoiceError}
-            onInvoiceChange={(file) => {
-              const validationError = validateInvoice(file);
+            onInvoiceChange={(files) => {
+              const availableSlots = 2 - invoiceFiles.length;
+              if (availableSlots <= 0) {
+                setInvoiceError("Maximal 2 Dateien möglich.");
+                return;
+              }
+              const nextFiles = files.slice(0, availableSlots);
+              const validationError = nextFiles.map(validateInvoice).find(Boolean);
               if (validationError) {
                 setInvoiceError(validationError);
                 return;
               }
+              const updatedFiles = [...invoiceFiles, ...nextFiles];
+              setInvoiceError(files.length > availableSlots ? "Maximal 2 Dateien möglich." : null);
+              setInvoiceFiles(updatedFiles);
+              setPendingInvoice(updatedFiles);
+            }}
+            onInvoiceRemove={(index) => {
+              const updatedFiles = invoiceFiles.filter((_, fileIndex) => fileIndex !== index);
               setInvoiceError(null);
-              setInvoiceFile(file);
-              setPendingInvoice(file);
+              setInvoiceFiles(updatedFiles);
+              setPendingInvoice(updatedFiles);
             }}
           />
         </motion.div>
@@ -285,16 +308,18 @@ function StepRenderer({
   step,
   data,
   set,
-  invoiceFile,
+  invoiceFiles,
   invoiceError,
   onInvoiceChange,
+  onInvoiceRemove,
 }: {
   step: number;
   data: Draft;
   set: <K extends keyof Draft>(k: K, v: Draft[K]) => void;
-  invoiceFile: File | null;
+  invoiceFiles: File[];
   invoiceError: string | null;
-  onInvoiceChange: (file: File) => void;
+  onInvoiceChange: (files: File[]) => void;
+  onInvoiceRemove: (index: number) => void;
 }) {
   switch (step) {
     case 1:
@@ -308,9 +333,10 @@ function StepRenderer({
         <Step4
           data={data}
           set={set}
-          invoiceFile={invoiceFile}
+          invoiceFiles={invoiceFiles}
           invoiceError={invoiceError}
           onInvoiceChange={onInvoiceChange}
+          onInvoiceRemove={onInvoiceRemove}
         />
       );
     case 5:
@@ -324,9 +350,10 @@ function StepRenderer({
         <Step8
           data={data}
           set={set}
-          invoiceFile={invoiceFile}
+          invoiceFiles={invoiceFiles}
           invoiceError={invoiceError}
           onInvoiceChange={onInvoiceChange}
+          onInvoiceRemove={onInvoiceRemove}
         />
       );
     default:
@@ -484,12 +511,20 @@ function Step3({ data, set }: StepProps) {
 }
 
 type InvoiceStepProps = StepProps & {
-  invoiceFile: File | null;
+  invoiceFiles: File[];
   invoiceError: string | null;
-  onInvoiceChange: (file: File) => void;
+  onInvoiceChange: (files: File[]) => void;
+  onInvoiceRemove: (index: number) => void;
 };
 
-function Step4({ data, set, invoiceFile, invoiceError, onInvoiceChange }: InvoiceStepProps) {
+function Step4({
+  data,
+  set,
+  invoiceFiles,
+  invoiceError,
+  onInvoiceChange,
+  onInvoiceRemove,
+}: InvoiceStepProps) {
   const isBusiness =
     data.energyType === "gewerbe" ||
     data.customerType === "gewerbe" ||
@@ -504,9 +539,10 @@ function Step4({ data, set, invoiceFile, invoiceError, onInvoiceChange }: Invoic
           sub="Gewerbe, Hausverwaltungen und mehrere Standorte prüfen wir manuell – ohne unpassenden Haushaltsrechner."
         />
         <InvoiceUpload
-          file={invoiceFile}
+          files={invoiceFiles}
           error={invoiceError}
           onInvoiceChange={onInvoiceChange}
+          onInvoiceRemove={onInvoiceRemove}
           required
         />
         <div className="mt-5 rounded-xl border border-success/25 bg-success/5 p-4 text-sm text-primary">
@@ -611,7 +647,12 @@ function Step4({ data, set, invoiceFile, invoiceError, onInvoiceChange }: Invoic
       )}
       <div className="mt-5">
         <div className="mb-2 text-sm font-semibold text-primary">Verbrauch nicht zur Hand?</div>
-        <InvoiceUpload file={invoiceFile} error={invoiceError} onInvoiceChange={onInvoiceChange} />
+        <InvoiceUpload
+          files={invoiceFiles}
+          error={invoiceError}
+          onInvoiceChange={onInvoiceChange}
+          onInvoiceRemove={onInvoiceRemove}
+        />
       </div>
     </Field>
   );
@@ -843,14 +884,19 @@ function Step7({ data, set }: StepProps) {
   );
 }
 
-function Step8({ invoiceFile, invoiceError, onInvoiceChange }: InvoiceStepProps) {
+function Step8({ invoiceFiles, invoiceError, onInvoiceChange, onInvoiceRemove }: InvoiceStepProps) {
   return (
     <Field>
       <StepHead
         title="Letzter Schritt – Rechnung optional"
         sub="Eine alte Jahresabrechnung beschleunigt die manuelle Prüfung. Sie können sie auch später nachreichen."
       />
-      <InvoiceUpload file={invoiceFile} error={invoiceError} onInvoiceChange={onInvoiceChange} />
+      <InvoiceUpload
+        files={invoiceFiles}
+        error={invoiceError}
+        onInvoiceChange={onInvoiceChange}
+        onInvoiceRemove={onInvoiceRemove}
+      />
 
       <div className="mt-6 rounded-xl bg-primary/5 p-4 text-sm text-primary">
         <CheckCircle2 className="mr-1.5 inline h-4 w-4 text-success" />
@@ -862,45 +908,75 @@ function Step8({ invoiceFile, invoiceError, onInvoiceChange }: InvoiceStepProps)
 }
 
 function InvoiceUpload({
-  file,
+  files,
   error,
   onInvoiceChange,
+  onInvoiceRemove,
   required = false,
 }: {
-  file: File | null;
+  files: File[];
   error: string | null;
-  onInvoiceChange: (file: File) => void;
+  onInvoiceChange: (files: File[]) => void;
+  onInvoiceRemove: (index: number) => void;
   required?: boolean;
 }) {
+  const uploadDisabled = files.length >= 2;
+
   return (
     <div>
       <label
         className={cn(
           "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed bg-surface p-8 text-center transition hover:border-success hover:bg-success/5",
-          error ? "border-destructive" : file ? "border-success/60" : "border-border",
+          error ? "border-destructive" : files.length ? "border-success/60" : "border-border",
+          uploadDisabled &&
+            "cursor-not-allowed opacity-60 hover:border-success/60 hover:bg-surface",
         )}
       >
-        {file ? (
-          <CheckCircle2 className="h-6 w-6 text-success" />
-        ) : (
-          <Upload className="h-6 w-6 text-success" />
-        )}
+        <Upload className="h-6 w-6 text-success" />
         <div className="max-w-full truncate text-sm font-medium text-primary">
-          {file ? file.name : "Rechnung fotografieren oder Datei auswählen"}
+          {uploadDisabled
+            ? "Maximal 2 Dateien möglich."
+            : "Rechnung fotografieren oder Datei auswählen"}
         </div>
         <div className="text-xs text-muted-foreground">
           PDF, JPG oder PNG · maximal 10 MB{required ? " · erforderlich" : " · optional"}
         </div>
         <input
           type="file"
+          multiple
+          disabled={uploadDisabled}
           accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
           className="hidden"
           onChange={(event) => {
-            const selected = event.target.files?.[0];
-            if (selected) onInvoiceChange(selected);
+            const selected = Array.from(event.target.files ?? []);
+            if (selected.length) onInvoiceChange(selected);
+            event.target.value = "";
           }}
         />
       </label>
+      {files.length > 0 && (
+        <ul className="mt-3 space-y-2">
+          {files.map((file, index) => (
+            <li
+              key={`${file.name}-${file.size}-${file.lastModified}`}
+              className="flex items-center gap-3 rounded-xl border border-success/30 bg-success/5 px-4 py-3"
+            >
+              <CheckCircle2 className="h-5 w-5 shrink-0 text-success" />
+              <span className="min-w-0 flex-1 truncate text-sm font-medium text-primary">
+                {file.name}
+              </span>
+              <button
+                type="button"
+                onClick={() => onInvoiceRemove(index)}
+                aria-label={`${file.name} entfernen`}
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-destructive transition hover:bg-destructive/10"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
       {error && <p className="mt-2 text-xs font-medium text-destructive">{error}</p>}
     </div>
   );

@@ -193,7 +193,9 @@ function FaqPage() {
                   <AccordionItem
                     key={f.q}
                     value={`${cat.title}-${idx}`}
-                    className="overflow-hidden rounded-2xl border border-border bg-card px-5 shadow-soft"
+                    className={`overflow-hidden rounded-2xl border border-border bg-card px-5 shadow-soft ${
+                      i === 0 && idx === 0 ? "border-t-0" : ""
+                    }`}
                   >
                     <AccordionTrigger className="py-5 text-left text-base font-semibold text-primary hover:no-underline">
                       <span className="flex items-start gap-3">

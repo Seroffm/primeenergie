@@ -1,15 +1,15 @@
-let pendingInvoice: File | null = null;
+let pendingInvoices: File[] = [];
 
-export function setPendingInvoice(file: File | null): void {
-  pendingInvoice = file;
+export function setPendingInvoice(files: File[]): void {
+  pendingInvoices = files;
 }
 
-export function getPendingInvoice(): File | null {
-  return pendingInvoice;
+export function getPendingInvoice(): File[] {
+  return pendingInvoices;
 }
 
 export function clearPendingInvoice(): void {
-  pendingInvoice = null;
+  pendingInvoices = [];
 }
 
 export function validateInvoice(file: File): string | null {
