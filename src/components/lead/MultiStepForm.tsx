@@ -34,6 +34,12 @@ import {
 } from "@/lib/lead-schema";
 import { submitLead } from "@/lib/api/lead";
 import { generateLeadNumber, isValidLeadNumber } from "@/lib/lead-number";
+import {
+  clearPendingInvoice,
+  getPendingInvoice,
+  setPendingInvoice,
+  validateInvoice,
+} from "@/lib/pending-invoice";
 
 type Draft = Partial<LeadInput> & { ziele: LeadInput["ziele"] };
 
@@ -67,6 +73,10 @@ export function MultiStepForm({
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [invoiceFile, setInvoiceFile] = useState<File | null>(() =>
+    typeof window === "undefined" ? null : getPendingInvoice(),
+  );
+  const [invoiceError, setInvoiceError] = useState<string | null>(null);
 
   useEffect(() => {
     // Nur wenn die Angebotsseite selbst neu geladen wurde, zurück zur Startseite.
@@ -114,9 +124,21 @@ export function MultiStepForm({
     }
   }, [data]);
 
+  useEffect(() => {
+    if (!invoiceFile) return;
+    setData((current) => ({
+      ...current,
+      rechnungDateiname: invoiceFile.name,
+      rechnungGroesseKb: Math.round(invoiceFile.size / 1024),
+    }));
+  }, [invoiceFile]);
+
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setData((d) => ({ ...d, [k]: v }));
 
-  const canContinue = useMemo(() => validateStep(step, data), [step, data]);
+  const canContinue = useMemo(
+    () => validateStep(step, data, Boolean(invoiceFile)),
+    [step, data, invoiceFile],
+  );
 
   const next = () => {
     if (!canContinue) return;
@@ -146,14 +168,22 @@ export function MultiStepForm({
     try {
       // Finalize numeric estimates
       const payload = finalizePayload(data);
-      const res = await submitLead(payload, undefined, referralCode);
+      const res = await submitLead(payload, undefined, referralCode, invoiceFile);
       track("lead_submitted", { leadId: res.leadId });
-      if (payload.rechnungDateiname) track("invoice_uploaded");
+      if (invoiceFile && res.invoiceUploaded) track("invoice_uploaded");
       sessionStorage.removeItem(STORAGE_KEY);
+      clearPendingInvoice();
       const rawNr = res.leadNumber;
-      const displayNumber = (rawNr && isValidLeadNumber(rawNr)) ? rawNr : generateLeadNumber();
+      const displayNumber = rawNr && isValidLeadNumber(rawNr) ? rawNr : generateLeadNumber();
       sessionStorage.setItem("prime-lead-nr", displayNumber);
-      navigate({ to: "/danke", search: { id: res.leadId, nr: displayNumber } });
+      navigate({
+        to: "/danke",
+        search: {
+          id: res.leadId,
+          nr: displayNumber,
+          rechnung: invoiceFile ? (res.invoiceUploaded ? "hochgeladen" : "nachreichen") : undefined,
+        },
+      });
     } catch (e) {
       console.error(e);
       setError("Übermittlung fehlgeschlagen. Bitte versuchen Sie es erneut.");
@@ -163,7 +193,7 @@ export function MultiStepForm({
   }
 
   return (
-    <div className="w-full">
+    <div className="form-contrast w-full">
       <div className="mb-6 flex items-center justify-between text-sm">
         <span className="font-medium text-primary">
           Schritt {step} von {TOTAL_STEPS}
@@ -180,7 +210,23 @@ export function MultiStepForm({
           exit={{ opacity: 0, x: -24 }}
           transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
         >
-          <StepRenderer step={step} data={data} set={set} />
+          <StepRenderer
+            step={step}
+            data={data}
+            set={set}
+            invoiceFile={invoiceFile}
+            invoiceError={invoiceError}
+            onInvoiceChange={(file) => {
+              const validationError = validateInvoice(file);
+              if (validationError) {
+                setInvoiceError(validationError);
+                return;
+              }
+              setInvoiceError(null);
+              setInvoiceFile(file);
+              setPendingInvoice(file);
+            }}
+          />
         </motion.div>
       </AnimatePresence>
 
@@ -237,10 +283,16 @@ function StepRenderer({
   step,
   data,
   set,
+  invoiceFile,
+  invoiceError,
+  onInvoiceChange,
 }: {
   step: number;
   data: Draft;
   set: <K extends keyof Draft>(k: K, v: Draft[K]) => void;
+  invoiceFile: File | null;
+  invoiceError: string | null;
+  onInvoiceChange: (file: File) => void;
 }) {
   switch (step) {
     case 1:
@@ -250,7 +302,15 @@ function StepRenderer({
     case 3:
       return <Step3 data={data} set={set} />;
     case 4:
-      return <Step4 data={data} set={set} />;
+      return (
+        <Step4
+          data={data}
+          set={set}
+          invoiceFile={invoiceFile}
+          invoiceError={invoiceError}
+          onInvoiceChange={onInvoiceChange}
+        />
+      );
     case 5:
       return <Step5 data={data} set={set} />;
     case 6:
@@ -258,7 +318,15 @@ function StepRenderer({
     case 7:
       return <Step7 data={data} set={set} />;
     case 8:
-      return <Step8 data={data} set={set} />;
+      return (
+        <Step8
+          data={data}
+          set={set}
+          invoiceFile={invoiceFile}
+          invoiceError={invoiceError}
+          onInvoiceChange={onInvoiceChange}
+        />
+      );
     default:
       return null;
   }
@@ -413,7 +481,41 @@ function Step3({ data, set }: StepProps) {
   );
 }
 
-function Step4({ data, set }: StepProps) {
+type InvoiceStepProps = StepProps & {
+  invoiceFile: File | null;
+  invoiceError: string | null;
+  onInvoiceChange: (file: File) => void;
+};
+
+function Step4({ data, set, invoiceFile, invoiceError, onInvoiceChange }: InvoiceStepProps) {
+  const isBusiness =
+    data.energyType === "gewerbe" ||
+    data.customerType === "gewerbe" ||
+    data.customerType === "hausverwaltung" ||
+    data.customerType === "mehrere_standorte";
+
+  if (isBusiness) {
+    return (
+      <Field>
+        <StepHead
+          title="Jahresabrechnung hochladen"
+          sub="Gewerbe, Hausverwaltungen und mehrere Standorte prüfen wir manuell – ohne unpassenden Haushaltsrechner."
+        />
+        <InvoiceUpload
+          file={invoiceFile}
+          error={invoiceError}
+          onInvoiceChange={onInvoiceChange}
+          required
+        />
+        <div className="mt-5 rounded-xl border border-success/25 bg-success/5 p-4 text-sm text-primary">
+          <CheckCircle2 className="mr-1.5 inline h-4 w-4 text-success" />
+          Wir berücksichtigen Verbrauch, Leistungspreise, Laufzeiten und bei mehreren Standorten
+          auch Bündelangebote.
+        </div>
+      </Field>
+    );
+  }
+
   const showStrom =
     data.energyType === "strom" || data.energyType === "beides" || data.energyType === "gewerbe";
   const showGas = data.energyType === "gas" || data.energyType === "beides";
@@ -505,6 +607,10 @@ function Step4({ data, set }: StepProps) {
           </label>
         </div>
       )}
+      <div className="mt-5">
+        <div className="mb-2 text-sm font-semibold text-primary">Verbrauch nicht zur Hand?</div>
+        <InvoiceUpload file={invoiceFile} error={invoiceError} onInvoiceChange={onInvoiceChange} />
+      </div>
     </Field>
   );
 }
@@ -735,61 +841,14 @@ function Step7({ data, set }: StepProps) {
   );
 }
 
-function Step8({ data, set }: StepProps) {
-  function onFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    set("rechnungDateiname", f.name);
-    set("rechnungGroesseKb", Math.round(f.size / 1024));
-  }
-  function removeFile(e: React.MouseEvent) {
-    e.preventDefault();
-    set("rechnungDateiname", undefined);
-    set("rechnungGroesseKb", undefined);
-  }
-  const hasFile = Boolean(data.rechnungDateiname);
+function Step8({ invoiceFile, invoiceError, onInvoiceChange }: InvoiceStepProps) {
   return (
     <Field>
       <StepHead
         title="Letzter Schritt – Rechnung optional"
-        sub="Eine alte Jahresabrechnung beschleunigt die Prüfung. Sie können sie auch später nachreichen."
+        sub="Eine alte Jahresabrechnung beschleunigt die manuelle Prüfung. Sie können sie auch später nachreichen."
       />
-      {hasFile ? (
-        <div className="rounded-2xl border-2 border-success bg-success/10 p-6">
-          <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-success/20">
-              <CheckCircle2 className="h-7 w-7 text-success" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-success">Dokument erfolgreich hinzugefügt</p>
-              <p className="mt-0.5 truncate text-sm font-medium text-primary">{data.rechnungDateiname}</p>
-              {data.rechnungGroesseKb && (
-                <p className="text-xs text-muted-foreground">{data.rechnungGroesseKb} KB</p>
-              )}
-            </div>
-          </div>
-          <label className="mt-4 flex cursor-pointer items-center gap-2 text-xs text-muted-foreground underline-offset-2 hover:underline">
-            <Upload className="h-3.5 w-3.5" />
-            Anderes Dokument auswählen
-            <input type="file" accept=".pdf,image/*" className="hidden" onChange={onFile} />
-          </label>
-          <button
-            onClick={removeFile}
-            className="mt-1 flex items-center gap-1 text-xs text-destructive/70 hover:text-destructive"
-          >
-            × Entfernen
-          </button>
-        </div>
-      ) : (
-        <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-surface p-8 text-center transition hover:border-success hover:bg-success/5">
-          <Upload className="h-6 w-6 text-success" />
-          <div className="text-sm font-medium text-primary">Rechnung hier ablegen oder auswählen</div>
-          <div className="text-xs text-muted-foreground">
-            PDF, JPG oder PNG · optional · wird beim Beratungsgespräch nachgereicht
-          </div>
-          <input type="file" accept=".pdf,image/*" className="hidden" onChange={onFile} />
-        </label>
-      )}
+      <InvoiceUpload file={invoiceFile} error={invoiceError} onInvoiceChange={onInvoiceChange} />
 
       <div className="mt-6 rounded-xl bg-primary/5 p-4 text-sm text-primary">
         <CheckCircle2 className="mr-1.5 inline h-4 w-4 text-success" />
@@ -797,6 +856,51 @@ function Step8({ data, set }: StepProps) {
         Stunden.
       </div>
     </Field>
+  );
+}
+
+function InvoiceUpload({
+  file,
+  error,
+  onInvoiceChange,
+  required = false,
+}: {
+  file: File | null;
+  error: string | null;
+  onInvoiceChange: (file: File) => void;
+  required?: boolean;
+}) {
+  return (
+    <div>
+      <label
+        className={cn(
+          "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed bg-surface p-8 text-center transition hover:border-success hover:bg-success/5",
+          error ? "border-destructive" : file ? "border-success/60" : "border-border",
+        )}
+      >
+        {file ? (
+          <CheckCircle2 className="h-6 w-6 text-success" />
+        ) : (
+          <Upload className="h-6 w-6 text-success" />
+        )}
+        <div className="max-w-full truncate text-sm font-medium text-primary">
+          {file ? file.name : "Rechnung fotografieren oder Datei auswählen"}
+        </div>
+        <div className="text-xs text-muted-foreground">
+          PDF, JPG oder PNG · maximal 10 MB{required ? " · erforderlich" : " · optional"}
+        </div>
+        <input
+          type="file"
+          accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+          className="hidden"
+          onChange={(event) => {
+            const selected = event.target.files?.[0];
+            if (selected) onInvoiceChange(selected);
+          }}
+        />
+      </label>
+      {error && <p className="mt-2 text-xs font-medium text-destructive">{error}</p>}
+    </div>
   );
 }
 
@@ -813,7 +917,7 @@ function numOrUndef(v: string): number | undefined {
   return Number.isFinite(n) && n > 0 ? n : undefined;
 }
 
-function validateStep(step: number, d: Draft): boolean {
+function validateStep(step: number, d: Draft, hasInvoice: boolean): boolean {
   switch (step) {
     case 1:
       return !!d.energyType && energyTypes.includes(d.energyType);
@@ -822,11 +926,19 @@ function validateStep(step: number, d: Draft): boolean {
     case 3:
       return !!d.plz && /^\d{5}$/.test(d.plz) && !!d.ort && d.ort.length >= 2;
     case 4: {
+      const isBusiness =
+        d.energyType === "gewerbe" ||
+        d.customerType === "gewerbe" ||
+        d.customerType === "hausverwaltung" ||
+        d.customerType === "mehrere_standorte";
+      if (isBusiness) return hasInvoice;
+
       const needStrom =
         d.energyType === "strom" || d.energyType === "beides" || d.energyType === "gewerbe";
       const needGas = d.energyType === "gas" || d.energyType === "beides";
-      const stromOk = !needStrom || !!d.stromVerbrauchKwh || !!d.stromPersonen;
-      const gasOk = !needGas || !!d.gasVerbrauchKwh || (!!d.gasWohnflaeche && !!d.gasPersonen);
+      const stromOk = !needStrom || hasInvoice || !!d.stromVerbrauchKwh || !!d.stromPersonen;
+      const gasOk =
+        !needGas || hasInvoice || !!d.gasVerbrauchKwh || (!!d.gasWohnflaeche && !!d.gasPersonen);
       return stromOk && gasOk;
     }
     case 5:

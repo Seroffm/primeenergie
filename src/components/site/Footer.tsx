@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { Linkedin, Mail, Youtube, Phone, ChevronUp } from "lucide-react";
-import logoUrl from "@/assets/logo.svg";
+import { Mail, Phone, ChevronUp } from "lucide-react";
+import { BrandLogo } from "./BrandLogo";
 
 type Col = { title: string; links: { to: string; label: string }[] };
 
@@ -50,7 +50,13 @@ export function Footer() {
       <div className="mx-auto max-w-6xl px-4 py-16">
         {/* Top row: logo + back-to-top */}
         <div className="grid gap-10 lg:grid-cols-[1fr_auto] lg:items-start">
-          <img src={logoUrl} alt="PRIME ENERGIE" className="h-20 w-auto" />
+          <Link
+            to="/"
+            aria-label="PRIME ENERGIE Startseite"
+            className="inline-flex w-fit rounded-lg transition-opacity hover:opacity-80"
+          >
+            <BrandLogo className="w-64 sm:w-72" />
+          </Link>
           <button
             type="button"
             onClick={() =>
@@ -86,41 +92,30 @@ export function Footer() {
             <div className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Persönliche Beratung
             </div>
-            <a
-              href="tel:08001234567"
+            <Link
+              to="/kontakt"
               className="mt-2 inline-flex items-center gap-3 font-display text-2xl font-extrabold text-primary transition hover:text-success md:text-3xl"
             >
               <span className="grid h-10 w-10 place-items-center rounded-full bg-success/10 text-success">
                 <Phone className="h-4 w-4" />
               </span>
-              0800 123 4567
-            </a>
+              Rückruf anfordern
+            </Link>
             <div className="mt-2 text-sm text-muted-foreground">
-              Mo–Fr 8–20 Uhr · kostenlos aus dem dt. Festnetz
+              Wunschzeit im Formular auswählen · kostenlos & unverbindlich
             </div>
           </div>
 
           <div className="md:text-right">
             <div className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Folgen Sie uns
+              Schriftlich Kontakt aufnehmen
             </div>
-            <div className="mt-3 flex gap-2 md:justify-end">
-              {[
-                { Icon: Linkedin, href: "https://www.linkedin.com/company/energieclever", label: "LinkedIn", external: true },
-                { Icon: Mail, href: "mailto:hallo@energieclever.de", label: "E-Mail", external: false },
-                { Icon: Youtube, href: "https://www.youtube.com/@energieclever", label: "YouTube", external: true },
-              ].map(({ Icon, href, label, external }) => (
-                <a
-                  key={label}
-                  href={href}
-                  aria-label={label}
-                  {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                  className="grid h-10 w-10 place-items-center rounded-full border border-border text-muted-foreground transition hover:border-success hover:text-success"
-                >
-                  <Icon className="h-4 w-4" />
-                </a>
-              ))}
-            </div>
+            <Link
+              to="/kontakt"
+              className="mt-3 inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold text-primary transition hover:border-success hover:text-success"
+            >
+              <Mail className="h-4 w-4" /> Kontaktformular öffnen
+            </Link>
           </div>
         </div>
       </div>

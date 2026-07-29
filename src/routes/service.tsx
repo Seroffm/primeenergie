@@ -34,7 +34,11 @@ export const Route = createFileRoute("/service")({
         property: "og:description",
         content: "Persönliche Hilfe rund um Ihren Energievertrag. Schnell, freundlich, kostenlos.",
       },
-      { property: "og:image", content: "https://images.unsplash.com/photo-1521791136064-7986c2920216?w=1200&h=630&fit=crop&q=80" },
+      {
+        property: "og:image",
+        content:
+          "https://images.unsplash.com/photo-1521791136064-7986c2920216?w=1200&h=630&fit=crop&q=80",
+      },
     ],
   }),
   component: ServicePage,
@@ -51,9 +55,9 @@ const services = [
   {
     icon: Phone,
     title: "Persönliche Beratung",
-    desc: "Kostenlos, deutschlandweit, echte Menschen. Mo–Fr 8–20 Uhr, Sa 10–16 Uhr.",
+    desc: "Kostenlos, deutschlandweit, echte Menschen. Rückrufzeit bequem im Formular wählen.",
     to: "/kontakt",
-    cta: "Berater anrufen",
+    cta: "Rückruf anfordern",
   },
   {
     icon: HelpCircle,
@@ -250,12 +254,12 @@ function ServicePage() {
               ))}
             </div>
             <div className="mt-6 flex flex-wrap gap-3">
-              <a
-                href="mailto:service@energieclever.de"
+              <Link
+                to="/kontakt"
                 className="inline-flex items-center gap-2 text-sm font-bold text-success hover:underline"
               >
-                <Mail className="h-4 w-4" /> service@energieclever.de
-              </a>
+                <Mail className="h-4 w-4" /> Dokument über das Kontaktformular anfragen
+              </Link>
             </div>
           </motion.div>
         </div>
@@ -307,12 +311,12 @@ function ServicePage() {
             Rufen Sie an, schreiben Sie uns oder lassen Sie sich zurückrufen. Wir sind für Sie da.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <a
-              href="tel:08001234567"
+            <Link
+              to="/kontakt"
               className="inline-flex items-center gap-2 rounded-full bg-success px-6 py-3 text-sm font-bold text-success-foreground transition hover:bg-success/90"
             >
-              <Phone className="h-4 w-4" /> 0800 123 4567
-            </a>
+              <Phone className="h-4 w-4" /> Rückruf anfordern
+            </Link>
             <Link
               to="/kontakt"
               className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-transparent px-6 py-3 text-sm font-bold text-primary-foreground transition hover:bg-white/10"

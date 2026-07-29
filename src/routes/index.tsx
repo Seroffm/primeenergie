@@ -24,6 +24,8 @@ import {
   Users,
   Sparkles,
   ChevronRight,
+  Upload,
+  FileText,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -36,6 +38,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { BrandLogo } from "@/components/site/BrandLogo";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { cn } from "@/lib/utils";
 import solutionAutostrom from "@/assets/solution-autostrom.jpg";
@@ -44,13 +47,14 @@ import solutionSolar from "@/assets/solution-solar.jpg";
 import heroBg from "@/assets/hero-bg.jpg";
 import finalCtaBg from "@/assets/final-cta-bg.jpg";
 import comparisonHero from "@/assets/comparison-hero.jpg";
+import { setPendingInvoice, validateInvoice } from "@/lib/pending-invoice";
 
 import { z } from "zod";
 
 const homeSearchSchema = z
   .object({
     start: z.enum(["strom", "gas", "beides", "gewerbe"]).optional(),
-    plz: z.string().optional(),
+    plz: z.coerce.string().optional(),
     kwh: z.coerce.number().int().positive().optional(),
   })
   .optional();
@@ -87,6 +91,7 @@ const fadeUp = {
 };
 
 type Energy = "strom" | "gas" | "beides";
+type Audience = "privat" | "gewerbe";
 
 function LazyLottie({ src }: { src: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -133,11 +138,7 @@ function HomePage() {
       <AudienceSection />
       <StatsBand />
       <PriceBreakdown />
-      <Testimonials />
-      <MoreSolutions />
-      <RatgeberSection />
       <FaqSection />
-      <ContactSection />
       <WechselCta />
       <FinalCta />
     </SiteLayout>
@@ -188,7 +189,7 @@ function Hero() {
             transition={{ duration: 0.4, ease: "easeOut" }}
           >
             <span className="inline-flex items-center gap-2 rounded-full border border-success/30 bg-success/10 px-3 py-1 text-xs font-semibold text-success">
-              <BadgeCheck className="h-3.5 w-3.5" /> TÜV-geprüfte Anbieter · Kostenlos
+              <BadgeCheck className="h-3.5 w-3.5" /> Manuell geprüfte Tarife · Kostenlos
             </span>
             <h1 className="mt-5 font-display text-4xl font-extrabold leading-[1.05] text-primary md:text-6xl">
               Strom & Gas in 2 Minuten <span className="text-success">vergleichen.</span>
@@ -212,27 +213,16 @@ function Hero() {
               ))}
             </ul>
 
-            <div className="mt-7 flex items-center gap-3 text-sm text-muted-foreground">
-              <div className="flex -space-x-2">
-                {["S", "M", "L", "K"].map((c, i) => (
-                  <div
-                    key={i}
-                    className="grid h-8 w-8 place-items-center rounded-full border-2 border-background bg-primary text-xs font-semibold text-primary-foreground"
-                  >
-                    {c}
-                  </div>
-                ))}
-              </div>
-              <div>
-                <div className="flex gap-0.5 text-success">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className="h-3.5 w-3.5 fill-current" />
-                  ))}
-                </div>
-                <div className="text-xs">
-                  <strong className="text-primary">4,8 / 5</strong> · 12.400 zufriedene Kunden
-                </div>
-              </div>
+            <div className="mt-7 flex flex-wrap gap-x-5 gap-y-2 text-xs font-medium text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5">
+                <ShieldCheck className="h-4 w-4 text-success" /> Kostenlos & unverbindlich
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <PhoneCall className="h-4 w-4 text-success" /> Persönlicher Rückruf
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <FileSearch className="h-4 w-4 text-success" /> Manuell geprüfte Tarife
+              </span>
             </div>
           </motion.div>
 
@@ -252,13 +242,20 @@ function Hero() {
 
 function QuickCalculator() {
   const navigate = useNavigate();
-  const search = Route.useSearch() as { start?: Energy; plz?: string; kwh?: number } | undefined;
+  const search = Route.useSearch() as
+    | { start?: Energy | "gewerbe"; plz?: string; kwh?: number }
+    | undefined;
+  const [audience, setAudience] = useState<Audience>(
+    search?.start === "gewerbe" ? "gewerbe" : "privat",
+  );
   const [energy, setEnergy] = useState<Energy>(
     search?.start === "gas" || search?.start === "beides" ? search.start : "strom",
   );
   const [plz, setPlz] = useState((search?.plz ?? "").replace(/\D/g, "").slice(0, 5));
   const [kwh, setKwh] = useState<number>(search?.kwh ?? 2500);
   const [plzError, setPlzError] = useState<string | null>(null);
+  const [invoiceName, setInvoiceName] = useState<string | null>(null);
+  const [invoiceError, setInvoiceError] = useState<string | null>(null);
 
   const tabs: { k: Energy; label: string; icon: typeof Zap }[] = [
     { k: "strom", label: "Strom", icon: Zap },
@@ -269,21 +266,43 @@ function QuickCalculator() {
   const kwhPresets =
     energy === "gas" ? [5000, 12000, 18000, 25000, 35000] : [1500, 2500, 3500, 4500, 5500];
 
+  function selectInvoice(file?: File) {
+    if (!file) return;
+    const validationError = validateInvoice(file);
+    if (validationError) {
+      setInvoiceError(validationError);
+      setInvoiceName(null);
+      setPendingInvoice(null);
+      return;
+    }
+    setPendingInvoice(file);
+    setInvoiceName(file.name);
+    setInvoiceError(null);
+  }
+
   function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!/^\d{5}$/.test(plz)) {
       setPlzError("Bitte gib deine 5-stellige Postleitzahl ein.");
       return;
     }
+    if (audience === "gewerbe" && !invoiceName) {
+      setInvoiceError("Bitte laden Sie Ihre letzte Jahresabrechnung hoch.");
+      return;
+    }
     setPlzError(null);
     navigate({
       to: "/angebot",
-      search: { start: energy, plz, kwh: kwh || undefined } as never,
+      search: {
+        start: audience === "gewerbe" ? "gewerbe" : energy,
+        plz,
+        kwh: audience === "privat" && !invoiceName ? kwh || undefined : undefined,
+      } as never,
     });
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-1.5 shadow-hero">
+    <div className="form-contrast rounded-2xl border border-border bg-card p-1.5 shadow-hero">
       <div className="rounded-xl bg-card p-5 md:p-7">
         <div className="flex items-center justify-between">
           <div>
@@ -295,44 +314,70 @@ function QuickCalculator() {
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="mt-5 grid grid-cols-3 rounded-lg bg-surface p-1">
-          {tabs.map((t) => {
-            const active = energy === t.k;
-            return (
-              <button
-                key={t.k}
-                type="button"
-                onClick={() => setEnergy(t.k)}
-                className="relative flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium"
-              >
-                {active && (
-                  <motion.div
-                    layoutId="energy-tab-pill"
-                    className="absolute inset-0 rounded-md bg-background shadow-soft"
-                    transition={{ type: "spring", stiffness: 420, damping: 36 }}
-                  />
-                )}
-                <t.icon
-                  className={cn(
-                    "relative z-10 h-4 w-4 transition-colors duration-200",
-                    active ? "text-success" : "text-muted-foreground",
-                  )}
-                />
-                <span
-                  className={cn(
-                    "relative z-10 transition-colors duration-200",
-                    active ? "text-primary" : "text-muted-foreground",
-                  )}
-                >
-                  {t.label}
-                </span>
-              </button>
-            );
-          })}
+        <div className="mt-5 grid grid-cols-2 rounded-lg border border-border bg-surface p-1">
+          {[
+            { value: "privat" as const, label: "Privat", icon: Home },
+            { value: "gewerbe" as const, label: "Gewerbe", icon: Briefcase },
+          ].map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => {
+                setAudience(option.value);
+                setInvoiceError(null);
+              }}
+              className={cn(
+                "flex items-center justify-center gap-2 rounded-md px-3 py-2.5 text-sm font-semibold transition",
+                audience === option.value
+                  ? "bg-background text-primary shadow-soft"
+                  : "text-muted-foreground hover:text-primary",
+              )}
+            >
+              <option.icon className="h-4 w-4 text-success" />
+              {option.label}
+            </button>
+          ))}
         </div>
 
         <form onSubmit={submit} noValidate className="mt-5 space-y-4">
+          {audience === "privat" && (
+            <div className="grid grid-cols-3 rounded-lg bg-surface p-1">
+              {tabs.map((t) => {
+                const active = energy === t.k;
+                return (
+                  <button
+                    key={t.k}
+                    type="button"
+                    onClick={() => setEnergy(t.k)}
+                    className="relative flex items-center justify-center gap-1.5 rounded-md px-2 py-2 text-sm font-medium"
+                  >
+                    {active && (
+                      <motion.div
+                        layoutId="energy-tab-pill"
+                        className="absolute inset-0 rounded-md bg-background shadow-soft"
+                        transition={{ type: "spring", stiffness: 420, damping: 36 }}
+                      />
+                    )}
+                    <t.icon
+                      className={cn(
+                        "relative z-10 h-4 w-4 transition-colors duration-200",
+                        active ? "text-success" : "text-muted-foreground",
+                      )}
+                    />
+                    <span
+                      className={cn(
+                        "relative z-10 transition-colors duration-200",
+                        active ? "text-primary" : "text-muted-foreground",
+                      )}
+                    >
+                      {t.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
           <div>
             <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Postleitzahl <span className="text-success">*</span>
@@ -359,36 +404,64 @@ function QuickCalculator() {
             {plzError && <p className="mt-1.5 text-xs font-medium text-destructive">{plzError}</p>}
           </div>
 
-          <div>
-            <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Jahresverbrauch · {kwh.toLocaleString("de-DE")} kWh
-            </label>
+          {audience === "privat" && !invoiceName && (
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Jahresverbrauch · {kwh.toLocaleString("de-DE")} kWh
+              </label>
 
-            <div className="mt-2 flex flex-wrap gap-2">
-              {kwhPresets.map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => setKwh(p)}
-                  className={cn(
-                    "rounded-full border px-3 py-1.5 text-sm transition",
-                    kwh === p
-                      ? "border-success bg-success/10 text-success"
-                      : "border-border text-muted-foreground hover:border-success/50 hover:text-primary",
-                  )}
-                >
-                  {p.toLocaleString("de-DE")} kWh
-                </button>
-              ))}
+              <div className="mt-2 flex flex-wrap gap-2">
+                {kwhPresets.map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setKwh(p)}
+                    className={cn(
+                      "rounded-full border px-3 py-1.5 text-sm transition",
+                      kwh === p
+                        ? "border-success bg-success/10 text-success"
+                        : "border-border text-muted-foreground hover:border-success/50 hover:text-primary",
+                    )}
+                  >
+                    {p.toLocaleString("de-DE")} kWh
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
+
+          <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-success/50 bg-success/5 p-3 transition hover:bg-success/10">
+            <span className="grid h-9 w-9 flex-none place-items-center rounded-lg bg-success/10 text-success">
+              {invoiceName ? <FileText className="h-4 w-4" /> : <Upload className="h-4 w-4" />}
+            </span>
+            <span className="min-w-0">
+              <span className="block text-sm font-semibold text-primary">
+                {invoiceName
+                  ? invoiceName
+                  : audience === "gewerbe"
+                    ? "Letzte Jahresabrechnung hochladen"
+                    : "Verbrauch unbekannt? Rechnung hochladen"}
+              </span>
+              <span className="block text-xs text-muted-foreground">
+                PDF, JPG oder PNG · maximal 10 MB
+              </span>
+            </span>
+            <input
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+              className="hidden"
+              onChange={(event) => selectInvoice(event.target.files?.[0])}
+            />
+          </label>
+          {invoiceError && <p className="text-xs font-medium text-destructive">{invoiceError}</p>}
 
           <Button
             type="submit"
             size="lg"
             className="h-12 w-full bg-success text-base font-semibold text-success-foreground shadow-soft hover:bg-success/90"
           >
-            Tarife vergleichen <ArrowRight className="ml-1 h-4 w-4" />
+            {audience === "gewerbe" ? "Rechnung manuell prüfen lassen" : "Tarife vergleichen"}{" "}
+            <ArrowRight className="ml-1 h-4 w-4" />
           </Button>
           <p className="text-[11px] text-muted-foreground">
             <span className="text-success">*</span> Pflichtfeld
@@ -416,10 +489,10 @@ function QuickCalculator() {
 function TrustStrip() {
   const items = [
     { icon: BadgeCheck, label: "Kostenlos" },
-    { icon: ShieldCheck, label: "TÜV-zertifizierter Vergleich" },
-    { icon: Award, label: "Über 1.200 geprüfte Tarife" },
+    { icon: ShieldCheck, label: "DSGVO-konforme Anfrage" },
+    { icon: Award, label: "Manuelle Tarifprüfung" },
     { icon: CheckCircle2, label: "Keine Versorgungsunterbrechung" },
-    { icon: Star, label: "4,8 / 5 (12.400 Bewertungen)" },
+    { icon: PhoneCall, label: "Persönlicher Ansprechpartner" },
   ];
   return (
     <section className="border-y border-border bg-surface">
@@ -603,7 +676,7 @@ function BenefitsSection() {
             Wie viel <span className="text-success">sparst du</span>?
           </h2>
           <p className="mt-3 text-muted-foreground">
-            Verschieben Sie die Regler. Wir rechnen live.
+            Unverbindliche Modellrechnung mit transparenten Beispielpreisen.
           </p>
         </div>
 
@@ -730,19 +803,19 @@ function SavingsCalculator() {
       <div className="relative mt-8 space-y-3">
         {[
           {
-            label: "Grundversorger",
+            label: "Grundversorgung (Beispiel)",
             value: result.grund,
             color: "bg-primary/70",
             text: "text-primary",
           },
           {
-            label: "Portal-Tarif",
+            label: "Portal-Tarif (Beispiel)",
             value: result.portal,
             color: "bg-primary/40",
             text: "text-primary",
           },
           {
-            label: "PRIME ENERGIE",
+            label: "Geprüfter Sondertarif (Beispiel)",
             value: result.clever,
             color: "bg-success",
             text: "text-success",
@@ -791,6 +864,11 @@ function SavingsCalculator() {
           </Link>
         </Button>
       </div>
+      <p className="relative mt-4 text-xs leading-relaxed text-muted-foreground">
+        Grundlage der Modellrechnung: Strom 41 ct/kWh in der Grundversorgung und 31 ct/kWh im
+        Sondertarif, Gas 12 ct/kWh bzw. 8,5 ct/kWh, jeweils zuzüglich Beispiel-Grundpreis. Der
+        tatsächliche Vergleich wird nach Eingabe Ihrer PLZ mit regionalen Tarifen erstellt.
+      </p>
     </div>
   );
 }
@@ -846,10 +924,10 @@ function ComparisonCard() {
 
       {/* Vertrauenssignal */}
       <div className="flex flex-wrap items-center justify-between gap-3 px-2 text-xs text-muted-foreground">
-        <span className="font-semibold tracking-wide text-primary">4,8 / 5</span>
-        <span>aus 1.240 verifizierten Bewertungen</span>
+        <span className="font-semibold tracking-wide text-primary">Transparent gerechnet</span>
+        <span>Keine Lockboni als Dauerpreis dargestellt</span>
         <span className="hidden h-3 w-px bg-border sm:block" />
-        <span>Berater Mo–Fr, 8–20 Uhr</span>
+        <span>Persönliche Rücksprache vor jedem Wechsel</span>
       </div>
     </div>
   );
@@ -918,10 +996,10 @@ function AudienceSection() {
 
 function StatsBand() {
   const stats = [
-    { v: "50.000+", l: "Erfolgreiche Wechsel", sub: "seit 2018" },
-    { v: "380 €", l: "Ø Ersparnis pro Jahr", sub: "pro Haushalt" },
-    { v: "4,8 ★", l: "Kundenzufriedenheit", sub: "2.400+ Bewertungen" },
-    { v: "100 %", l: "Kostenlos & unverbindlich", sub: "kein Risiko, kein Haken" },
+    { v: "24 h", l: "Erste Rückmeldung", sub: "in der Regel am nächsten Werktag" },
+    { v: "1:1", l: "Persönliche Beratung", sub: "ein fester Ansprechpartner" },
+    { v: "100 %", l: "Manuelle Prüfung", sub: "Tarifdetails statt Rangliste" },
+    { v: "0 €", l: "Kostenlos & unverbindlich", sub: "kein Risiko, kein Haken" },
   ];
 
   return (
@@ -948,12 +1026,8 @@ function StatsBand() {
               <span className="font-display text-5xl font-extrabold leading-none text-success md:text-[3.25rem]">
                 {s.v}
               </span>
-              <span className="mt-5 text-sm font-semibold text-primary-foreground/80">
-                {s.l}
-              </span>
-              <span className="mt-1.5 text-xs text-primary-foreground/40">
-                {s.sub}
-              </span>
+              <span className="mt-5 text-sm font-semibold text-primary-foreground/80">{s.l}</span>
+              <span className="mt-1.5 text-xs text-primary-foreground/40">{s.sub}</span>
             </motion.div>
           ))}
         </div>
@@ -1464,7 +1538,10 @@ function ContactSection() {
       footer: (
         <p className="mt-6 text-sm text-primary-foreground/80">
           Bevor du uns kontaktierst, lies dir gerne unsere Gedanken zu einem{" "}
-          <Link to="/service" className="font-semibold text-success underline-offset-4 hover:underline">
+          <Link
+            to="/service"
+            className="font-semibold text-success underline-offset-4 hover:underline"
+          >
             respektvollen Service
           </Link>{" "}
           durch.
@@ -1511,7 +1588,10 @@ function ContactSection() {
           text: (
             <>
               <div>Sprich direkt mit uns auf unseren Wärmepumpen-Events.</div>
-              <Link to="/kontakt" className="font-semibold text-success underline-offset-4 hover:underline">
+              <Link
+                to="/kontakt"
+                className="font-semibold text-success underline-offset-4 hover:underline"
+              >
                 Jetzt Termin anfragen.
               </Link>
             </>
@@ -1535,7 +1615,10 @@ function ContactSection() {
       footer: (
         <p className="mt-6 text-sm text-primary-foreground/80">
           Unsere Wärmepumpen-AGB findest du{" "}
-          <Link to="/widerruf" className="font-semibold text-success underline-offset-4 hover:underline">
+          <Link
+            to="/widerruf"
+            className="font-semibold text-success underline-offset-4 hover:underline"
+          >
             hier.
           </Link>
         </p>
@@ -1605,6 +1688,9 @@ function FinalCta() {
         />
         <div className="relative grid items-center gap-6 md:grid-cols-[1fr_auto]">
           <div>
+            <div className="mb-7 w-fit rounded-2xl bg-white px-4 py-3 shadow-xl">
+              <BrandLogo className="w-44 sm:w-52" />
+            </div>
             <h2 className="font-display text-3xl font-extrabold md:text-4xl">
               Bereit, weniger zu zahlen?
             </h2>
@@ -1612,10 +1698,8 @@ function FinalCta() {
               Starten Sie jetzt Ihre kostenlose Tarifprüfung. 2 Minuten. Mehr brauchen wir nicht.
             </p>
             <div className="mt-4 flex items-center gap-2 text-sm opacity-95">
-              <Phone className="h-4 w-4" /> Lieber persönlich?{" "}
-              <a className="font-semibold underline" href="tel:08001234567">
-                0800 123 4567
-              </a>
+              <Phone className="h-4 w-4" /> Lieber persönlich? Im Formular einfach die passende
+              Rückrufzeit auswählen.
             </div>
           </div>
           <Button

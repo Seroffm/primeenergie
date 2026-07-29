@@ -100,4 +100,13 @@
     letter-spacing: -0.02em;
     font-weight: 700;
   }
+
+  form,
+  .form-contrast {
+    --success: #88cc27;
+    --success-foreground: #1a2e00;
+    --success-soft: #f0fad6;
+    --ring: #88cc27;
+    font-weight: 600;
+  }
 }

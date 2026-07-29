@@ -119,7 +119,7 @@ const categories: { icon: typeof Zap; title: string; faqs: { q: string; a: strin
       },
       {
         q: "Kann ich meine Daten löschen lassen?",
-        a: "Jederzeit. Eine kurze E-Mail an datenschutz@energieclever.de genügt. Wir löschen Ihre Daten umgehend.",
+        a: "Jederzeit. Senden Sie Ihren Löschwunsch über das Kontaktformular. Wir bearbeiten ihn umgehend.",
       },
     ],
   },

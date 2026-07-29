@@ -122,9 +122,15 @@ export async function submitLead(
   lead: LeadInput,
   turnstileToken?: string,
   referralCode?: string,
-): Promise<{ ok: true; leadId: string; leadNumber: string }> {
+  invoiceFile?: File | null,
+): Promise<{ ok: true; leadId: string; leadNumber: string; invoiceUploaded: boolean }> {
   const payload = mapToBackendPayload(lead, turnstileToken);
   if (referralCode) payload.referral_code = referralCode.trim().toUpperCase();
-  const { lead_id, lead_number } = await submitPublicLead(payload);
-  return { ok: true, leadId: lead_id, leadNumber: lead_number };
+  const { lead_id, lead_number, invoice_uploaded } = await submitPublicLead(payload, invoiceFile);
+  return {
+    ok: true,
+    leadId: lead_id,
+    leadNumber: lead_number,
+    invoiceUploaded: invoice_uploaded,
+  };
 }

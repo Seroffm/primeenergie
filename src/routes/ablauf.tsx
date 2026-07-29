@@ -260,9 +260,9 @@ function AblaufPage() {
                 variant="outline"
                 className="border-white/30 bg-transparent text-primary-foreground hover:bg-white/10 hover:text-primary-foreground"
               >
-                <a href="mailto:hallo@energieclever.de">
-                  <Mail className="mr-2 h-4 w-4" /> Per E-Mail anfragen
-                </a>
+                <Link to="/kontakt">
+                  <Mail className="mr-2 h-4 w-4" /> Rückruf anfragen
+                </Link>
               </Button>
             </div>
           </div>

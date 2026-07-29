@@ -46,7 +46,7 @@ function hasCookieConsent(): boolean {
 }
 
 export function AiChatWidget() {
-  const [cookiesAccepted, setCookiesAccepted] = useState(hasCookieConsent);
+  const [cookiesAccepted, setCookiesAccepted] = useState(false);
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -54,6 +54,7 @@ export function AiChatWidget() {
   const transport = useRef(new DefaultChatTransport({ api: "/api/chat" })).current;
 
   useEffect(() => {
+    setCookiesAccepted(hasCookieConsent());
     const handler = () => setCookiesAccepted(true);
     window.addEventListener("cookie-consent-accepted", handler);
     return () => window.removeEventListener("cookie-consent-accepted", handler);

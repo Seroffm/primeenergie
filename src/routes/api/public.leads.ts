@@ -3,20 +3,29 @@ import { verifyTurnstile, computeScore, ok, err } from "@/lib/api/helpers.server
 import { createServiceClient } from "@/lib/supabase.server";
 import type { PublicLeadPayload } from "@/lib/api-types";
 import { sendEmail } from "@/lib/email.server";
-import {
-  leadConfirmationTemplate,
-  newLeadInternalTemplate,
-} from "@/lib/email-templates.server";
+import { leadConfirmationTemplate, newLeadInternalTemplate } from "@/lib/email-templates.server";
 import process from "node:process";
 
+const MAX_INVOICE_SIZE = 10 * 1024 * 1024;
+const ALLOWED_INVOICE_TYPES = new Set(["application/pdf", "image/jpeg", "image/png"]);
 
 export const Route = createFileRoute("/api/public/leads")({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
         let payload: PublicLeadPayload;
+        let invoiceFile: File | null = null;
         try {
-          payload = (await request.json()) as PublicLeadPayload;
+          if (request.headers.get("content-type")?.includes("multipart/form-data")) {
+            const formData = await request.formData();
+            const rawPayload = formData.get("payload");
+            const rawInvoice = formData.get("invoice");
+            if (typeof rawPayload !== "string") throw new Error("payload fehlt");
+            payload = JSON.parse(rawPayload) as PublicLeadPayload;
+            if (rawInvoice instanceof File && rawInvoice.size > 0) invoiceFile = rawInvoice;
+          } else {
+            payload = (await request.json()) as PublicLeadPayload;
+          }
         } catch {
           return err("Ungültiger Request-Body", 400);
         }
@@ -30,6 +39,14 @@ export const Route = createFileRoute("/api/public/leads")({
         }
         if (!payload.product_type || !payload.customer_type) {
           return err("product_type und customer_type sind erforderlich", 400);
+        }
+        if (invoiceFile) {
+          if (invoiceFile.size > MAX_INVOICE_SIZE) {
+            return err("Rechnungsdatei ist zu groß (maximal 10 MB)", 413);
+          }
+          if (!ALLOWED_INVOICE_TYPES.has(invoiceFile.type)) {
+            return err("Dateityp nicht erlaubt (PDF, JPG oder PNG)", 415);
+          }
         }
 
         // Turnstile verifizieren
@@ -74,6 +91,40 @@ export const Route = createFileRoute("/api/public/leads")({
         }
 
         const leadId = lead.id as string;
+        let invoiceUploaded = !invoiceFile;
+
+        if (invoiceFile) {
+          const safeName = invoiceFile.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+          const storagePath = `${leadId}/${Date.now()}_${safeName}`;
+          const arrayBuffer = await invoiceFile.arrayBuffer();
+          const { error: uploadError } = await supabase.storage
+            .from("lead-documents")
+            .upload(storagePath, arrayBuffer, {
+              contentType: invoiceFile.type,
+              upsert: false,
+            });
+
+          if (!uploadError) {
+            const { error: documentError } = await supabase.from("lead_documents").insert({
+              lead_id: leadId,
+              uploaded_by: null,
+              document_type: "invoice",
+              file_name: invoiceFile.name,
+              storage_path: storagePath,
+              mime_type: invoiceFile.type,
+              file_size_bytes: invoiceFile.size,
+            });
+
+            if (documentError) {
+              console.error("Public invoice document insert error:", documentError);
+              await supabase.storage.from("lead-documents").remove([storagePath]);
+            } else {
+              invoiceUploaded = true;
+            }
+          } else {
+            console.error("Public invoice upload error:", uploadError);
+          }
+        }
 
         // Adresse speichern
         if (payload.address) {
@@ -87,7 +138,11 @@ export const Route = createFileRoute("/api/public/leads")({
         }
 
         // Energie-Bedarf Strom speichern
-        if (payload.electricity || payload.product_type === "electricity" || payload.product_type === "both") {
+        if (
+          payload.electricity ||
+          payload.product_type === "electricity" ||
+          payload.product_type === "both"
+        ) {
           const el = payload.electricity;
           await supabase.from("energy_demands").insert({
             lead_id: leadId,
@@ -127,7 +182,7 @@ export const Route = createFileRoute("/api/public/leads")({
         }
         if (payload.rechnung_dateiname) {
           noteLines.push(
-            `Rechnung hochgeladen: ${payload.rechnung_dateiname}` +
+            `${invoiceUploaded ? "Rechnung hochgeladen" : "Rechnung zur Nachreichung vorgemerkt"}: ${payload.rechnung_dateiname}` +
               (payload.rechnung_groesse_kb ? ` (${payload.rechnung_groesse_kb} KB)` : ""),
           );
         }
@@ -149,11 +204,7 @@ export const Route = createFileRoute("/api/public/leads")({
             .eq("code", code)
             .single();
 
-          if (
-            codeRow &&
-            codeRow.is_active &&
-            new Date(codeRow.expires_at as string) > new Date()
-          ) {
+          if (codeRow && codeRow.is_active && new Date(codeRow.expires_at as string) > new Date()) {
             const { data: referrerLead } = await supabase
               .from("leads")
               .select("id, status, email, first_name, last_name")
@@ -242,6 +293,7 @@ export const Route = createFileRoute("/api/public/leads")({
             data: {
               lead_id: leadId,
               lead_number: lead.lead_number,
+              invoice_uploaded: invoiceUploaded,
             },
           },
           201,

@@ -1,8 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import {
-  Mail,
-  Phone,
   MapPin,
   Clock,
   MessageCircle,
@@ -11,6 +9,7 @@ import {
   Send,
   Building2,
   Sparkles,
+  FileText,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
@@ -22,12 +21,12 @@ export const Route = createFileRoute("/kontakt")({
       {
         name: "description",
         content:
-          "Sprechen Sie mit echten Menschen. Per Telefon, E-Mail oder Formular. Kostenlose, unverbindliche Beratung zu Strom und Gas.",
+          "Kostenlose, unverbindliche Beratung zu Strom und Gas. Rückrufzeit direkt im Formular auswählen.",
       },
       { property: "og:title", content: "Kontakt | PRIME ENERGIE" },
       {
         property: "og:description",
-        content: "Persönliche Energieberatung per Telefon, E-Mail oder Formular.",
+        content: "Persönliche Energieberatung mit frei wählbarer Rückrufzeit.",
       },
     ],
   }),
@@ -43,33 +42,33 @@ const fadeUp = {
 
 const channels = [
   {
-    icon: Phone,
-    label: "Telefon",
-    value: "0800 123 4567",
-    href: "tel:08001234567",
-    note: "Kostenlos aus allen dt. Netzen",
-    badge: "Schnellste Antwort",
-  },
-  {
-    icon: Mail,
-    label: "E-Mail",
-    value: "hallo@energieclever.de",
-    href: "mailto:hallo@energieclever.de",
-    note: "Antwort meist innerhalb 24 h",
-  },
-  {
     icon: MessageCircle,
     label: "Rückruf-Service",
     value: "Wir rufen Sie zurück",
-    href: "tel:08001234567",
-    note: "Wunschzeit im Formular angeben",
+    href: "/angebot",
+    note: "Wunschzeit im Formular auswählen",
+    badge: "Schnellste Antwort",
+  },
+  {
+    icon: FileText,
+    label: "Tarifprüfung",
+    value: "Rechnung hochladen",
+    href: "/angebot",
+    note: "PDF oder Foto, sicher und unverbindlich",
+  },
+  {
+    icon: ShieldCheck,
+    label: "Hilfe",
+    value: "Antworten im FAQ",
+    href: "/faq",
+    note: "Die wichtigsten Fragen direkt geklärt",
   },
 ];
 
 const hours = [
-  { day: "Montag bis Freitag", time: "08:00 bis 20:00 Uhr" },
-  { day: "Samstag", time: "10:00 bis 16:00 Uhr" },
-  { day: "Sonntag & Feiertage", time: "geschlossen" },
+  { day: "Rückruf", time: "nach Ihrer Terminwahl" },
+  { day: "Online-Anfrage", time: "jederzeit möglich" },
+  { day: "Erste Rückmeldung", time: "in der Regel binnen 24 h" },
 ];
 
 function KontaktPage() {
@@ -170,18 +169,13 @@ function KontaktPage() {
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-success/10 text-success">
                 <Building2 className="h-6 w-6" />
               </div>
-              <h2 className="mt-5 text-xl font-bold text-primary">Unser Sitz</h2>
-              <address className="mt-4 not-italic text-muted-foreground">
-                PRIME ENERGIE GmbH
-                <br />
-                Friedrichstraße 123
-                <br />
-                10117 Berlin
-                <br />
-                Deutschland
-              </address>
+              <h2 className="mt-5 text-xl font-bold text-primary">Digital erreichbar</h2>
+              <p className="mt-4 text-muted-foreground">
+                Starten Sie Ihre Anfrage online. Ein persönlicher Berater übernimmt anschließend die
+                Prüfung und meldet sich zur gewählten Zeit.
+              </p>
               <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-success/10 px-3 py-1 text-xs font-semibold text-success">
-                <MapPin className="h-3.5 w-3.5" /> Termine nur nach Vereinbarung
+                <MapPin className="h-3.5 w-3.5" /> Deutschlandweite Beratung
               </div>
             </motion.div>
 

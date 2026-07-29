@@ -1,12 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { Phone, UserPlus, Smartphone, User, ChevronDown, Menu, X } from "lucide-react";
-import logoUrl from "@/assets/logo.svg";
 import { useState, useRef, useLayoutEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import imgAutostrom from "@/assets/solution-autostrom.jpg";
 import imgWaerme from "@/assets/solution-waermestrom.jpg";
 import imgSolar from "@/assets/solution-solar.jpg";
+import { BrandLogo } from "./BrandLogo";
 
 type SimpleLink = { to: string; label: string };
 type Article = { to: string; params?: Record<string, string>; title: string; image: string };
@@ -80,7 +80,11 @@ const mainNav: NavItem[] = [
           title: "Gaspreise 2026: Prognose & Tipps zum Sparen",
           image: imgWaerme,
         },
-        { to: "/wissen/heizkosten-senken", title: "Heizkosten senken: 7 schnelle Maßnahmen", image: imgAutostrom },
+        {
+          to: "/wissen/heizkosten-senken",
+          title: "Heizkosten senken: 7 schnelle Maßnahmen",
+          image: imgAutostrom,
+        },
       ],
     },
   },
@@ -134,7 +138,11 @@ const mainNav: NavItem[] = [
           title: "Solaranlage-Kosten 2026: Alle Infos auf einen Blick",
           image: imgSolar,
         },
-        { to: "/wissen/solaranlage-installation", title: "Solaranlagen Installation | So geht's", image: imgWaerme },
+        {
+          to: "/wissen/solaranlage-installation",
+          title: "Solaranlagen Installation | So geht's",
+          image: imgWaerme,
+        },
         {
           to: "/wissen/solaranlage-foerderungen-2026",
           title: "Förderungen & Zuschüsse für Solaranlagen 2026",
@@ -163,7 +171,11 @@ const mainNav: NavItem[] = [
           title: "So einfach läuft dein Anbieterwechsel mit uns",
           image: imgAutostrom,
         },
-        { to: "/wissen/unterlagen-beim-wechsel", title: "Diese Unterlagen brauchst du beim Wechsel", image: imgWaerme },
+        {
+          to: "/wissen/unterlagen-beim-wechsel",
+          title: "Diese Unterlagen brauchst du beim Wechsel",
+          image: imgWaerme,
+        },
       ],
     },
   },
@@ -234,20 +246,24 @@ export function Header() {
       <div className="mx-auto max-w-6xl px-4">
         {/* Top utility row */}
         <div className="grid grid-cols-[auto_1fr_auto] items-center gap-4 py-3 md:py-4">
-          <Link to="/" className="flex items-center">
-            <img src={logoUrl} alt="PRIME ENERGIE" className="h-12 w-auto" />
+          <Link
+            to="/"
+            aria-label="PRIME ENERGIE Startseite"
+            className="flex items-center rounded-md transition-opacity hover:opacity-80"
+          >
+            <BrandLogo priority className="w-40 sm:w-48" />
           </Link>
 
           <div />
 
           <div className="flex items-center gap-1 md:gap-5">
-            <a
-              href="tel:08001234567"
+            <Link
+              to="/kontakt"
               className="hidden items-center gap-2 text-sm font-semibold text-primary transition hover:text-success md:inline-flex"
             >
               <Phone className="h-4 w-4 text-success" />
-              <span>0800 123 4567</span>
-            </a>
+              <span>Rückruf anfordern</span>
+            </Link>
             <Link
               to="/freunde-werben"
               className="hidden items-center gap-2 text-sm font-medium text-primary transition hover:text-success md:inline-flex"
@@ -454,12 +470,13 @@ export function Header() {
                 <MobileNavItem key={n.label} item={n} onNavigate={() => setMobileOpen(false)} />
               ))}
               <div className="grid grid-cols-2 gap-2 py-4">
-                <a
-                  href="tel:08001234567"
+                <Link
+                  to="/kontakt"
+                  onClick={() => setMobileOpen(false)}
                   className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-3 py-2 text-sm font-semibold text-primary"
                 >
-                  <Phone className="h-4 w-4 text-success" /> Anrufen
-                </a>
+                  <Phone className="h-4 w-4 text-success" /> Rückruf
+                </Link>
                 <Link
                   to="/angebot"
                   onClick={() => setMobileOpen(false)}

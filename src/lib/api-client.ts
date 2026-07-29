@@ -229,10 +229,9 @@ export async function inviteTeamMember(payload: {
   full_name?: string;
   role?: string;
 }): Promise<{ id: string; email: string; role: string; temp_password: string }> {
-  const res = await post<{ data: { id: string; email: string; role: string; temp_password: string } }>(
-    "/api/team",
-    payload,
-  );
+  const res = await post<{
+    data: { id: string; email: string; role: string; temp_password: string };
+  }>("/api/team", payload);
   return res.data;
 }
 
@@ -247,21 +246,34 @@ export async function updateTeamMember(
 // /api/public/leads  (kein Auth – Turnstile-Token erforderlich)
 // ---------------------------------------------------------------------------
 
-export async function submitPublicLead(payload: PublicLeadPayload): Promise<{
+export async function submitPublicLead(
+  payload: PublicLeadPayload,
+  invoiceFile?: File | null,
+): Promise<{
   lead_id: string;
   lead_number: string;
+  invoice_uploaded: boolean;
 }> {
+  const requestBody = invoiceFile
+    ? (() => {
+        const formData = new FormData();
+        formData.append("payload", JSON.stringify(payload));
+        formData.append("invoice", invoiceFile);
+        return formData;
+      })()
+    : JSON.stringify(payload);
+
   const res = await fetch(`${API_BASE}/api/public/leads`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    headers: invoiceFile ? undefined : { "Content-Type": "application/json" },
+    body: requestBody,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new ApiError(res.status, err.error ?? res.statusText, err.code);
   }
-  const body = await res.json();
-  return body.data;
+  const responseBody = await res.json();
+  return responseBody.data;
 }
 
 // ---------------------------------------------------------------------------
@@ -289,17 +301,11 @@ export async function requestReferralCode(email: string): Promise<void> {
 }
 
 export async function getReferrals(status?: string): Promise<BackendReferral[]> {
-  const res = await get<{ data: BackendReferral[] }>(
-    "/api/referrals",
-    status ? { status } : {},
-  );
+  const res = await get<{ data: BackendReferral[] }>("/api/referrals", status ? { status } : {});
   return res.data;
 }
 
-export async function markReferralPaid(
-  referralId: string,
-  adminNotes?: string,
-): Promise<void> {
+export async function markReferralPaid(referralId: string, adminNotes?: string): Promise<void> {
   await patch(`/api/referrals/${referralId}/pay`, { admin_notes: adminNotes });
 }
 

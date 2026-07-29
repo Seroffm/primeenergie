@@ -1,12 +1,18 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { CheckCircle2, ArrowRight } from "lucide-react";
+import { CheckCircle2, ArrowRight, FileWarning } from "lucide-react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { isValidLeadNumber, generateLeadNumber } from "@/lib/lead-number";
 
-const search = z.object({ id: z.string().optional(), nr: z.string().optional() }).optional();
+const search = z
+  .object({
+    id: z.string().optional(),
+    nr: z.string().optional(),
+    rechnung: z.enum(["hochgeladen", "nachreichen"]).optional(),
+  })
+  .optional();
 
 export const Route = createFileRoute("/danke")({
   validateSearch: (s) => search.parse(s) ?? {},
@@ -21,7 +27,7 @@ export const Route = createFileRoute("/danke")({
 });
 
 function ThanksPage() {
-  const { nr } = Route.useSearch();
+  const { nr, rechnung } = Route.useSearch();
 
   // nr aus URL nur verwenden wenn es exakt dem 7-Zeichen-Format entspricht.
   // L-2026-XXXX (altes Backend-Format) und UUIDs werden abgelehnt.
@@ -57,6 +63,17 @@ function ThanksPage() {
             {vorgangsnummer}
           </p>
         </div>
+
+        {rechnung === "nachreichen" && (
+          <div className="mx-auto mt-6 flex max-w-xl items-start gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-left text-sm text-amber-950">
+            <FileWarning className="mt-0.5 h-5 w-5 flex-none" />
+            <p>
+              Ihre Anfrage wurde gespeichert, die Rechnungsdatei konnte technisch noch nicht
+              übertragen werden. Bitte halten Sie sie für den Rückruf bereit; Ihr Berater fordert
+              sie bei Bedarf erneut an.
+            </p>
+          </div>
+        )}
 
         <div className="mt-10">
           <Button asChild variant="outline">
