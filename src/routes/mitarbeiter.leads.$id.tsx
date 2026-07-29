@@ -17,6 +17,7 @@ import {
   Download,
   Eye,
   ExternalLink,
+  Trash2,
   Clock,
   RefreshCw,
   AlertCircle,
@@ -50,6 +51,16 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
@@ -80,6 +91,7 @@ import {
   patchLeadStatus,
   assignLead,
   uploadDocument,
+  deleteDocument,
   getTeam,
 } from "@/lib/api-client";
 import type { TeamMember } from "@/lib/api-client";
@@ -95,6 +107,8 @@ import {
   type BackendOffer,
   type BackendStatusHistory,
 } from "@/lib/api-types";
+
+const MAX_FILES_PER_UPLOAD = 10;
 
 function mapBackendToLead(raw: BackendLeadDetail): Lead {
   const delivery = raw.addresses?.find((a) => a.address_type === "delivery");
@@ -341,10 +355,29 @@ function LeadDetail() {
   });
 
   const uploadMutation = useMutation({
-    mutationFn: (file: File) => uploadDocument(id, file),
-    onSuccess: () => {
+    mutationFn: async (files: File[]) => {
+      const results = await Promise.allSettled(files.map((file) => uploadDocument(id, file)));
+      const uploaded = results.filter((result) => result.status === "fulfilled").length;
+      const failed = results.length - uploaded;
+
+      if (uploaded === 0) {
+        const firstFailure = results.find(
+          (result): result is PromiseRejectedResult => result.status === "rejected",
+        );
+        throw firstFailure?.reason ?? new Error("Upload fehlgeschlagen");
+      }
+
+      return { uploaded, failed };
+    },
+    onSuccess: ({ uploaded, failed }) => {
       queryClient.invalidateQueries({ queryKey: ["lead-documents", id] });
-      toast.success("Dokument hochgeladen");
+      if (failed > 0) {
+        toast.warning(`${uploaded} Dokument(e) hochgeladen, ${failed} fehlgeschlagen`);
+      } else {
+        toast.success(
+          uploaded === 1 ? "Dokument hochgeladen" : `${uploaded} Dokumente hochgeladen`,
+        );
+      }
     },
     onError: () => toast.error("Upload fehlgeschlagen"),
   });
@@ -362,10 +395,12 @@ function LeadDetail() {
   const [downloadingDocId, setDownloadingDocId] = useState<string | null>(null);
   const [previewingDocId, setPreviewingDocId] = useState<string | null>(null);
   const [previewDocument, setPreviewDocument] = useState<{
+    documentId: string;
     fileName: string;
     mimeType: string;
     url: string;
   } | null>(null);
+  const [documentToDelete, setDocumentToDelete] = useState<BackendDocument | null>(null);
 
   useEffect(
     () => () => {
@@ -373,6 +408,17 @@ function LeadDetail() {
     },
     [previewDocument],
   );
+
+  const deleteDocumentMutation = useMutation({
+    mutationFn: (docId: string) => deleteDocument(id, docId),
+    onSuccess: (_data, docId) => {
+      queryClient.invalidateQueries({ queryKey: ["lead-documents", id] });
+      if (previewDocument?.documentId === docId) setPreviewDocument(null);
+      setDocumentToDelete(null);
+      toast.success("Dokument gelöscht");
+    },
+    onError: () => toast.error("Dokument konnte nicht gelöscht werden"),
+  });
 
   async function handleDocumentPreview(document: BackendDocument) {
     setPreviewingDocId(document.id);
@@ -382,6 +428,7 @@ function LeadDetail() {
       if (!response.ok) throw new Error("Dokument konnte nicht geladen werden");
       const blob = await response.blob();
       setPreviewDocument({
+        documentId: document.id,
         fileName: document.file_name,
         mimeType: blob.type || document.mime_type || "",
         url: URL.createObjectURL(blob),
@@ -485,9 +532,14 @@ function LeadDetail() {
   }
 
   function handleFilesSelected(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    uploadMutation.mutate(file);
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
+    if (files.length > MAX_FILES_PER_UPLOAD) {
+      toast.error(`Bitte maximal ${MAX_FILES_PER_UPLOAD} Dokumente gleichzeitig auswählen.`);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+    uploadMutation.mutate(files);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
@@ -731,7 +783,7 @@ function LeadDetail() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between gap-2 sm:justify-end">
+                      <div className="flex flex-wrap items-center justify-between gap-2 sm:justify-end">
                         <Badge
                           className={`${docColor[d.document_type] ?? docColor.sonstiges} border-0 capitalize`}
                         >
@@ -763,6 +815,17 @@ function LeadDetail() {
                             <Download className="h-4 w-4" />
                           )}
                         </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                          aria-label={`${d.file_name} löschen`}
+                          title={`${d.file_name} löschen`}
+                          disabled={deleteDocumentMutation.isPending}
+                          onClick={() => setDocumentToDelete(d)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -770,7 +833,7 @@ function LeadDetail() {
                     ref={fileInputRef}
                     type="file"
                     multiple
-                    accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+                    accept=".pdf,.jpg,.jpeg,.png,.webp,.gif,application/pdf,image/jpeg,image/png,image/webp,image/gif"
                     className="hidden"
                     onChange={handleFilesSelected}
                   />
@@ -782,7 +845,9 @@ function LeadDetail() {
                     disabled={uploadMutation.isPending}
                   >
                     <Upload className="mr-2 h-4 w-4" />
-                    {uploadMutation.isPending ? "Hochladen…" : "Dokument hochladen"}
+                    {uploadMutation.isPending
+                      ? "Dokumente werden hochgeladen…"
+                      : "Dokumente hochladen"}
                   </Button>
                 </TabsContent>
 
@@ -1158,6 +1223,44 @@ function LeadDetail() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog
+        open={!!documentToDelete}
+        onOpenChange={(isOpen) => {
+          if (!isOpen && !deleteDocumentMutation.isPending) setDocumentToDelete(null);
+        }}
+      >
+        <AlertDialogContent className="w-[calc(100vw-2rem)] rounded-lg">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Dokument wirklich löschen?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Die Datei{" "}
+              <span className="break-all font-semibold text-foreground">
+                {documentToDelete?.file_name}
+              </span>{" "}
+              wird dauerhaft aus diesem Lead entfernt.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteDocumentMutation.isPending}>
+              Abbrechen
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={!documentToDelete || deleteDocumentMutation.isPending}
+              onClick={(event) => {
+                event.preventDefault();
+                if (documentToDelete) deleteDocumentMutation.mutate(documentToDelete.id);
+              }}
+            >
+              {deleteDocumentMutation.isPending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              Löschen
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Dialog open={wvOpen} onOpenChange={setWvOpen}>
         <DialogContent>

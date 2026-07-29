@@ -72,6 +72,7 @@ import { Route as ApiLeadsIdAssignRouteImport } from './routes/api/leads.$id.ass
 import { Route as ApiBlogArticlesSlugRouteImport } from './routes/api/blog.articles.$slug'
 import { Route as ApiAdminBlogArticlesRouteImport } from './routes/api/admin.blog.articles'
 import { Route as ApiLeadsIdDocumentsUploadRouteImport } from './routes/api/leads.$id.documents.upload'
+import { Route as ApiLeadsIdDocumentsDocIdRouteImport } from './routes/api/leads.$id.documents.$docId'
 import { Route as ApiAdminBlogArticlesIdRouteImport } from './routes/api/admin.blog.articles.$id'
 import { Route as ApiLeadsIdDocumentsDocIdUrlRouteImport } from './routes/api/leads.$id.documents.$docId.url'
 
@@ -395,6 +396,12 @@ const ApiLeadsIdDocumentsUploadRoute =
     path: '/upload',
     getParentRoute: () => ApiLeadsIdDocumentsRoute,
   } as any)
+const ApiLeadsIdDocumentsDocIdRoute =
+  ApiLeadsIdDocumentsDocIdRouteImport.update({
+    id: '/$docId',
+    path: '/$docId',
+    getParentRoute: () => ApiLeadsIdDocumentsRoute,
+  } as any)
 const ApiAdminBlogArticlesIdRoute = ApiAdminBlogArticlesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -402,9 +409,9 @@ const ApiAdminBlogArticlesIdRoute = ApiAdminBlogArticlesIdRouteImport.update({
 } as any)
 const ApiLeadsIdDocumentsDocIdUrlRoute =
   ApiLeadsIdDocumentsDocIdUrlRouteImport.update({
-    id: '/$docId/url',
-    path: '/$docId/url',
-    getParentRoute: () => ApiLeadsIdDocumentsRoute,
+    id: '/url',
+    path: '/url',
+    getParentRoute: () => ApiLeadsIdDocumentsDocIdRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -471,6 +478,7 @@ export interface FileRoutesByFullPath {
   '/api/leads/$id/status-history': typeof ApiLeadsIdStatusHistoryRoute
   '/api/referrals/$id/pay': typeof ApiReferralsIdPayRoute
   '/api/admin/blog/articles/$id': typeof ApiAdminBlogArticlesIdRoute
+  '/api/leads/$id/documents/$docId': typeof ApiLeadsIdDocumentsDocIdRouteWithChildren
   '/api/leads/$id/documents/upload': typeof ApiLeadsIdDocumentsUploadRoute
   '/api/leads/$id/documents/$docId/url': typeof ApiLeadsIdDocumentsDocIdUrlRoute
 }
@@ -537,6 +545,7 @@ export interface FileRoutesByTo {
   '/api/leads/$id/status-history': typeof ApiLeadsIdStatusHistoryRoute
   '/api/referrals/$id/pay': typeof ApiReferralsIdPayRoute
   '/api/admin/blog/articles/$id': typeof ApiAdminBlogArticlesIdRoute
+  '/api/leads/$id/documents/$docId': typeof ApiLeadsIdDocumentsDocIdRouteWithChildren
   '/api/leads/$id/documents/upload': typeof ApiLeadsIdDocumentsUploadRoute
   '/api/leads/$id/documents/$docId/url': typeof ApiLeadsIdDocumentsDocIdUrlRoute
 }
@@ -605,6 +614,7 @@ export interface FileRoutesById {
   '/api/leads/$id/status-history': typeof ApiLeadsIdStatusHistoryRoute
   '/api/referrals/$id/pay': typeof ApiReferralsIdPayRoute
   '/api/admin/blog/articles/$id': typeof ApiAdminBlogArticlesIdRoute
+  '/api/leads/$id/documents/$docId': typeof ApiLeadsIdDocumentsDocIdRouteWithChildren
   '/api/leads/$id/documents/upload': typeof ApiLeadsIdDocumentsUploadRoute
   '/api/leads/$id/documents/$docId/url': typeof ApiLeadsIdDocumentsDocIdUrlRoute
 }
@@ -674,6 +684,7 @@ export interface FileRouteTypes {
     | '/api/leads/$id/status-history'
     | '/api/referrals/$id/pay'
     | '/api/admin/blog/articles/$id'
+    | '/api/leads/$id/documents/$docId'
     | '/api/leads/$id/documents/upload'
     | '/api/leads/$id/documents/$docId/url'
   fileRoutesByTo: FileRoutesByTo
@@ -740,6 +751,7 @@ export interface FileRouteTypes {
     | '/api/leads/$id/status-history'
     | '/api/referrals/$id/pay'
     | '/api/admin/blog/articles/$id'
+    | '/api/leads/$id/documents/$docId'
     | '/api/leads/$id/documents/upload'
     | '/api/leads/$id/documents/$docId/url'
   id:
@@ -807,6 +819,7 @@ export interface FileRouteTypes {
     | '/api/leads/$id/status-history'
     | '/api/referrals/$id/pay'
     | '/api/admin/blog/articles/$id'
+    | '/api/leads/$id/documents/$docId'
     | '/api/leads/$id/documents/upload'
     | '/api/leads/$id/documents/$docId/url'
   fileRoutesById: FileRoutesById
@@ -1288,6 +1301,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLeadsIdDocumentsUploadRouteImport
       parentRoute: typeof ApiLeadsIdDocumentsRoute
     }
+    '/api/leads/$id/documents/$docId': {
+      id: '/api/leads/$id/documents/$docId'
+      path: '/$docId'
+      fullPath: '/api/leads/$id/documents/$docId'
+      preLoaderRoute: typeof ApiLeadsIdDocumentsDocIdRouteImport
+      parentRoute: typeof ApiLeadsIdDocumentsRoute
+    }
     '/api/admin/blog/articles/$id': {
       id: '/api/admin/blog/articles/$id'
       path: '/$id'
@@ -1297,10 +1317,10 @@ declare module '@tanstack/react-router' {
     }
     '/api/leads/$id/documents/$docId/url': {
       id: '/api/leads/$id/documents/$docId/url'
-      path: '/$docId/url'
+      path: '/url'
       fullPath: '/api/leads/$id/documents/$docId/url'
       preLoaderRoute: typeof ApiLeadsIdDocumentsDocIdUrlRouteImport
-      parentRoute: typeof ApiLeadsIdDocumentsRoute
+      parentRoute: typeof ApiLeadsIdDocumentsDocIdRoute
     }
   }
 }
@@ -1382,14 +1402,28 @@ const WissenRouteChildren: WissenRouteChildren = {
 const WissenRouteWithChildren =
   WissenRoute._addFileChildren(WissenRouteChildren)
 
-interface ApiLeadsIdDocumentsRouteChildren {
-  ApiLeadsIdDocumentsUploadRoute: typeof ApiLeadsIdDocumentsUploadRoute
+interface ApiLeadsIdDocumentsDocIdRouteChildren {
   ApiLeadsIdDocumentsDocIdUrlRoute: typeof ApiLeadsIdDocumentsDocIdUrlRoute
 }
 
+const ApiLeadsIdDocumentsDocIdRouteChildren: ApiLeadsIdDocumentsDocIdRouteChildren =
+  {
+    ApiLeadsIdDocumentsDocIdUrlRoute: ApiLeadsIdDocumentsDocIdUrlRoute,
+  }
+
+const ApiLeadsIdDocumentsDocIdRouteWithChildren =
+  ApiLeadsIdDocumentsDocIdRoute._addFileChildren(
+    ApiLeadsIdDocumentsDocIdRouteChildren,
+  )
+
+interface ApiLeadsIdDocumentsRouteChildren {
+  ApiLeadsIdDocumentsDocIdRoute: typeof ApiLeadsIdDocumentsDocIdRouteWithChildren
+  ApiLeadsIdDocumentsUploadRoute: typeof ApiLeadsIdDocumentsUploadRoute
+}
+
 const ApiLeadsIdDocumentsRouteChildren: ApiLeadsIdDocumentsRouteChildren = {
+  ApiLeadsIdDocumentsDocIdRoute: ApiLeadsIdDocumentsDocIdRouteWithChildren,
   ApiLeadsIdDocumentsUploadRoute: ApiLeadsIdDocumentsUploadRoute,
-  ApiLeadsIdDocumentsDocIdUrlRoute: ApiLeadsIdDocumentsDocIdUrlRoute,
 }
 
 const ApiLeadsIdDocumentsRouteWithChildren =

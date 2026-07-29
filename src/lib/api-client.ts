@@ -148,6 +148,10 @@ export async function getDocumentDownloadUrl(
   return res.data;
 }
 
+export async function deleteDocument(leadId: string, docId: string): Promise<void> {
+  await del(`/api/leads/${leadId}/documents/${docId}`);
+}
+
 // ---------------------------------------------------------------------------
 // /api/leads/:id/communications
 // ---------------------------------------------------------------------------

@@ -14,13 +14,7 @@ const ALLOWED_TYPES = new Set([
 export const Route = createFileRoute("/api/leads/$id/documents/upload")({
   server: {
     handlers: {
-      POST: async ({
-        request,
-        params,
-      }: {
-        request: Request;
-        params: { id: string };
-      }) => {
+      POST: async ({ request, params }: { request: Request; params: { id: string } }) => {
         const auth = await requireAuth(request);
         if (!auth.ok) return auth.response;
 
@@ -35,7 +29,8 @@ export const Route = createFileRoute("/api/leads/$id/documents/upload")({
         if (!file || typeof file === "string") return err("Kein file-Feld gefunden", 400);
 
         if (file.size > MAX_SIZE) return err("Datei zu groß (max. 10 MB)", 413);
-        if (!ALLOWED_TYPES.has(file.type)) return err("Dateityp nicht erlaubt (PDF, JPG, PNG, WebP)", 415);
+        if (!ALLOWED_TYPES.has(file.type))
+          return err("Dateityp nicht erlaubt (PDF, JPG, PNG, WebP)", 415);
 
         const supabase = createServiceClient();
 
@@ -52,9 +47,8 @@ export const Route = createFileRoute("/api/leads/$id/documents/upload")({
         }
 
         // Eindeutiger Dateipfad: lead-id / timestamp_originalname
-        const ext = file.name.split(".").pop() ?? "bin";
         const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-        const path = `${params.id}/${Date.now()}_${safeName}`;
+        const path = `${params.id}/${Date.now()}-${crypto.randomUUID()}_${safeName}`;
 
         const arrayBuf = await file.arrayBuffer();
         const { error: uploadErr } = await supabase.storage
@@ -76,11 +70,11 @@ export const Route = createFileRoute("/api/leads/$id/documents/upload")({
             lead_id: params.id,
             uploaded_by: auth.user.userId,
             file_name: file.name,
-            file_size: file.size,
+            file_size_bytes: file.size,
             mime_type: file.type,
             storage_path: path,
           })
-          .select("id, file_name, file_size, mime_type, created_at")
+          .select("id, file_name, file_size_bytes, mime_type, created_at")
           .single();
 
         if (dbErr) {
