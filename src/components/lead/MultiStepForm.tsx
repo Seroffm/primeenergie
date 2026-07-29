@@ -33,7 +33,7 @@ import {
   type LeadInput,
 } from "@/lib/lead-schema";
 import { submitLead } from "@/lib/api/lead";
-import { generateLeadNumber, isValidLeadNumber } from "@/lib/lead-number";
+import { isValidLeadNumber } from "@/lib/lead-number";
 import {
   clearPendingInvoice,
   getPendingInvoice,
@@ -174,13 +174,15 @@ export function MultiStepForm({
       sessionStorage.removeItem(STORAGE_KEY);
       clearPendingInvoice();
       const rawNr = res.leadNumber;
-      const displayNumber = rawNr && isValidLeadNumber(rawNr) ? rawNr : generateLeadNumber();
-      sessionStorage.setItem("prime-lead-nr", displayNumber);
+      if (!rawNr || !isValidLeadNumber(rawNr)) {
+        throw new Error("Backend hat keine gültige Vorgangsnummer zurückgegeben");
+      }
+      sessionStorage.setItem("prime-lead-nr", rawNr);
       navigate({
         to: "/danke",
         search: {
           id: res.leadId,
-          nr: displayNumber,
+          nr: rawNr,
           rechnung: invoiceFile ? (res.invoiceUploaded ? "hochgeladen" : "nachreichen") : undefined,
         },
       });

@@ -1,10 +1,9 @@
-import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CheckCircle2, ArrowRight, FileWarning } from "lucide-react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { SiteLayout } from "@/components/site/SiteLayout";
-import { isValidLeadNumber, generateLeadNumber } from "@/lib/lead-number";
+import { isValidLeadNumber } from "@/lib/lead-number";
 
 const search = z
   .object({
@@ -29,17 +28,9 @@ export const Route = createFileRoute("/danke")({
 function ThanksPage() {
   const { nr, rechnung } = Route.useSearch();
 
-  // nr aus URL nur verwenden wenn es exakt dem 7-Zeichen-Format entspricht.
-  // L-2026-XXXX (altes Backend-Format) und UUIDs werden abgelehnt.
-  // Niemals id/UUID als Fallback — immer generateLeadNumber().
-  const [vorgangsnummer] = useState<string>(() => {
-    if (nr && isValidLeadNumber(nr)) return nr;
-    if (typeof window !== "undefined") {
-      const stored = sessionStorage.getItem("prime-lead-nr");
-      if (stored && isValidLeadNumber(stored)) return stored;
-    }
-    return generateLeadNumber();
-  });
+  // Nur die vom Backend gespeicherte Nummer anzeigen. Eine lokal erzeugte
+  // Ersatznummer wäre nicht mit dem Lead verknüpft und damit nicht suchbar.
+  const vorgangsnummer = nr && isValidLeadNumber(nr) ? nr : null;
 
   return (
     <SiteLayout>
@@ -60,7 +51,7 @@ function ThanksPage() {
             Ihre Vorgangsnummer
           </p>
           <p className="mt-1.5 font-mono text-base font-semibold tracking-widest text-foreground">
-            {vorgangsnummer}
+            {vorgangsnummer ?? "Nicht verfügbar"}
           </p>
         </div>
 

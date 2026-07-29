@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useRouterState, useNavigate } from "@tanstack/react-router";
-import { useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Filter,
@@ -27,6 +27,7 @@ import {
 import { getLeads } from "@/lib/api-client";
 import { mapLeadStatus, mapLeadType } from "@/lib/api-types";
 import type { BackendLead } from "@/lib/api-types";
+import { isValidLeadNumber } from "@/lib/lead-number";
 
 export const Route = createFileRoute("/mitarbeiter/leads")({
   head: () => ({
@@ -75,8 +76,8 @@ function LeadsPage() {
   const [page, setPage] = useState(1);
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["leads", page],
-    queryFn: () => getLeads({ page, pageSize: PAGE_SIZE }),
+    queryKey: ["leads", page, q],
+    queryFn: () => getLeads({ page, pageSize: PAGE_SIZE, q: q.trim() || undefined }),
   });
 
   const leads = useMemo(() => (data?.data ?? []).map(adaptLead), [data]);
@@ -87,12 +88,17 @@ function LeadsPage() {
     () =>
       leads.filter((l) => {
         if (filter !== "alle" && l.status !== filter) return false;
-        if (q && !`${l.name} ${l.lead_number} ${l.email}`.toLowerCase().includes(q.toLowerCase()))
-          return false;
         return true;
       }),
     [leads, q, filter],
   );
+
+  useEffect(() => {
+    const normalized = q.trim().toUpperCase();
+    if (!isValidLeadNumber(normalized) || leads.length !== 1) return;
+    if (leads[0].lead_number !== normalized) return;
+    navigate({ to: "/mitarbeiter/leads/$id", params: { id: leads[0].id } });
+  }, [leads, navigate, q]);
 
   function handleFilterChange(value: LeadStatus | "alle") {
     setFilter(value);
@@ -100,8 +106,16 @@ function LeadsPage() {
   }
 
   function handleSearch(value: string) {
-    setQ(value);
+    const normalized = value.toUpperCase();
+    setQ(normalized);
     setPage(1);
+  }
+
+  function openExactLead() {
+    const normalized = q.trim().toUpperCase();
+    if (!isValidLeadNumber(normalized)) return;
+    const match = leads.find((lead) => lead.lead_number === normalized);
+    if (match) navigate({ to: "/mitarbeiter/leads/$id", params: { id: match.id } });
   }
 
   if (pathname !== "/mitarbeiter/leads") return <Outlet />;
@@ -231,6 +245,9 @@ function LeadsPage() {
           placeholder="Lead suchen…"
           value={q}
           onChange={(e) => handleSearch(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") openExactLead();
+          }}
           className="max-w-xs"
         />
         <Tabs value={filter} onValueChange={(v) => handleFilterChange(v as LeadStatus | "alle")}>

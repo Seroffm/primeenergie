@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { requireAuth, getPagination, err } from "@/lib/api/helpers.server";
 import { createServiceClient } from "@/lib/supabase.server";
+import { isValidLeadNumber } from "@/lib/lead-number";
 
 export const Route = createFileRoute("/api/leads")({
   server: {
@@ -10,6 +11,7 @@ export const Route = createFileRoute("/api/leads")({
         if (!auth.ok) return auth.response;
 
         const { page, pageSize, from, to } = getPagination(request, 50);
+        const search = new URL(request.url).searchParams.get("q")?.trim() ?? "";
         const supabase = createServiceClient();
 
         let query = supabase
@@ -24,6 +26,20 @@ export const Route = createFileRoute("/api/leads")({
         // Mitarbeiter (employee) sehen nur zugewiesene Leads
         if (auth.user.role === "employee") {
           query = query.eq("assigned_to", auth.user.userId);
+        }
+
+        if (search) {
+          const normalized = search.toUpperCase();
+          if (isValidLeadNumber(normalized)) {
+            query = query.eq("lead_number", normalized);
+          } else {
+            const safeSearch = search.replace(/[%_,()]/g, "");
+            if (safeSearch) {
+              query = query.or(
+                `first_name.ilike.%${safeSearch}%,last_name.ilike.%${safeSearch}%,email.ilike.%${safeSearch}%,phone.ilike.%${safeSearch}%,lead_number.ilike.%${safeSearch}%`,
+              );
+            }
+          }
         }
 
         const { data, count, error } = await query;

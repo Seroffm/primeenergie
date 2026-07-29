@@ -5,9 +5,30 @@ import type { PublicLeadPayload } from "@/lib/api-types";
 import { sendEmail } from "@/lib/email.server";
 import { leadConfirmationTemplate, newLeadInternalTemplate } from "@/lib/email-templates.server";
 import process from "node:process";
+import { generateLeadNumber } from "@/lib/lead-number";
 
 const MAX_INVOICE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_INVOICE_TYPES = new Set(["application/pdf", "image/jpeg", "image/png"]);
+const MAX_LEAD_NUMBER_ATTEMPTS = 5;
+
+async function insertLeadWithNumber(
+  supabase: ReturnType<typeof createServiceClient>,
+  values: Record<string, unknown>,
+) {
+  for (let attempt = 0; attempt < MAX_LEAD_NUMBER_ATTEMPTS; attempt++) {
+    const leadNumber = generateLeadNumber();
+    const { data, error } = await supabase
+      .from("leads")
+      .insert({ ...values, lead_number: leadNumber })
+      .select("id, lead_number")
+      .single();
+
+    if (!error && data) return { lead: data, error: null };
+    if (error?.code !== "23505") return { lead: null, error };
+  }
+
+  return { lead: null, error: new Error("Keine eindeutige Vorgangsnummer verfügbar") };
+}
 
 export const Route = createFileRoute("/api/public/leads")({
   server: {
@@ -68,9 +89,7 @@ export const Route = createFileRoute("/api/public/leads")({
         });
 
         // Lead anlegen
-        const { data: lead, error: leadError } = await supabase
-          .from("leads")
-          .insert({
+        const { lead, error: leadError } = await insertLeadWithNumber(supabase, {
             first_name: payload.first_name.trim(),
             last_name: payload.last_name.trim(),
             email: payload.email.trim().toLowerCase(),
@@ -81,9 +100,7 @@ export const Route = createFileRoute("/api/public/leads")({
             contact_consent: payload.contact_consent,
             score,
             score_label: scoreLabel,
-          })
-          .select("id, lead_number")
-          .single();
+          });
 
         if (leadError || !lead) {
           console.error("Lead insert error:", leadError);

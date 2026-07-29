@@ -93,10 +93,12 @@ export async function getMe(): Promise<BackendProfile> {
 export async function getLeads(params?: {
   page?: number;
   pageSize?: number;
+  q?: string;
 }): Promise<BackendListResponse<BackendLead>> {
   return get("/api/leads", {
     ...(params?.page ? { page: params.page } : {}),
     ...(params?.pageSize ? { pageSize: params.pageSize } : {}),
+    ...(params?.q ? { q: params.q } : {}),
   });
 }
 
