@@ -16,7 +16,7 @@ import {
   Newspaper,
   Gift,
 } from "lucide-react";
-import { type FormEvent, type ReactNode, useState } from "react";
+import { type ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -80,7 +80,6 @@ export function AdminShell({
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const { user, hasRole, signOut } = useAuth();
-  const [globalSearch, setGlobalSearch] = useState("");
 
   const visibleMain = navMain.filter((i) => !i.roles || hasRole(...i.roles));
   const visibleAdmin = navAdmin.filter((i) => !i.roles || hasRole(...i.roles));
@@ -88,15 +87,6 @@ export function AdminShell({
   async function handleSignOut() {
     await signOut();
     navigate({ to: "/mitarbeiter/login" });
-  }
-
-  function handleGlobalSearch(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const query = globalSearch.trim();
-    navigate({
-      to: "/mitarbeiter/leads",
-      search: query ? { q: query } : {},
-    });
   }
 
   return (
@@ -136,27 +126,10 @@ export function AdminShell({
 
       <div className="lg:pl-64">
         <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur lg:px-8">
-          <form
-            className="relative hidden flex-1 max-w-md md:block"
-            role="search"
-            onSubmit={handleGlobalSearch}
-          >
-            <button
-              type="submit"
-              aria-label="Suche starten"
-              className="absolute left-0 top-0 flex h-full w-10 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
-            >
-              <Search className="h-4 w-4" />
-            </button>
-            <Input
-              type="search"
-              aria-label="Leads durchsuchen"
-              placeholder="Leads, Kunden, Verträge suchen…"
-              value={globalSearch}
-              onChange={(event) => setGlobalSearch(event.target.value)}
-              className="pl-10"
-            />
-          </form>
+          <div className="relative hidden flex-1 max-w-md md:block">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input placeholder="Leads, Kunden, Verträge suchen…" className="pl-9" />
+          </div>
           <div className="flex flex-1 items-center justify-end gap-2">
             <Button variant="ghost" size="icon">
               <Bell className="h-5 w-5" />

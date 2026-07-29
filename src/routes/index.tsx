@@ -1006,8 +1006,8 @@ function StatsBand() {
     <section className="bg-primary">
       <div className="mx-auto max-w-6xl px-4">
         {/* Headline only — no eyebrow, no split */}
-        <div className="border-b border-white/[0.08] py-10 md:py-14">
-          <h2 className="font-display text-2xl font-extrabold text-primary-foreground sm:text-3xl md:text-4xl">
+        <div className="border-b border-white/[0.08] py-14">
+          <h2 className="font-display text-3xl font-extrabold text-primary-foreground md:text-4xl">
             Zahlen, die für sich sprechen.
           </h2>
         </div>
@@ -1021,14 +1021,12 @@ function StatsBand() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
               transition={{ duration: 0.5, delay: i * 0.07, ease: [0.22, 1, 0.36, 1] }}
-              className="flex min-w-0 flex-col bg-primary px-4 py-8 sm:px-6 sm:py-10 md:px-8 md:py-16"
+              className="flex flex-col bg-primary px-6 py-12 md:px-8 md:py-16"
             >
-              <span className="whitespace-nowrap font-display text-4xl font-extrabold leading-none text-success sm:text-5xl md:text-[3.25rem]">
+              <span className="font-display text-5xl font-extrabold leading-none text-success md:text-[3.25rem]">
                 {s.v}
               </span>
-              <span className="mt-4 text-[13px] font-semibold leading-snug text-primary-foreground/80 sm:mt-5 sm:text-sm">
-                {s.l}
-              </span>
+              <span className="mt-5 text-sm font-semibold text-primary-foreground/80">{s.l}</span>
               <span className="mt-1.5 text-xs text-primary-foreground/40">{s.sub}</span>
             </motion.div>
           ))}
@@ -1666,10 +1664,10 @@ function ContactSection() {
 
 function FinalCta() {
   return (
-    <section className="mx-auto max-w-6xl px-4 py-14 md:py-20">
+    <section className="mx-auto max-w-6xl px-4 py-20">
       <motion.div
         {...fadeUp}
-        className="relative overflow-hidden rounded-3xl p-6 text-white shadow-2xl sm:p-8 md:p-14"
+        className="relative overflow-hidden rounded-3xl p-10 text-white shadow-2xl md:p-14"
       >
         {/* Background image */}
         <div
@@ -1690,26 +1688,24 @@ function FinalCta() {
         />
         <div className="relative grid items-center gap-6 md:grid-cols-[1fr_auto]">
           <div>
-            <div className="mb-6 w-full max-w-[15rem] sm:mb-7 sm:max-w-[17.25rem]">
-              <BrandLogo variant="white" className="w-full" />
+            <div className="mb-7 w-fit">
+              <BrandLogo variant="white" className="w-[15rem] sm:w-[17.25rem]" />
             </div>
-            <h2 className="font-display text-2xl font-extrabold sm:text-3xl md:text-4xl">
+            <h2 className="font-display text-3xl font-extrabold md:text-4xl">
               Bereit, weniger zu zahlen?
             </h2>
             <p className="mt-3 max-w-xl opacity-95">
               Starten Sie jetzt Ihre kostenlose Tarifprüfung. 2 Minuten. Mehr brauchen wir nicht.
             </p>
-            <div className="mt-4 flex items-start gap-2 text-sm opacity-95">
-              <Phone className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>
-                Lieber persönlich? Im Formular einfach die passende Rückrufzeit auswählen.
-              </span>
+            <div className="mt-4 flex items-center gap-2 text-sm opacity-95">
+              <Phone className="h-4 w-4" /> Lieber persönlich? Im Formular einfach die passende
+              Rückrufzeit auswählen.
             </div>
           </div>
           <Button
             asChild
             size="lg"
-            className="h-auto min-h-12 w-full justify-center whitespace-normal bg-white px-4 py-3 text-center text-sm font-semibold leading-snug text-primary hover:bg-white/90 sm:text-base md:w-auto"
+            className="h-12 bg-white text-base font-semibold text-primary hover:bg-white/90"
           >
             <Link to="/angebot">
               Persönliches Angebot erhalten <ArrowRight className="ml-1 h-4 w-4" />
@@ -1728,7 +1724,7 @@ function WechselCta() {
   const navigate = useNavigate();
   const valid = plz.length >= 4;
   return (
-    <section className="bg-background py-14 md:py-28">
+    <section className="bg-background py-20 md:py-28">
       <div className="mx-auto max-w-6xl px-4">
         <motion.div {...fadeUp} className="text-center">
           <div className="inline-flex items-center gap-2 rounded-full bg-success/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-success">
@@ -1744,7 +1740,7 @@ function WechselCta() {
 
         <motion.div
           {...fadeUp}
-          className="relative mt-10 overflow-hidden rounded-[2rem] bg-gradient-to-br from-primary via-primary to-primary/90 p-5 text-primary-foreground shadow-2xl sm:p-6 md:mt-12 md:p-12"
+          className="relative mt-12 overflow-hidden rounded-[2rem] bg-gradient-to-br from-primary via-primary to-primary/90 p-6 text-primary-foreground shadow-2xl md:p-12"
         >
           {/* decorative glows */}
           <div
@@ -1756,9 +1752,9 @@ function WechselCta() {
             aria-hidden
           />
 
-          <div className="relative grid items-center gap-6 md:grid-cols-[1fr_1.05fr] md:gap-10">
+          <div className="relative grid items-center gap-10 md:grid-cols-[1fr_1.05fr]">
             {/* Lottie scene */}
-            <div className="relative mx-auto h-44 w-full max-w-md sm:h-56 md:h-80">
+            <div className="relative mx-auto h-64 w-full max-w-md md:h-80">
               <LazyLottie src="https://assets-v2.lottiefiles.com/a/03a93c50-117f-11ee-84bc-ab12043c0786/Npcd1vaZXc.lottie" />
             </div>
 
@@ -1782,7 +1778,7 @@ function WechselCta() {
                 }}
                 className="mt-6"
               >
-                <div className="group relative grid grid-cols-[auto_minmax(0,1fr)] items-center gap-2 rounded-2xl p-2 shadow-xl ring-1 ring-white/10 transition focus-within:ring-2 focus-within:ring-success sm:flex">
+                <div className="group relative flex items-center gap-2 rounded-2xl p-2 shadow-xl ring-1 ring-white/10 transition focus-within:ring-2 focus-within:ring-success">
                   <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-success/10 text-success">
                     <MapPin className="h-5 w-5" />
                   </div>
@@ -1792,12 +1788,12 @@ function WechselCta() {
                     placeholder="Deine Postleitzahl"
                     inputMode="numeric"
                     aria-label="Postleitzahl"
-                    className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 text-base font-semibold text-primary-foreground placeholder:font-normal placeholder:text-primary-foreground/50 focus-visible:ring-0"
+                    className="h-11 flex-1 border-0 bg-transparent px-0 text-base font-semibold text-primary-foreground placeholder:font-normal placeholder:text-primary-foreground/50 focus-visible:ring-0"
                   />
                   <Button
                     type="submit"
                     disabled={!valid}
-                    className="col-span-2 h-11 w-full shrink-0 rounded-xl bg-success px-5 text-sm font-semibold text-success-foreground shadow-md transition hover:bg-success/90 hover:shadow-lg disabled:opacity-60 sm:w-auto"
+                    className="h-11 shrink-0 rounded-xl bg-success px-5 text-sm font-semibold text-success-foreground shadow-md transition hover:bg-success/90 hover:shadow-lg disabled:opacity-60"
                   >
                     Angebot einholen <ArrowRight className="ml-1 h-4 w-4" />
                   </Button>

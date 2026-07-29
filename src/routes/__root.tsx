@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
-import appCss from "../styles.css?inline";
+import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "../lib/auth-context";
 import { AiChatWidget } from "../components/site/AiChatWidget";
@@ -113,6 +113,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
     ],
     links: [
+      { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
@@ -131,7 +132,6 @@ function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
-        <style data-prime-styles dangerouslySetInnerHTML={{ __html: appCss }} />
         <HeadContent />
       </head>
       <body>
