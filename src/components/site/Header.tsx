@@ -83,6 +83,7 @@ export function Header() {
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navRef = useRef<HTMLElement | null>(null);
   const itemRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [panelLeft, setPanelLeft] = useState<number>(0);
   const [caretLeft, setCaretLeft] = useState<number>(0);
 
   const open = (key: string) => {
@@ -108,9 +109,15 @@ export function Header() {
     if (!el) return;
     const navRect = navRef.current.getBoundingClientRect();
     const itemRect = el.getBoundingClientRect();
-    // Panel is right-aligned, so caret position is relative to the active panel width.
-    const panelWidth = Math.min(dropdownWidth, window.innerWidth - 32);
-    setCaretLeft(itemRect.left + itemRect.width / 2 - navRect.right + panelWidth);
+    const panelWidth = Math.min(dropdownWidth, window.innerWidth - 32, navRect.width);
+    const triggerCenter = itemRect.left - navRect.left + itemRect.width / 2;
+    const nextPanelLeft = Math.max(
+      0,
+      Math.min(triggerCenter - panelWidth / 2, navRect.width - panelWidth),
+    );
+
+    setPanelLeft(nextPanelLeft);
+    setCaretLeft(triggerCenter - nextPanelLeft);
   }, [activeItem, dropdownWidth]);
 
   return (
@@ -220,8 +227,8 @@ export function Header() {
                   if (item) open(item.label);
                 }}
                 onMouseLeave={scheduleClose}
-                className="absolute right-0 top-full z-50 mt-2 max-w-[calc(100vw-2rem)] origin-top"
-                style={{ width: dropdownWidth }}
+                className="absolute top-full z-50 mt-2 max-w-[calc(100vw-2rem)] origin-top"
+                style={{ left: panelLeft, width: dropdownWidth }}
               >
                 {/* Caret. Slides smoothly between triggers */}
                 <motion.div
