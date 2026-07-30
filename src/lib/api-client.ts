@@ -110,9 +110,18 @@ export async function getLead(id: string): Promise<BackendLeadDetail> {
 export async function patchLeadStatus(
   id: string,
   status: BackendLeadStatus,
-  reason?: string,
+  options?: {
+    reason?: string;
+    followUpAt?: string | null;
+    followUpNote?: string | null;
+  },
 ): Promise<void> {
-  await patch(`/api/leads/${id}/status`, { status, reason });
+  await patch(`/api/leads/${id}/status`, {
+    status,
+    reason: options?.reason,
+    followUpAt: options?.followUpAt,
+    followUpNote: options?.followUpNote,
+  });
 }
 
 // ---------------------------------------------------------------------------

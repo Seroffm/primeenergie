@@ -19,7 +19,6 @@ import {
   ExternalLink,
   Trash2,
   Clock,
-  RefreshCw,
   AlertCircle,
   Inbox,
   MoreVertical,
@@ -33,7 +32,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -43,6 +41,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Dialog,
   DialogContent,
@@ -67,6 +66,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { AdminShell } from "@/components/mitarbeiter/AdminShell";
+import { FollowUpFields } from "@/components/mitarbeiter/FollowUpFields";
 import { cn } from "@/lib/utils";
 import { useAuth, roleBadgeLabel } from "@/lib/auth-context";
 import {
@@ -78,6 +78,7 @@ import {
   type LeadWiedervorlage,
 } from "@/lib/mock-leads";
 import { DEFAULT_WIEDERVORLAGE_TIME } from "@/lib/mock-tasks";
+import { getNextOpenLead, isOpenLeadTask } from "@/lib/lead-tasks";
 import {
   getLead as getBackendLead,
   getLeads,
@@ -99,7 +100,6 @@ import {
   mapLeadStatus,
   mapLeadType,
   mapLeadStatusToBackend,
-  type BackendLeadStatus,
   type BackendLeadDetail,
   type BackendNote,
   type BackendDocument,
@@ -138,7 +138,14 @@ function mapBackendToLead(raw: BackendLeadDetail): Lead {
     emails: [],
     offers: [],
     history: [],
-    wiedervorlage: undefined,
+    wiedervorlage: raw.wiedervorlage_at
+      ? {
+          date: raw.wiedervorlage_at,
+          comment: raw.wiedervorlage_note ?? undefined,
+          createdBy: "System",
+          createdAt: raw.updated_at,
+        }
+      : undefined,
   };
 }
 
@@ -151,10 +158,36 @@ function formatTimeDe(iso: string) {
 function formatDateTimeDe(iso: string) {
   return `${formatDateDe(iso)} um ${formatTimeDe(iso)} Uhr`;
 }
+function toDateInputValue(iso: string) {
+  const date = new Date(iso);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+function toTimeInputValue(iso: string) {
+  const date = new Date(iso);
+  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+}
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function buildFollowUp(
+  date: string,
+  time: string,
+  comment: string,
+  createdBy: string,
+): LeadWiedervorlage {
+  const localDate = new Date(`${date}T${time || DEFAULT_WIEDERVORLAGE_TIME}:00`);
+  return {
+    date: localDate.toISOString(),
+    comment: comment.trim() || undefined,
+    createdBy,
+    createdAt: new Date().toISOString(),
+  };
 }
 
 export const Route = createFileRoute("/mitarbeiter/leads/$id")({
@@ -225,6 +258,8 @@ const commTypeIcon: Record<string, typeof Inbox> = {
   system: AlertCircle,
 };
 
+type TaskDecision = "done" | "keep_open";
+
 function LeadDetail() {
   const {
     lead: loaderLead,
@@ -257,24 +292,39 @@ function LeadDetail() {
   // Note-Textarea
   const [note, setNote] = useState("");
 
-  // Wiedervorlage – nur lokaler State (kein eigener Backend-Endpoint vorhanden)
+  // Persistente Wiedervorlage über den bestehenden Lead-Status `follow_up`.
   const [wiedervorlage, setWiedervorlage] = useState<LeadWiedervorlage | undefined>(
     lead.wiedervorlage,
   );
-
-  // Aufgabe: kein echtes Task-System → statisch false
-  const hasOpenTask = false;
+  const hasOpenTask = isOpenLeadTask({
+    status: mapLeadStatusToBackend(currentStatus),
+    wiedervorlage_at: wiedervorlage?.date ?? null,
+  });
 
   const [wvOpen, setWvOpen] = useState(false);
   const [wvDate, setWvDate] = useState("");
   const [wvTime, setWvTime] = useState("");
   const [wvComment, setWvComment] = useState("");
 
+  const [nextTaskOpen, setNextTaskOpen] = useState(false);
+  const [taskDecision, setTaskDecision] = useState<TaskDecision | undefined>();
+  const [nextWvDate, setNextWvDate] = useState("");
+  const [nextWvTime, setNextWvTime] = useState("");
+  const [nextWvComment, setNextWvComment] = useState("");
+
   const [callOpen, setCallOpen] = useState(false);
   const [callNote, setCallNote] = useState("");
   const [allDoneOpen, setAllDoneOpen] = useState(false);
+  const [allDoneKeepsCurrent, setAllDoneKeepsCurrent] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setAssignedToId(loaderAssignedToId);
+    setStatus(lead.status);
+    setCurrentStatus(lead.status);
+    setWiedervorlage(lead.wiedervorlage);
+  }, [id, lead.status, lead.wiedervorlage, loaderAssignedToId]);
 
   // ── React Query: Daten für alle Tabs ──────────────────────────────────────
 
@@ -339,9 +389,70 @@ function LeadDetail() {
       queryClient.invalidateQueries({ queryKey: ["lead-status-history", id] });
       queryClient.invalidateQueries({ queryKey: ["leads"] });
       setCurrentStatus(newStatus);
+      if (newStatus !== "wiedervorlage") setWiedervorlage(undefined);
       toast.success(`Status auf "${statusLabel[newStatus]}" aktualisiert`);
     },
     onError: () => toast.error("Status konnte nicht gespeichert werden"),
+  });
+
+  const saveFollowUpMutation = useMutation({
+    mutationFn: (followUp: LeadWiedervorlage) =>
+      patchLeadStatus(id, "follow_up", {
+        reason: "Wiedervorlage gesetzt",
+        followUpAt: followUp.date,
+        followUpNote: followUp.comment ?? null,
+      }),
+    onSuccess: (_data, followUp) => {
+      setWiedervorlage(followUp);
+      setStatus("wiedervorlage");
+      setCurrentStatus("wiedervorlage");
+      setWvOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["lead-status-history", id] });
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      toast.success("Wiedervorlage gespeichert");
+    },
+    onError: () => toast.error("Wiedervorlage konnte nicht gespeichert werden"),
+  });
+
+  const taskFlowMutation = useMutation({
+    mutationFn: async ({
+      decision,
+      followUp,
+    }: {
+      decision?: TaskDecision;
+      followUp?: LeadWiedervorlage;
+    }) => {
+      if (followUp) {
+        await patchLeadStatus(id, "follow_up", {
+          reason:
+            decision === "done"
+              ? "Aufgabe erledigt und Wiedervorlage gesetzt"
+              : "Aufgabe offen gelassen und Wiedervorlage gesetzt",
+          followUpAt: followUp.date,
+          followUpNote: followUp.comment ?? null,
+        });
+      } else if (decision === "done") {
+        await patchLeadStatus(id, "in_review", { reason: "Aufgabe erledigt" });
+      }
+    },
+    onSuccess: (_data, { decision, followUp }) => {
+      if (followUp) {
+        setWiedervorlage(followUp);
+        setStatus("wiedervorlage");
+        setCurrentStatus("wiedervorlage");
+      } else if (decision === "done") {
+        setWiedervorlage(undefined);
+        setStatus("in_pruefung");
+        setCurrentStatus("in_pruefung");
+      }
+      queryClient.invalidateQueries({ queryKey: ["lead-status-history", id] });
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      setNextTaskOpen(false);
+      if (decision === "done") toast.success("Aufgabe geschlossen");
+      else if (decision === "keep_open") toast.success("Aufgabe bleibt offen");
+      openNextCandidate(decision === "keep_open" && !followUp);
+    },
+    onError: () => toast.error("Aufgabenentscheidung konnte nicht gespeichert werden"),
   });
 
   const assignMutation = useMutation({
@@ -472,63 +583,52 @@ function LeadDetail() {
   }
 
   function openWiedervorlage() {
-    const today = new Date().toISOString().slice(0, 10);
-    setWvDate(wiedervorlage?.date ? wiedervorlage.date.slice(0, 10) : today);
-    setWvTime(wiedervorlage?.date ? wiedervorlage.date.slice(11, 16) : "");
+    const today = toDateInputValue(new Date().toISOString());
+    setWvDate(wiedervorlage?.date ? toDateInputValue(wiedervorlage.date) : today);
+    setWvTime(wiedervorlage?.date ? toTimeInputValue(wiedervorlage.date) : "");
     setWvComment(wiedervorlage?.comment ?? "");
     setWvOpen(true);
   }
 
   function handleSaveWiedervorlage() {
     if (!wvDate) return;
-    const isUpdate = !!wiedervorlage;
-    const time = wvTime || DEFAULT_WIEDERVORLAGE_TIME;
-    const iso = `${wvDate}T${time}:00`;
-    const now = new Date().toISOString();
-    const wv: LeadWiedervorlage = {
-      date: iso,
-      comment: wvComment.trim() || undefined,
-      createdBy: user.name,
-      createdAt: now,
-    };
-    setWiedervorlage(wv);
-    setWvOpen(false);
-    toast.success(
-      isUpdate ? "Wiedervorlage erfolgreich aktualisiert" : "Wiedervorlage erfolgreich gespeichert",
-    );
+    saveFollowUpMutation.mutate(buildFollowUp(wvDate, wvTime, wvComment, user.name));
   }
-
-  function handleCompleteTask() {
-    toast.success("Aufgabe als erledigt markiert");
-  }
-
-  // Status die als offene Aufgaben zählen — identisch mit Dashboard-Zähler
-  const OPEN_TASK_STATUSES: BackendLeadStatus[] = [
-    "follow_up",
-    "question_open",
-    "new",
-    "in_review",
-  ];
 
   function handleOpenNextTask() {
     if (allLeadsQuery.isLoading) {
       toast.info("Leads werden geladen…");
       return;
     }
+    setTaskDecision(undefined);
+    setNextWvDate("");
+    setNextWvTime("");
+    setNextWvComment("");
+    setNextTaskOpen(true);
+  }
+
+  function openNextCandidate(keepsCurrentOpen = false) {
     const allLeads = allLeadsQuery.data?.data ?? [];
-    const candidates = allLeads.filter((l) => OPEN_TASK_STATUSES.includes(l.status) && l.id !== id);
-    // Priorität: Wiedervorlage → Rückfrage → Neu → In Prüfung
-    const next =
-      candidates.find((l) => l.status === "follow_up") ??
-      candidates.find((l) => l.status === "question_open") ??
-      candidates.find((l) => l.status === "new") ??
-      candidates.find((l) => l.status === "in_review");
+    const next = getNextOpenLead(allLeads, id);
 
     if (next) {
       navigate({ to: "/mitarbeiter/leads/$id", params: { id: next.id } });
     } else {
+      setAllDoneKeepsCurrent(keepsCurrentOpen);
       setAllDoneOpen(true);
     }
+  }
+
+  function handleSaveTaskAndOpenNext() {
+    if (hasOpenTask && !taskDecision) {
+      toast.error("Bitte wählen Sie aus, ob die Aufgabe erledigt ist.");
+      return;
+    }
+
+    const followUp = nextWvDate
+      ? buildFollowUp(nextWvDate, nextWvTime, nextWvComment, user.name)
+      : undefined;
+    taskFlowMutation.mutate({ decision: taskDecision, followUp });
   }
 
   function handleFilesSelected(e: React.ChangeEvent<HTMLInputElement>) {
@@ -969,20 +1069,9 @@ function LeadDetail() {
             </CardHeader>
             <CardContent className="space-y-2">
               {hasOpenTask ? (
-                <>
-                  <p className="text-sm text-muted-foreground">
-                    Für diesen Lead liegt eine offene Aufgabe vor.
-                  </p>
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    size="sm"
-                    onClick={handleCompleteTask}
-                  >
-                    <CheckCircle2 className="mr-2 h-4 w-4" />
-                    Aufgabe abschließen
-                  </Button>
-                </>
+                <p className="text-sm text-muted-foreground">
+                  Offene Aufgabe: {statusLabel[currentStatus]}
+                </p>
               ) : (
                 <p className="text-sm text-muted-foreground">
                   Keine offene Aufgabe für diesen Lead.
@@ -1120,64 +1209,10 @@ function LeadDetail() {
                 variant="outline"
                 className="w-full justify-start"
                 size="sm"
-                onClick={() => handleQuickAction("Rückfrage senden")}
-              >
-                <MessageSquare className="mr-2 h-4 w-4" />
-                Rückfrage senden
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                size="sm"
-                onClick={() => handleQuickAction("Angebot anfordern")}
-              >
-                <FileText className="mr-2 h-4 w-4" />
-                Angebot anfordern
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                size="sm"
-                onClick={() => handleQuickAction("Angebot senden")}
-              >
-                <Send className="mr-2 h-4 w-4" />
-                Angebot senden
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                size="sm"
-                onClick={() => handleQuickAction("Vertrag vorbereiten")}
-              >
-                <FileSignature className="mr-2 h-4 w-4" />
-                Vertrag vorbereiten
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                size="sm"
-                onClick={() => handleQuickAction("Vertrag senden")}
-              >
-                <FileSignature className="mr-2 h-4 w-4" />
-                Vertrag senden
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                size="sm"
                 onClick={openWiedervorlage}
               >
                 <Clock className="mr-2 h-4 w-4" />
                 {wiedervorlage ? "Wiedervorlage bearbeiten" : "Wiedervorlage setzen"}
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                size="sm"
-                onClick={() => handleQuickAction("Lead neu zuweisen")}
-              >
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Lead neu zuweisen
               </Button>
               <Button
                 variant="outline"
@@ -1278,51 +1313,127 @@ function LeadDetail() {
         </AlertDialogContent>
       </AlertDialog>
 
+      <Dialog
+        open={nextTaskOpen}
+        onOpenChange={(isOpen) => {
+          if (!taskFlowMutation.isPending) setNextTaskOpen(isOpen);
+        }}
+      >
+        <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Nächste Aufgabe öffnen</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            {hasOpenTask ? (
+              <div className="space-y-3">
+                <div>
+                  <div className="font-medium">Ist die aktuelle Aufgabe erledigt?</div>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Aktuelle Aufgabe: {statusLabel[currentStatus]}
+                  </p>
+                </div>
+                <RadioGroup
+                  value={taskDecision}
+                  onValueChange={(value) => setTaskDecision(value as TaskDecision)}
+                  className="grid gap-3"
+                >
+                  <Label
+                    htmlFor="task-done"
+                    className="flex cursor-pointer items-start gap-3 rounded-lg border p-3"
+                  >
+                    <RadioGroupItem id="task-done" value="done" className="mt-0.5" />
+                    <span>
+                      <span className="block font-medium">Ja, Aufgabe erledigt</span>
+                      <span className="block text-xs font-normal text-muted-foreground">
+                        Die aktuelle Aufgabe wird geschlossen.
+                      </span>
+                    </span>
+                  </Label>
+                  <Label
+                    htmlFor="task-keep-open"
+                    className="flex cursor-pointer items-start gap-3 rounded-lg border p-3"
+                  >
+                    <RadioGroupItem id="task-keep-open" value="keep_open" className="mt-0.5" />
+                    <span>
+                      <span className="block font-medium">Nein, Aufgabe offen lassen</span>
+                      <span className="block text-xs font-normal text-muted-foreground">
+                        Die Aufgabe bleibt erhalten und wird für diese Bearbeitung übersprungen.
+                      </span>
+                    </span>
+                  </Label>
+                </RadioGroup>
+              </div>
+            ) : (
+              <div className="rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground">
+                Für diesen Lead gibt es keine offene Aufgabe. Sie können trotzdem eine Wiedervorlage
+                setzen oder zur nächsten offenen Aufgabe wechseln.
+              </div>
+            )}
+
+            <div className="border-t pt-5">
+              <h3 className="mb-3 font-medium">Wiedervorlage</h3>
+              <FollowUpFields
+                idPrefix="next-task-follow-up"
+                date={nextWvDate}
+                time={nextWvTime}
+                note={nextWvComment}
+                onDateChange={setNextWvDate}
+                onTimeChange={setNextWvTime}
+                onNoteChange={setNextWvComment}
+                dateOptional
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setNextTaskOpen(false)}
+              disabled={taskFlowMutation.isPending}
+            >
+              Abbrechen
+            </Button>
+            <Button
+              onClick={handleSaveTaskAndOpenNext}
+              disabled={(hasOpenTask && !taskDecision) || taskFlowMutation.isPending}
+            >
+              {taskFlowMutation.isPending ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <ArrowRight className="mr-2 h-4 w-4" />
+              )}
+              Speichern und nächste Aufgabe öffnen
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={wvOpen} onOpenChange={setWvOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Wiedervorlage setzen</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <Label htmlFor="wv-date">Datum</Label>
-                <Input
-                  id="wv-date"
-                  type="date"
-                  value={wvDate}
-                  onChange={(e) => setWvDate(e.target.value)}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="wv-time">Uhrzeit (optional)</Label>
-                <Input
-                  id="wv-time"
-                  type="time"
-                  value={wvTime}
-                  onChange={(e) => setWvTime(e.target.value)}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Ohne Angabe: {DEFAULT_WIEDERVORLAGE_TIME} Uhr
-                </p>
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="wv-comment">Kommentar</Label>
-              <Textarea
-                id="wv-comment"
-                placeholder="z. B. Kunde morgen erneut anrufen"
-                value={wvComment}
-                onChange={(e) => setWvComment(e.target.value)}
-              />
-            </div>
-          </div>
+          <FollowUpFields
+            idPrefix="quick-follow-up"
+            date={wvDate}
+            time={wvTime}
+            note={wvComment}
+            onDateChange={setWvDate}
+            onTimeChange={setWvTime}
+            onNoteChange={setWvComment}
+          />
           <DialogFooter>
-            <Button variant="outline" onClick={() => setWvOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setWvOpen(false)}
+              disabled={saveFollowUpMutation.isPending}
+            >
               Abbrechen
             </Button>
-            <Button onClick={handleSaveWiedervorlage} disabled={!wvDate}>
-              Speichern
+            <Button
+              onClick={handleSaveWiedervorlage}
+              disabled={!wvDate || saveFollowUpMutation.isPending}
+            >
+              {saveFollowUpMutation.isPending ? "Speichern…" : "Speichern"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1379,11 +1490,14 @@ function LeadDetail() {
       <Dialog open={allDoneOpen} onOpenChange={setAllDoneOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Alle Aufgaben erledigt</DialogTitle>
+            <DialogTitle>
+              {allDoneKeepsCurrent ? "Keine weitere Aufgabe" : "Alle Aufgaben erledigt"}
+            </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            Aktuell liegen keine fälligen Wiedervorlagen, Rückfragen oder neuen Leads vor. Starke
-            Leistung!
+            {allDoneKeepsCurrent
+              ? "Die aktuelle Aufgabe bleibt offen. Momentan gibt es keine weitere offene Aufgabe in der Warteschlange."
+              : "Aktuell liegen keine fälligen Wiedervorlagen, Rückfragen oder neuen Leads vor. Starke Leistung!"}
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAllDoneOpen(false)}>

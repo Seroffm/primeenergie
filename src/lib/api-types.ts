@@ -42,6 +42,8 @@ export interface BackendLead {
   product_type: BackendProductType;
   customer_type: BackendCustomerType;
   assigned_to: string | null;
+  wiedervorlage_at: string | null;
+  wiedervorlage_note: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -14,9 +14,20 @@ import {
 import process from "node:process";
 
 const VALID_STATUSES = new Set([
-  "new", "in_review", "question_open", "offer_created", "offer_sent",
-  "interested", "contract_prepared", "contract_sent", "completed",
-  "rejected", "unreachable", "follow_up", "disqualified", "lost",
+  "new",
+  "in_review",
+  "question_open",
+  "offer_created",
+  "offer_sent",
+  "interested",
+  "contract_prepared",
+  "contract_sent",
+  "completed",
+  "rejected",
+  "unreachable",
+  "follow_up",
+  "disqualified",
+  "lost",
 ]);
 
 // Statuse die eine Kunden-E-Mail auslösen
@@ -33,24 +44,24 @@ const CUSTOMER_EMAIL_TRIGGERS = new Set([
 export const Route = createFileRoute("/api/leads/$id/status")({
   server: {
     handlers: {
-      PATCH: async ({
-        request,
-        params,
-      }: {
-        request: Request;
-        params: { id: string };
-      }) => {
+      PATCH: async ({ request, params }: { request: Request; params: { id: string } }) => {
         const auth = await requireAuth(request);
         if (!auth.ok) return auth.response;
 
-        let body: { status?: string; reason?: string; questionText?: string };
+        let body: {
+          status?: string;
+          reason?: string;
+          questionText?: string;
+          followUpAt?: string | null;
+          followUpNote?: string | null;
+        };
         try {
           body = await request.json();
         } catch {
           return err("Ungültiger Request-Body", 400);
         }
 
-        const { status, reason, questionText } = body;
+        const { status, reason, questionText, followUpAt, followUpNote } = body;
         if (!status || !VALID_STATUSES.has(status)) {
           return err(`Ungültiger Status: ${status}`, 400);
         }
@@ -60,7 +71,9 @@ export const Route = createFileRoute("/api/leads/$id/status")({
         // Lead mit Kundendaten laden
         const { data: current, error: fetchError } = await supabase
           .from("leads")
-          .select("id, status, assigned_to, first_name, last_name, email, product_type, lead_number")
+          .select(
+            "id, status, assigned_to, first_name, last_name, email, product_type, lead_number",
+          )
           .eq("id", params.id)
           .single();
 
@@ -70,10 +83,26 @@ export const Route = createFileRoute("/api/leads/$id/status")({
           return err("Zugriff verweigert", 403);
         }
 
-        // Status aktualisieren
+        let normalizedFollowUpAt: string | null = null;
+        if (status === "follow_up") {
+          if (followUpAt) {
+            const parsed = new Date(followUpAt);
+            if (Number.isNaN(parsed.getTime())) return err("Ungültiger Wiedervorlagetermin", 400);
+            normalizedFollowUpAt = parsed.toISOString();
+          } else {
+            normalizedFollowUpAt = new Date().toISOString();
+          }
+        }
+
+        // Status und bestehende Wiedervorlage gemeinsam aktualisieren
         const { error: updateError } = await supabase
           .from("leads")
-          .update({ status })
+          .update({
+            status,
+            wiedervorlage_at: normalizedFollowUpAt,
+            wiedervorlage_note:
+              status === "follow_up" && followUpNote?.trim() ? followUpNote.trim() : null,
+          })
           .eq("id", params.id);
 
         if (updateError) return err("Statusaktualisierung fehlgeschlagen", 500);

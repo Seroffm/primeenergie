@@ -32,7 +32,8 @@ function adaptLead(l: BackendLead) {
     status: mapLeadStatus(l.status),
     type: mapLeadType(l.product_type, l.customer_type),
     backendStatus: l.status,
-    createdAt: l.created_at,
+    wiedervorlageAt: l.wiedervorlage_at,
+    wiedervorlageNote: l.wiedervorlage_note,
   };
 }
 
@@ -50,27 +51,15 @@ interface Followup {
 }
 
 function buildFollowups(leads: AdaptedLead[]): Followup[] {
-  // Leads mit Status "follow_up" (= wiedervorlage) werden als Followup-Einträge gelistet.
-  // Da kein eigenes wiedervorlage_at-Feld vom Backend kommt, verwenden wir created_at als Basis.
   const followupLeads = leads.filter(
-    (l) =>
-      l.backendStatus === "follow_up" ||
-      l.backendStatus === "question_open" ||
-      l.backendStatus === "interested" ||
-      l.backendStatus === "offer_sent",
+    (lead) => lead.backendStatus === "follow_up" && lead.wiedervorlageAt,
   );
 
   return followupLeads
-    .map((l, i) => ({
+    .map((l) => ({
       leadId: l.id,
-      // Simulierter Zeitpunkt: basierend auf Erstellungsdatum + Offset
-      when: new Date(new Date(l.createdAt).getTime() + i * 86400000 + 3600000 * 9).toISOString(),
-      reason:
-        l.backendStatus === "follow_up"
-          ? "Wiedervorlage"
-          : l.backendStatus === "question_open"
-            ? "Rückfrage offen"
-            : "Nachfassen Angebot",
+      when: l.wiedervorlageAt as string,
+      reason: l.wiedervorlageNote || "Wiedervorlage",
       name: l.name,
       phone: l.phone,
       email: l.email,
@@ -105,10 +94,8 @@ function WiedervorlagePage() {
   const leads = useMemo(() => (data?.data ?? []).map(adaptLead), [data]);
   const followups = useMemo(() => buildFollowups(leads), [leads]);
 
-  // Mitarbeiter sehen nur ihre eigenen Followups; Admin/Manager sehen alle
-  const visible = hasRole("admin", "manager")
-    ? followups
-    : followups.filter((f) => f.assignee === user.name);
+  // Die Lead-API liefert Mitarbeitern bereits ausschließlich ihre zugewiesenen Leads.
+  const visible = followups;
 
   const grouped = visible.reduce<Record<string, Followup[]>>((acc, f) => {
     const k = groupKey(new Date(f.when));

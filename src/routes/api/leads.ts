@@ -17,7 +17,7 @@ export const Route = createFileRoute("/api/leads")({
         let query = supabase
           .from("leads")
           .select(
-            "id, lead_number, first_name, last_name, email, phone, status, score, score_label, product_type, customer_type, assigned_to, created_at, updated_at",
+            "id, lead_number, first_name, last_name, email, phone, status, score, score_label, product_type, customer_type, assigned_to, wiedervorlage_at, wiedervorlage_note, created_at, updated_at",
             { count: "exact" },
           )
           .order("created_at", { ascending: false })

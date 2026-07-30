@@ -25,6 +25,7 @@ import { statusColor, statusLabel, typeLabel } from "@/lib/mock-leads";
 import { getLeads } from "@/lib/api-client";
 import { mapLeadStatus, mapLeadType } from "@/lib/api-types";
 import type { BackendLead } from "@/lib/api-types";
+import { getOpenLeadTasks } from "@/lib/lead-tasks";
 
 export const Route = createFileRoute("/mitarbeiter/dashboard")({
   head: () => ({
@@ -58,6 +59,7 @@ function Dashboard() {
   });
 
   const leads = useMemo(() => (data?.data ?? []).map(adaptLead), [data]);
+  const openTasks = useMemo(() => getOpenLeadTasks(data?.data ?? []), [data]);
   const total = data?.count ?? leads.length;
   const recent = leads.slice(0, 5);
 
@@ -75,32 +77,27 @@ function Dashboard() {
     () => leads.filter((l) => l.backendStatus === "completed").length,
     [leads],
   );
-  const conversionRate =
-    total > 0 ? ((abschluesse / total) * 100).toFixed(1) + " %" : "0,0 %";
+  const conversionRate = total > 0 ? ((abschluesse / total) * 100).toFixed(1) + " %" : "0,0 %";
 
-  const neueLeads = useMemo(() => leads.filter((l) => l.backendStatus === "new").length, [leads]);
+  const neueLeads = useMemo(
+    () => openTasks.filter((lead) => lead.status === "new").length,
+    [openTasks],
+  );
   const inPruefung = useMemo(
     () => leads.filter((l) => l.backendStatus === "in_review").length,
     [leads],
   );
   const rueckfragenOffen = useMemo(
-    () => leads.filter((l) => l.backendStatus === "question_open").length,
-    [leads],
+    () => openTasks.filter((lead) => lead.status === "question_open").length,
+    [openTasks],
   );
   const wiedervorlageCount = useMemo(
-    () => leads.filter((l) => l.backendStatus === "follow_up").length,
-    [leads],
+    () => openTasks.filter((lead) => lead.status === "follow_up").length,
+    [openTasks],
   );
-  const offeneAufgaben = neueLeads + inPruefung + rueckfragenOffen + wiedervorlageCount;
+  const offeneAufgaben = openTasks.length;
 
-  const nextLead = useMemo(
-    () =>
-      leads.find((l) => l.backendStatus === "follow_up") ??
-      leads.find((l) => l.backendStatus === "question_open") ??
-      leads.find((l) => l.backendStatus === "new") ??
-      leads.find((l) => l.backendStatus === "in_review"),
-    [leads],
-  );
+  const nextLead = openTasks[0];
 
   const stats = [
     {
@@ -138,7 +135,17 @@ function Dashboard() {
       toast.info("Keine Leads zum Exportieren");
       return;
     }
-    const headers = ["ID", "Lead-Nr.", "Name", "Email", "Typ", "Status", "Score", "Berater", "Erstellt"];
+    const headers = [
+      "ID",
+      "Lead-Nr.",
+      "Name",
+      "Email",
+      "Typ",
+      "Status",
+      "Score",
+      "Berater",
+      "Erstellt",
+    ];
     const rows = leads.map((l) => [
       l.id,
       l.lead_number,
@@ -244,9 +251,6 @@ function Dashboard() {
               <Badge variant="outline" className="gap-1.5 py-1.5">
                 <AlertCircle className="h-3.5 w-3.5" />
                 {rueckfragenOffen} Rückfragen
-              </Badge>
-              <Badge variant="outline" className="gap-1.5 py-1.5">
-                {inPruefung} in Prüfung
               </Badge>
               <Button
                 size="sm"
@@ -380,16 +384,14 @@ function Dashboard() {
               {
                 label: "Angebot erstellt",
                 value: leads.filter(
-                  (l) =>
-                    l.backendStatus === "offer_created" || l.backendStatus === "offer_sent",
+                  (l) => l.backendStatus === "offer_created" || l.backendStatus === "offer_sent",
                 ).length,
               },
               {
                 label: "Vertrag vorbereitet",
                 value: leads.filter(
                   (l) =>
-                    l.backendStatus === "contract_prepared" ||
-                    l.backendStatus === "contract_sent",
+                    l.backendStatus === "contract_prepared" || l.backendStatus === "contract_sent",
                 ).length,
               },
               {

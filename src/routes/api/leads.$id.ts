@@ -5,13 +5,7 @@ import { createServiceClient } from "@/lib/supabase.server";
 export const Route = createFileRoute("/api/leads/$id")({
   server: {
     handlers: {
-      GET: async ({
-        request,
-        params,
-      }: {
-        request: Request;
-        params: { id: string };
-      }) => {
+      GET: async ({ request, params }: { request: Request; params: { id: string } }) => {
         const auth = await requireAuth(request);
         if (!auth.ok) return auth.response;
 
@@ -21,7 +15,8 @@ export const Route = createFileRoute("/api/leads/$id")({
           .select(
             `id, lead_number, first_name, last_name, email, phone,
              status, score, score_label, product_type, customer_type,
-             assigned_to, privacy_consent, contact_consent,
+             assigned_to, wiedervorlage_at, wiedervorlage_note,
+             privacy_consent, contact_consent,
              created_at, updated_at,
              lead_addresses ( id, lead_id, address_type, street, house_number,
                address_addition, postal_code, city, state, country, created_at, updated_at ),
