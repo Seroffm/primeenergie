@@ -238,13 +238,9 @@ export function Header() {
                   aria-hidden
                 />
                 <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-2xl">
-                  <AnimatePresence mode="popLayout" initial={false}>
-                    <motion.div
+                  <>
+                    <div
                       key={activeItem.label}
-                      initial={{ opacity: 0, x: 16 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -16 }}
-                      transition={{ type: "spring", stiffness: 380, damping: 34, mass: 0.7 }}
                       className={cn(
                         "grid",
                         dropdownHasArticles && "grid-cols-[minmax(220px,1fr)_1.6fr]",
@@ -316,8 +312,8 @@ export function Header() {
                           </div>
                         </div>
                       )}
-                    </motion.div>
-                  </AnimatePresence>
+                    </div>
+                  </>
                 </div>
               </motion.div>
             )}
