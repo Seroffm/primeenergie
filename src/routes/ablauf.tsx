@@ -261,7 +261,7 @@ function AblaufPage() {
                 className="border-white/30 bg-transparent text-primary-foreground hover:bg-white/10 hover:text-primary-foreground"
               >
                 <Link to="/kontakt">
-                  <Mail className="mr-2 h-4 w-4" /> Rückruf anfragen
+                  <Mail className="mr-2 h-4 w-4" /> Telefonische Beratung
                 </Link>
               </Button>
             </div>

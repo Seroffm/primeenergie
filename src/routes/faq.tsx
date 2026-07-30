@@ -115,7 +115,7 @@ const categories: { icon: typeof Zap; title: string; faqs: { q: string; a: strin
       },
       {
         q: "Werde ich nach der Anfrage mit Werbung zugeschüttet?",
-        a: "Nein. Wir rufen Sie genau einmal zur Beratung an. Keine Newsletter, keine Werbung, keine Weitergabe an Callcenter.",
+        a: "Nein. Ihre Anfrage wird ausschließlich für die persönliche Beratung genutzt. Keine Newsletter, keine Werbung, keine Weitergabe an Callcenter.",
       },
       {
         q: "Kann ich meine Daten löschen lassen?",

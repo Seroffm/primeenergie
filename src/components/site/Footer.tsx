@@ -102,7 +102,7 @@ export function Footer() {
               Anrufen
             </Link>
             <div className="mt-2 text-sm text-muted-foreground">
-              Wunschzeit im Formular auswählen · kostenlos & unverbindlich
+              Direkte telefonische Beratung · kostenlos & unverbindlich
             </div>
           </div>
 

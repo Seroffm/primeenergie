@@ -774,7 +774,7 @@ function Step7({ data, set }: StepProps) {
     <Field>
       <StepHead
         title="Wie können wir Sie erreichen?"
-        sub="Wir melden uns persönlich mit Ihrem Angebot."
+        sub="Ihre Angaben für das persönliche Angebot."
       />
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
@@ -900,8 +900,8 @@ function Step8({ invoiceFiles, invoiceError, onInvoiceChange, onInvoiceRemove }:
 
       <div className="mt-6 rounded-xl bg-primary/5 p-4 text-sm text-primary">
         <CheckCircle2 className="mr-1.5 inline h-4 w-4 text-success" />
-        Sobald Sie absenden, prüft ein Berater Ihre Anfrage und meldet sich innerhalb von 24
-        Stunden.
+        Nach dem Absenden wird Ihre Anfrage persönlich geprüft. Für direkte Beratung können Sie uns
+        jederzeit zu unseren Servicezeiten anrufen.
       </div>
     </Field>
   );

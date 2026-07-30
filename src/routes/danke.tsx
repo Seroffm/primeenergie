@@ -60,8 +60,8 @@ function ThanksPage() {
             <FileWarning className="mt-0.5 h-5 w-5 flex-none" />
             <p>
               Ihre Anfrage wurde gespeichert, die Rechnungsdatei konnte technisch noch nicht
-              übertragen werden. Bitte halten Sie sie für den Rückruf bereit; Ihr Berater fordert
-              sie bei Bedarf erneut an.
+              übertragen werden. Bitte halten Sie sie für die weitere Bearbeitung bereit; Ihr
+              Berater fordert sie bei Bedarf erneut an.
             </p>
           </div>
         )}

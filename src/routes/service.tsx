@@ -55,7 +55,7 @@ const services = [
   {
     icon: Phone,
     title: "Persönliche Beratung",
-    desc: "Kostenlos, deutschlandweit, echte Menschen. Rückrufzeit bequem im Formular wählen.",
+    desc: "Kostenlos, deutschlandweit, echte Menschen. Rufen Sie uns direkt zu unseren Servicezeiten an.",
     to: "/kontakt",
     cta: "Anrufen",
   },
@@ -89,10 +89,10 @@ const services = [
   },
   {
     icon: MessageCircle,
-    title: "Rückruf-Service",
-    desc: "Sagen Sie uns, wann es Ihnen am besten passt. Wir melden uns pünktlich.",
+    title: "Direkter telefonischer Kontakt",
+    desc: "Rufen Sie uns zu unseren Servicezeiten an und sprechen Sie direkt mit unserem Team.",
     to: "/kontakt",
-    cta: "Rückruf anfragen",
+    cta: "Jetzt anrufen",
   },
 ];
 
@@ -308,7 +308,7 @@ function ServicePage() {
         <div className="mx-auto max-w-5xl px-4 py-20 text-center text-primary-foreground md:py-28">
           <h2 className="text-3xl font-bold md:text-5xl">Eine Frage. Eine Antwort.</h2>
           <p className="mx-auto mt-4 max-w-2xl text-primary-foreground/90">
-            Rufen Sie an, schreiben Sie uns oder lassen Sie sich zurückrufen. Wir sind für Sie da.
+            Rufen Sie uns direkt an oder schreiben Sie uns. Wir sind für Sie da.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link

@@ -218,7 +218,7 @@ function Hero() {
                 <ShieldCheck className="h-4 w-4 text-success" /> Kostenlos & unverbindlich
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <PhoneCall className="h-4 w-4 text-success" /> Persönlicher Rückruf
+                <PhoneCall className="h-4 w-4 text-success" /> Persönliche Beratung per Telefon
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <FileSearch className="h-4 w-4 text-success" /> Manuell geprüfte Tarife
@@ -996,7 +996,7 @@ function AudienceSection() {
 
 function StatsBand() {
   const stats = [
-    { v: "24 h", l: "Erste Rückmeldung", sub: "in der Regel am nächsten Werktag" },
+    { v: "24 h", l: "Persönliche Prüfung", sub: "in der Regel am nächsten Werktag" },
     { v: "1:1", l: "Persönliche Beratung", sub: "ein fester Ansprechpartner" },
     { v: "100 %", l: "Manuelle Prüfung", sub: "Tarifdetails statt Rangliste" },
     { v: "0 €", l: "Kostenlos & unverbindlich", sub: "kein Risiko, kein Haken" },
@@ -1702,7 +1702,7 @@ function FinalCta() {
             <div className="mt-4 flex items-start gap-2 text-sm opacity-95">
               <Phone className="mt-0.5 h-4 w-4 shrink-0" />
               <span>
-                Lieber persönlich? Im Formular einfach die passende Rückrufzeit auswählen.
+                Lieber persönlich? Rufen Sie uns direkt an und lassen Sie sich telefonisch beraten.
               </span>
             </div>
           </div>

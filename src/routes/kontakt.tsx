@@ -21,12 +21,12 @@ export const Route = createFileRoute("/kontakt")({
       {
         name: "description",
         content:
-          "Kostenlose, unverbindliche Beratung zu Strom und Gas. Rückrufzeit direkt im Formular auswählen.",
+          "Kostenlose, unverbindliche Beratung zu Strom und Gas. Rufen Sie uns direkt zu unseren Servicezeiten an.",
       },
       { property: "og:title", content: "Kontakt | PRIME ENERGIE" },
       {
         property: "og:description",
-        content: "Persönliche Energieberatung mit frei wählbarer Rückrufzeit.",
+        content: "Persönliche Energieberatung per Telefon und direkter Kontakt zu unserem Team.",
       },
     ],
   }),
@@ -43,10 +43,10 @@ const fadeUp = {
 const channels = [
   {
     icon: MessageCircle,
-    label: "Rückruf-Service",
-    value: "Wir rufen Sie zurück",
+    label: "Telefonische Beratung",
+    value: "Rufen Sie uns direkt an",
     href: "/angebot",
-    note: "Wunschzeit im Formular auswählen",
+    note: "Direkter Kontakt zu unserem Beratungsteam",
     badge: "Schnellste Antwort",
   },
   {
@@ -66,9 +66,9 @@ const channels = [
 ];
 
 const hours = [
-  { day: "Rückruf", time: "nach Ihrer Terminwahl" },
+  { day: "Telefonische Beratung", time: "zu unseren Servicezeiten" },
   { day: "Online-Anfrage", time: "jederzeit möglich" },
-  { day: "Erste Rückmeldung", time: "in der Regel binnen 24 h" },
+  { day: "Persönliche Prüfung", time: "in der Regel binnen 24 h" },
 ];
 
 function KontaktPage() {
@@ -178,8 +178,9 @@ function KontaktPage() {
               </div>
               <h2 className="mt-5 text-xl font-bold text-primary">Digital erreichbar</h2>
               <p className="mt-4 text-muted-foreground">
-                Starten Sie Ihre Anfrage online. Ein persönlicher Berater übernimmt anschließend die
-                Prüfung und meldet sich zur gewählten Zeit.
+                Starten Sie Ihre Anfrage online oder rufen Sie uns für eine persönliche Beratung
+                direkt an. Unser Team unterstützt Sie bei der Prüfung Ihrer Angaben und der
+                Auswahl passender Tarife.
               </p>
               <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-success/10 px-3 py-1 text-xs font-semibold text-success">
                 <MapPin className="h-3.5 w-3.5" /> Deutschlandweite Beratung

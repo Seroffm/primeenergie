@@ -39,7 +39,7 @@ const steps = [
   },
   {
     label: "Angebot erhalten",
-    desc: "Wir vergleichen alle 100+ Anbieter und melden uns persönlich.",
+    desc: "Wir vergleichen alle 100+ Anbieter und senden Ihnen ein persönliches Angebot.",
   },
   {
     label: "Wir erledigen alles",
@@ -188,7 +188,7 @@ function AngebotPage() {
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-px bg-border/50 md:grid-cols-4">
           {[
             { v: "100+", l: "Tarife im Vergleich" },
-            { v: "24 h", l: "bis zur ersten Rückmeldung" },
+            { v: "24 h", l: "für die persönliche Prüfung" },
             { v: "1:1", l: "persönliche Beratung" },
             { v: "0 €", l: "Kosten für Sie" },
           ].map((s) => (
