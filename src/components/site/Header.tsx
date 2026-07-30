@@ -3,9 +3,6 @@ import { Phone, UserPlus, ChevronDown, Menu, X } from "lucide-react";
 import { useState, useRef, useLayoutEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import imgAutostrom from "@/assets/solution-autostrom.jpg";
-import imgWaerme from "@/assets/solution-waermestrom.jpg";
-import imgSolar from "@/assets/solution-solar.jpg";
 import { BrandLogo } from "./BrandLogo";
 
 type SimpleLink = { to: string; label: string };
@@ -25,16 +22,10 @@ const mainNav: NavItem[] = [
     dropdown: {
       title: "Strom",
       mainLinks: [
-        { label: "Unsere Stromtarife", to: "/strom" },
         { label: "Haushaltsstrom", to: "/strom" },
-        { label: "Ökostrom 100 %", to: "/strom" },
-        { label: "Autostrom für E-Autos", to: "/strom" },
-        { label: "Wärmestrom", to: "/strom" },
         { label: "Gewerbestrom", to: "/gewerbestrom" },
-      ],
-      secondaryLinks: [
-        { label: "Anbieter wechseln. So geht's", to: "/ablauf" },
-        { label: "Alles über Strom. Ratgeber", to: "/wissen" },
+        { label: "Anbieter wechseln – So geht’s", to: "/ablauf" },
+        { label: "Alles über Strom – Ratgeber", to: "/wissen" },
       ],
     },
   },
@@ -44,27 +35,10 @@ const mainNav: NavItem[] = [
     dropdown: {
       title: "Gas",
       mainLinks: [
-        { label: "Unsere Gastarife", to: "/gas" },
         { label: "Erdgas Privat", to: "/gas" },
-        { label: "Bio-Erdgas", to: "/gas" },
         { label: "Gewerbegas", to: "/gewerbegas" },
-      ],
-      secondaryLinks: [
         { label: "Gasanbieter wechseln", to: "/ablauf" },
-        { label: "Alles über Gas. Ratgeber", to: "/wissen" },
-      ],
-      articles: [
-        {
-          to: "/wissen/$slug",
-          params: { slug: "gaspreise-2026" },
-          title: "Gaspreise 2026: Prognose & Tipps zum Sparen",
-          image: imgWaerme,
-        },
-        {
-          to: "/wissen/heizkosten-senken",
-          title: "Heizkosten senken: 7 schnelle Maßnahmen",
-          image: imgAutostrom,
-        },
+        { label: "Alles über Gas – Ratgeber", to: "/wissen" },
       ],
     },
   },
@@ -72,67 +46,19 @@ const mainNav: NavItem[] = [
     to: "/strom-gas",
     label: "Strom + Gas",
     highlight: true,
-    dropdown: {
-      title: "Strom + Gas",
-      mainLinks: [
-        { label: "Komfort-Bundle", to: "/strom-gas" },
-        { label: "Familien-Tarif", to: "/strom-gas" },
-        { label: "Öko-Komplett", to: "/strom-gas" },
-        { label: "Bundle berechnen", to: "/strom-gas" },
-      ],
-      secondaryLinks: [{ label: "Doppel-Bonus erklärt", to: "/wissen" }],
-      articles: [
-        {
-          to: "/wissen/$slug",
-          params: { slug: "bundle-doppelbonus" },
-          title: "Strom & Gas bündeln: Wann sich der Doppel-Bonus lohnt",
-          image: imgSolar,
-        },
-        {
-          to: "/wissen/ein-vertrag-statt-zwei",
-          title: "Ein Vertrag statt zwei: So einfach geht der Wechsel",
-          image: imgAutostrom,
-        },
-      ],
-    },
   },
   {
     to: "/solar",
     label: "Solar",
     dropdown: {
-      title: "Solar & Wärmepumpe",
+      title: "Solar",
       mainLinks: [
         { label: "Unsere Energielösungen", to: "/solar" },
-        { label: "Solaranlage", to: "/solar" },
-        { label: "Stromspeicher", to: "/solar" },
-        { label: "Wärmepumpe", to: "/solar" },
-      ],
-      secondaryLinks: [
         { label: "Gewerbe Photovoltaik", to: "/kontakt" },
-        { label: "Alles über Solar. Ratgeber", to: "/wissen" },
-      ],
-      articles: [
-        {
-          to: "/wissen/$slug",
-          params: { slug: "solaranlage-kosten-2026" },
-          title: "Solaranlage-Kosten 2026: Alle Infos auf einen Blick",
-          image: imgSolar,
-        },
-        {
-          to: "/wissen/solaranlage-installation",
-          title: "Solaranlagen Installation | So geht's",
-          image: imgWaerme,
-        },
-        {
-          to: "/wissen/solaranlage-foerderungen-2026",
-          title: "Förderungen & Zuschüsse für Solaranlagen 2026",
-          image: imgAutostrom,
-        },
+        { label: "Alles über Solar – Ratgeber", to: "/wissen" },
       ],
     },
   },
-
-  { to: "/wissen", label: "Wissen" },
   {
     to: "/service",
     label: "Service",
@@ -141,49 +67,13 @@ const mainNav: NavItem[] = [
       mainLinks: [
         { label: "Kontakt aufnehmen", to: "/kontakt" },
         { label: "Hilfe & FAQ", to: "/faq" },
-        { label: "Wechsel-Service", to: "/service" },
-        { label: "Dokumente & Verträge", to: "/service" },
-      ],
-      secondaryLinks: [{ label: "Freunde werben & profitieren", to: "/freunde-werben" }],
-      articles: [
-        {
-          to: "/wissen/anbieterwechsel-schritt-fuer-schritt",
-          title: "So einfach läuft dein Anbieterwechsel mit uns",
-          image: imgAutostrom,
-        },
-        {
-          to: "/wissen/unterlagen-beim-wechsel",
-          title: "Diese Unterlagen brauchst du beim Wechsel",
-          image: imgWaerme,
-        },
+        { label: "Freunde werben & profitieren", to: "/freunde-werben" },
       ],
     },
   },
   {
     to: "/ueber-uns",
     label: "Über uns",
-    dropdown: {
-      title: "Über uns",
-      mainLinks: [
-        { label: "Unser Team", to: "/ueber-uns" },
-        { label: "Auszeichnungen", to: "/ueber-uns" },
-        { label: "Nachhaltigkeit", to: "/ueber-uns" },
-        { label: "Karriere", to: "/ueber-uns" },
-      ],
-      secondaryLinks: [{ label: "Presse & Medien", to: "/ueber-uns" }],
-      articles: [
-        {
-          to: "/ueber-uns",
-          title: "Unsere Mission: Energie einfach & ehrlich machen",
-          image: imgSolar,
-        },
-        {
-          to: "/ueber-uns",
-          title: "Ausgezeichnet vom TÜV | Das steckt dahinter",
-          image: imgAutostrom,
-        },
-      ],
-    },
   },
 ];
 
