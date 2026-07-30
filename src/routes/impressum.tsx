@@ -3,7 +3,7 @@ import { StaticPage } from "@/components/site/StaticPage";
 
 export const Route = createFileRoute("/impressum")({
   head: () => ({
-    meta: [{ title: "Impressum – PRIME ENERGIE" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Impressum von PRIME ENERGIE" }, { name: "robots", content: "noindex" }],
   }),
   component: () => (
     <StaticPage title="Impressum">

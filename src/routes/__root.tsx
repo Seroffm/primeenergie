@@ -81,13 +81,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "PRIME ENERGIE – Strom & Gas günstiger machen" },
+      { title: "PRIME ENERGIE: Strom & Gas günstiger machen" },
       {
         name: "description",
         content:
           "Kostenlose, unverbindliche Strom- und Gasberatung. Persönlich, transparent, DSGVO-konform.",
       },
-      { property: "og:title", content: "PRIME ENERGIE – Strom & Gas günstiger machen" },
+      { property: "og:title", content: "PRIME ENERGIE: Strom & Gas günstiger machen" },
       {
         property: "og:description",
         content:
@@ -95,7 +95,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:title", content: "PRIME ENERGIE – Strom & Gas günstiger machen" },
+      { name: "twitter:title", content: "PRIME ENERGIE: Strom & Gas günstiger machen" },
       {
         name: "twitter:description",
         content:

@@ -207,7 +207,7 @@ function FreundeWerbenPage() {
               Bedingungen &amp; Transparenz
             </h2>
             <p className="mt-3 text-muted-foreground">
-              Wir legen alles offen – damit es keine Überraschungen gibt.
+              Wir legen alles offen, damit es keine Überraschungen gibt.
             </p>
           </motion.div>
 
@@ -248,7 +248,7 @@ function FreundeWerbenPage() {
               </h2>
               <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
                 Du hast bereits über EnergieClever gewechselt? Dann gib einfach deine
-                E-Mail-Adresse ein – wir schicken dir deinen persönlichen Link sofort zu.
+                E-Mail-Adresse ein und wir schicken dir deinen persönlichen Link sofort zu.
               </p>
 
               {submitted ? (

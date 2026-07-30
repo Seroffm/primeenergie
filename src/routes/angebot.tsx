@@ -43,14 +43,14 @@ const steps = [
   },
   {
     label: "Wir erledigen alles",
-    desc: "Kündigung, Ummeldung, Übergabe - kein Papierkram für Sie.",
+    desc: "Kündigung, Ummeldung und Übergabe ohne Papierkram für Sie.",
   },
 ];
 
 const faqs = [
   {
     q: "Ist der Vergleich wirklich komplett kostenlos?",
-    a: "Ja, vollständig. Wir erhalten eine Provision vom neuen Anbieter - nicht von Ihnen. Für Sie entstehen zu keinem Zeitpunkt Kosten.",
+    a: "Ja, vollständig. Wir erhalten eine Provision vom neuen Anbieter und nicht von Ihnen. Für Sie entstehen zu keinem Zeitpunkt Kosten.",
   },
   {
     q: "Muss ich selbst beim alten Anbieter kündigen?",
@@ -136,9 +136,9 @@ function AngebotPage() {
 
           {/* ≤ 20 words */}
           <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-            Deutsche Haushalte zahlen im Schnitt{" "}
-            <strong className="text-primary">380 € zu viel</strong> - jährlich. Prüfen Sie jetzt
-            kostenlos Ihren Tarif.
+            Deutsche Haushalte zahlen im Schnitt jährlich{" "}
+            <strong className="text-primary">380 € zu viel</strong>. Prüfen Sie jetzt kostenlos
+            Ihren Tarif.
           </p>
 
           {/* 4th hero element: lifestyle image */}
@@ -277,7 +277,7 @@ function AngebotPage() {
             Bereit, zu wechseln?
           </h2>
           <p className="mt-3 text-primary-foreground/70">
-            Es dauert 2 Minuten. Wir erledigen den Rest - kostenlos.
+            Es dauert 2 Minuten. Den Rest erledigen wir kostenlos.
           </p>
           <a
             href="#form"

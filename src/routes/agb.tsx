@@ -4,7 +4,7 @@ import { StaticPage } from "@/components/site/StaticPage";
 export const Route = createFileRoute("/agb")({
   head: () => ({
     meta: [
-      { title: "Allgemeine Geschäftsbedingungen – PRIME ENERGIE" },
+      { title: "Allgemeine Geschäftsbedingungen von PRIME ENERGIE" },
       { name: "robots", content: "noindex" },
     ],
   }),

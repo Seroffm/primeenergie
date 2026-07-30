@@ -4,7 +4,7 @@ import { StaticPage } from "@/components/site/StaticPage";
 export const Route = createFileRoute("/datenschutz")({
   head: () => ({
     meta: [
-      { title: "Datenschutzerklärung – PRIME ENERGIE" },
+      { title: "Datenschutzerklärung von PRIME ENERGIE" },
       { name: "robots", content: "noindex" },
     ],
   }),

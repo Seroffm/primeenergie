@@ -3,7 +3,7 @@ import { StaticPage } from "@/components/site/StaticPage";
 
 export const Route = createFileRoute("/widerruf")({
   head: () => ({
-    meta: [{ title: "Widerrufsbelehrung – PRIME ENERGIE" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Widerrufsbelehrung von PRIME ENERGIE" }, { name: "robots", content: "noindex" }],
   }),
   component: () => (
     <StaticPage

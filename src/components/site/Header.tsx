@@ -24,8 +24,8 @@ const mainNav: NavItem[] = [
       mainLinks: [
         { label: "Haushaltsstrom", to: "/strom" },
         { label: "Gewerbestrom", to: "/gewerbestrom" },
-        { label: "Anbieter wechseln – So geht’s", to: "/ablauf" },
-        { label: "Alles über Strom – Ratgeber", to: "/wissen" },
+        { label: "Anbieterwechsel leicht gemacht", to: "/ablauf" },
+        { label: "Strom-Ratgeber", to: "/wissen" },
       ],
     },
   },
@@ -38,7 +38,7 @@ const mainNav: NavItem[] = [
         { label: "Erdgas Privat", to: "/gas" },
         { label: "Gewerbegas", to: "/gewerbegas" },
         { label: "Gasanbieter wechseln", to: "/ablauf" },
-        { label: "Alles über Gas – Ratgeber", to: "/wissen" },
+        { label: "Gas-Ratgeber", to: "/wissen" },
       ],
     },
   },
@@ -55,7 +55,7 @@ const mainNav: NavItem[] = [
       mainLinks: [
         { label: "Unsere Energielösungen", to: "/solar" },
         { label: "Gewerbe Photovoltaik", to: "/kontakt" },
-        { label: "Alles über Solar – Ratgeber", to: "/wissen" },
+        { label: "Solar-Ratgeber", to: "/wissen" },
       ],
     },
   },

@@ -257,7 +257,8 @@ function WissenPage() {
               Newsletter: Energie-Tipps direkt ins Postfach
             </h2>
             <p className="mt-3 text-muted-foreground">
-              Keine Werbung, kein Spam — nur relevante Energietipps und Marktentwicklungen. Monatlich, abbestellbar jederzeit.
+              Sie erhalten nur relevante Energietipps und Marktentwicklungen. Keine Werbung, kein
+              Spam. Monatlich und jederzeit abbestellbar.
             </p>
           </div>
           <form
