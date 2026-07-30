@@ -272,10 +272,10 @@ function QuickCalculator() {
     if (validationError) {
       setInvoiceError(validationError);
       setInvoiceName(null);
-      setPendingInvoice(null);
+      setPendingInvoice([]);
       return;
     }
-    setPendingInvoice(file);
+    setPendingInvoice([file]);
     setInvoiceName(file.name);
     setInvoiceError(null);
   }
