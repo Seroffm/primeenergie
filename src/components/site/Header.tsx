@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Phone, UserPlus, User, ChevronDown, Menu, X } from "lucide-react";
+import { Phone, UserPlus, ChevronDown, Menu, X } from "lucide-react";
 import { useState, useRef, useLayoutEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -253,14 +253,6 @@ export function Header() {
               <UserPlus className="h-4 w-4 text-success" />
               <span>Freunde werben</span>
             </Link>
-            <Link
-              to="/mitarbeiter/login"
-              className="hidden items-center gap-2 text-sm font-medium text-primary transition hover:text-success md:inline-flex"
-            >
-              <User className="h-4 w-4 text-success" />
-              <span>Login</span>
-            </Link>
-
             <button
               type="button"
               aria-label={mobileOpen ? "Menü schließen" : "Menü öffnen"}
