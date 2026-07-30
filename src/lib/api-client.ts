@@ -254,24 +254,25 @@ export async function updateTeamMember(
 
 export async function submitPublicLead(
   payload: PublicLeadPayload,
-  invoiceFile?: File | null,
+  invoiceFiles: File[] = [],
 ): Promise<{
   lead_id: string;
   lead_number: string;
   invoice_uploaded: boolean;
 }> {
-  const requestBody = invoiceFile
+  const hasInvoiceFiles = invoiceFiles.length > 0;
+  const requestBody = hasInvoiceFiles
     ? (() => {
         const formData = new FormData();
         formData.append("payload", JSON.stringify(payload));
-        formData.append("invoice", invoiceFile);
+        invoiceFiles.forEach((invoiceFile) => formData.append("invoice", invoiceFile));
         return formData;
       })()
     : JSON.stringify(payload);
 
   const res = await fetch(`${API_BASE}/api/public/leads`, {
     method: "POST",
-    headers: invoiceFile ? undefined : { "Content-Type": "application/json" },
+    headers: hasInvoiceFiles ? undefined : { "Content-Type": "application/json" },
     body: requestBody,
   });
   if (!res.ok) {

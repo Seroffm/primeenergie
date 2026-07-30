@@ -8,6 +8,7 @@ import process from "node:process";
 import { generateLeadNumber } from "@/lib/lead-number";
 
 const MAX_INVOICE_SIZE = 10 * 1024 * 1024;
+const MAX_INVOICE_FILES = 2;
 const ALLOWED_INVOICE_TYPES = new Set(["application/pdf", "image/jpeg", "image/png"]);
 const MAX_LEAD_NUMBER_ATTEMPTS = 5;
 
@@ -35,15 +36,16 @@ export const Route = createFileRoute("/api/public/leads")({
     handlers: {
       POST: async ({ request }: { request: Request }) => {
         let payload: PublicLeadPayload;
-        let invoiceFile: File | null = null;
+        let invoiceFiles: File[] = [];
         try {
           if (request.headers.get("content-type")?.includes("multipart/form-data")) {
             const formData = await request.formData();
             const rawPayload = formData.get("payload");
-            const rawInvoice = formData.get("invoice");
             if (typeof rawPayload !== "string") throw new Error("payload fehlt");
             payload = JSON.parse(rawPayload) as PublicLeadPayload;
-            if (rawInvoice instanceof File && rawInvoice.size > 0) invoiceFile = rawInvoice;
+            invoiceFiles = formData
+              .getAll("invoice")
+              .filter((value): value is File => value instanceof File && value.size > 0);
           } else {
             payload = (await request.json()) as PublicLeadPayload;
           }
@@ -61,7 +63,10 @@ export const Route = createFileRoute("/api/public/leads")({
         if (!payload.product_type || !payload.customer_type) {
           return err("product_type und customer_type sind erforderlich", 400);
         }
-        if (invoiceFile) {
+        if (invoiceFiles.length > MAX_INVOICE_FILES) {
+          return err(`Maximal ${MAX_INVOICE_FILES} Rechnungsdateien erlaubt`, 400);
+        }
+        for (const invoiceFile of invoiceFiles) {
           if (invoiceFile.size > MAX_INVOICE_SIZE) {
             return err("Rechnungsdatei ist zu groß (maximal 10 MB)", 413);
           }
@@ -90,17 +95,17 @@ export const Route = createFileRoute("/api/public/leads")({
 
         // Lead anlegen
         const { lead, error: leadError } = await insertLeadWithNumber(supabase, {
-            first_name: payload.first_name.trim(),
-            last_name: payload.last_name.trim(),
-            email: payload.email.trim().toLowerCase(),
-            phone: payload.phone?.trim() || null,
-            product_type: payload.product_type,
-            customer_type: payload.customer_type,
-            privacy_consent: payload.privacy_consent,
-            contact_consent: payload.contact_consent,
-            score,
-            score_label: scoreLabel,
-          });
+          first_name: payload.first_name.trim(),
+          last_name: payload.last_name.trim(),
+          email: payload.email.trim().toLowerCase(),
+          phone: payload.phone?.trim() || null,
+          product_type: payload.product_type,
+          customer_type: payload.customer_type,
+          privacy_consent: payload.privacy_consent,
+          contact_consent: payload.contact_consent,
+          score,
+          score_label: scoreLabel,
+        });
 
         if (leadError || !lead) {
           console.error("Lead insert error:", leadError);
@@ -108,11 +113,11 @@ export const Route = createFileRoute("/api/public/leads")({
         }
 
         const leadId = lead.id as string;
-        let invoiceUploaded = !invoiceFile;
+        let uploadedInvoiceCount = 0;
 
-        if (invoiceFile) {
+        for (const invoiceFile of invoiceFiles) {
           const safeName = invoiceFile.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-          const storagePath = `${leadId}/${Date.now()}_${safeName}`;
+          const storagePath = `${leadId}/${Date.now()}-${crypto.randomUUID()}_${safeName}`;
           const arrayBuffer = await invoiceFile.arrayBuffer();
           const { error: uploadError } = await supabase.storage
             .from("lead-documents")
@@ -136,12 +141,13 @@ export const Route = createFileRoute("/api/public/leads")({
               console.error("Public invoice document insert error:", documentError);
               await supabase.storage.from("lead-documents").remove([storagePath]);
             } else {
-              invoiceUploaded = true;
+              uploadedInvoiceCount += 1;
             }
           } else {
             console.error("Public invoice upload error:", uploadError);
           }
         }
+        const invoiceUploaded = uploadedInvoiceCount === invoiceFiles.length;
 
         // Adresse speichern
         if (payload.address) {

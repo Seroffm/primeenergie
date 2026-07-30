@@ -1,6 +1,7 @@
 import { ESTIMATED_STROM_KWH, estimateGasKwh, type LeadInput } from "../lead-schema";
 import { submitPublicLead } from "../api-client";
 import type { PublicLeadPayload } from "../api-types";
+import { getPendingInvoice } from "../pending-invoice";
 
 const PRODUCT_TYPE_MAP = {
   strom: "electricity",
@@ -126,7 +127,16 @@ export async function submitLead(
 ): Promise<{ ok: true; leadId: string; leadNumber: string; invoiceUploaded: boolean }> {
   const payload = mapToBackendPayload(lead, turnstileToken);
   if (referralCode) payload.referral_code = referralCode.trim().toUpperCase();
-  const { lead_id, lead_number, invoice_uploaded } = await submitPublicLead(payload, invoiceFile);
+  const pendingInvoiceFiles = getPendingInvoice();
+  const invoiceFiles =
+    pendingInvoiceFiles.length > 0 ? pendingInvoiceFiles : invoiceFile ? [invoiceFile] : [];
+  if (invoiceFiles.length > 0) {
+    payload.rechnung_dateiname = invoiceFiles.map((file) => file.name).join(", ");
+    payload.rechnung_groesse_kb = Math.round(
+      invoiceFiles.reduce((total, file) => total + file.size, 0) / 1024,
+    );
+  }
+  const { lead_id, lead_number, invoice_uploaded } = await submitPublicLead(payload, invoiceFiles);
   return {
     ok: true,
     leadId: lead_id,
