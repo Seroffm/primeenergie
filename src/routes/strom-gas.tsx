@@ -18,18 +18,22 @@ import ctaBg from "@/assets/final-cta-bg.jpg";
 export const Route = createFileRoute("/strom-gas")({
   head: () => ({
     meta: [
-      { title: "Strom + Gas im Bundle: Doppel-Bonus sichern | PRIME ENERGIE" },
+      { title: "Strom & Gas gemeinsam prüfen | PRIME ENERGIE" },
       {
         name: "description",
         content:
-          "Strom und Gas bündeln, einen Vertrag verwalten, doppelten Wechselbonus sichern. Wir prüfen, ob sich ein Bundle für Sie wirklich lohnt.",
+          "PRIME ENERGIE prüft Strom und Gas gemeinsam und stellt kombinierte Angebote den passenden Einzeltarifen gegenüber.",
       },
-      { property: "og:title", content: "Strom + Gas im Bundle | PRIME ENERGIE" },
+      { property: "og:title", content: "Strom & Gas gemeinsam prüfen | PRIME ENERGIE" },
       {
         property: "og:description",
-        content: "Ein Vertrag, doppelte Ersparnis. Wir prüfen ehrlich, ob sich das Bundle lohnt.",
+        content: "Gemeinsam oder getrennt: Wir ordnen beide Möglichkeiten verständlich ein.",
       },
-      { property: "og:image", content: "https://images.unsplash.com/photo-1548502032-4d0e6d99b31e?w=1200&h=630&fit=crop&q=80" },
+      {
+        property: "og:image",
+        content:
+          "https://images.unsplash.com/photo-1548502032-4d0e6d99b31e?w=1200&h=630&fit=crop&q=80",
+      },
     ],
   }),
   component: StromGasPage,
@@ -38,33 +42,33 @@ export const Route = createFileRoute("/strom-gas")({
 const features = [
   {
     icon: Gift,
-    title: "Doppelter Wechselbonus",
-    desc: "Bei vielen Anbietern bekommen Sie Bonus für Strom UND Gas. Kombiniert oft über 300 €.",
+    title: "Gemeinsam betrachten",
+    desc: "Wir erfassen beide Verbrauchswerte und prüfen, welche Kombination verfügbar ist.",
   },
   {
     icon: FileSignature,
-    title: "Ein Vertrag, eine Rechnung",
-    desc: "Statt zwei Versorgern, zwei Portalen, zwei Mahnungen: alles aus einer Hand.",
+    title: "Weniger Abstimmungsaufwand",
+    desc: "Ein gemeinsamer Anbieter kann Verwaltung vereinfachen, ist aber nicht immer günstiger.",
   },
   {
     icon: Clock,
-    title: "Ein Wechseltermin",
-    desc: "Wir synchronisieren die Kündigungen, sodass Sie keinen Tag doppelt zahlen.",
+    title: "Termine im Blick",
+    desc: "Die bestehenden Laufzeiten für Strom und Gas werden getrennt berücksichtigt.",
   },
   {
     icon: TrendingDown,
-    title: "Ehrlich gerechnet",
-    desc: "Wir prüfen, ob ein Bundle wirklich günstiger ist. Oder zwei Einzeltarife.",
+    title: "Varianten vergleichen",
+    desc: "Kombinierte Angebote werden passenden Einzeltarifen gegenübergestellt.",
   },
   {
     icon: ShieldCheck,
-    title: "Geprüfte Komplett-Anbieter",
-    desc: "Nur Versorger, die in beiden Kategorien überzeugen. Nicht nur im Marketing.",
+    title: "Konditionen verstehen",
+    desc: "Preise, Laufzeiten, Garantien und Boni werden für beide Energiearten eingeordnet.",
   },
   {
     icon: Users,
-    title: "Familien-Tarife",
-    desc: "Spezielle Bundles für Haushalte ab 3 Personen mit erhöhtem Verbrauch.",
+    title: "Persönliche Beratung",
+    desc: "PRIME ENERGIE bespricht mit Ihnen, welche Variante besser zu Ihrem Haushalt passt.",
   },
 ];
 
@@ -72,9 +76,9 @@ function StromGasPage() {
   return (
     <SiteLayout>
       <TopicHero
-        kicker="Doppel-Bonus möglich"
-        title={<>Strom & Gas. Ein Vertrag. Doppelt sparen.</>}
-        lead="Ein Bundle ist nicht automatisch günstiger. Aber wenn es passt, sparen Sie doppelt. Wir rechnen es für Sie ehrlich durch."
+        kicker="Gemeinsam oder getrennt"
+        title={<>Strom & Gas passend zusammenstellen.</>}
+        lead="Ein gemeinsamer Tarif kann praktisch sein. Zwei Einzeltarife können wirtschaftlicher sein. PRIME ENERGIE prüft beide Wege."
         image={heroImg}
         imageAlt="Glückliche Familie im hellen Wohnzimmer mit smartem Thermostat"
         Icon={Layers}
@@ -82,27 +86,27 @@ function StromGasPage() {
       />
 
       <FeatureGrid
-        title="Wann sich das Bundle wirklich lohnt"
-        intro="Sechs Gründe, warum Strom + Gas aus einer Hand mehr ist als ein Marketing-Trick."
+        title="Was bei Strom & Gas gemeinsam zählt"
+        intro="Sechs Punkte, die wir bei einer kombinierten Anfrage berücksichtigen."
         items={features}
       />
 
       <ImageSplit
         eyebrow="Bundle vs. Einzeltarife"
-        title="Wir vergleichen beide Varianten. Immer"
-        body="Standardmäßig prüfen wir nicht nur Bundles, sondern auch jeweils den besten Einzeltarif für Strom und den besten für Gas. Sie bekommen das günstigere Ergebnis. Nicht das mit der höheren Provision."
+        title="Kombination und Einzeltarife gegenüberstellen"
+        body="Wir betrachten verfügbare Kombinationen sowie passende Einzeltarife. Sie erhalten eine verständliche Einordnung und entscheiden selbst, welche Lösung zu Ihnen passt."
         image={splitImg}
         imageAlt="Vergleichsdiagramm Strom und Gas Tarife"
         bullets={[
-          "Bundle-Berechnung mit echten 24-Monats-Kosten",
-          "Parallel: bester Einzeltarif Strom und bester Einzeltarif Gas",
-          "Sie entscheiden, was günstiger und einfacher ist",
+          "Gesamtkosten für beide Energiearten betrachten",
+          "Unterschiedliche Vertragslaufzeiten berücksichtigen",
+          "Komfort und Wirtschaftlichkeit gemeinsam abwägen",
         ]}
       />
 
       <FinalCta
         title="Lohnt sich ein Bundle für Sie?"
-        body="In 2 Minuten zur ehrlichen Antwort. Mit individuellem Sparbetrag in Euro."
+        body="Senden Sie Ihre Eckdaten. PRIME ENERGIE prüft, welche gemeinsame oder getrennte Lösung verfügbar und nachvollziehbar ist."
         image={ctaBg}
       />
     </SiteLayout>

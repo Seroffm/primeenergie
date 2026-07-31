@@ -21,7 +21,7 @@ export const Route = createFileRoute("/kontakt")({
       {
         name: "description",
         content:
-          "Kostenlose, unverbindliche Beratung zu Strom und Gas. Rufen Sie uns direkt zu unseren Servicezeiten an.",
+          "Kontaktieren Sie PRIME ENERGIE telefonisch, per E-Mail oder über die Online-Tarifprüfung.",
       },
       { property: "og:title", content: "Kontakt | PRIME ENERGIE" },
       {
@@ -44,10 +44,9 @@ const channels = [
   {
     icon: MessageCircle,
     label: "Telefonische Beratung",
-    value: "Rufen Sie uns direkt an",
-    href: "/angebot",
-    note: "Direkter Kontakt zu unserem Beratungsteam",
-    badge: "Schnellste Antwort",
+    value: "0231 39989390",
+    href: "tel:+4923139989390",
+    note: "Direkter Kontakt zum Team von PRIME ENERGIE",
   },
   {
     icon: FileText,
@@ -66,9 +65,9 @@ const channels = [
 ];
 
 const hours = [
-  { day: "Telefonische Beratung", time: "zu unseren Servicezeiten" },
+  { day: "Telefon", time: "0231 39989390" },
+  { day: "E-Mail", time: "info@primeenergie.de" },
   { day: "Online-Anfrage", time: "jederzeit möglich" },
-  { day: "Persönliche Prüfung", time: "in der Regel binnen 24 h" },
 ];
 
 function KontaktPage() {
@@ -84,11 +83,15 @@ function KontaktPage() {
           >
             <Phone className="mt-0.5 h-4 w-4 shrink-0" />
             <span>
-              <a href="tel:08001234567" className="block text-sm font-bold hover:underline">
-                0800 123 4567
+              <a href="tel:+4923139989390" className="block text-sm font-bold hover:underline">
+                0231 39989390
               </a>
-              <span className="mt-1 block">Mo–Fr: 08:00–16:00 Uhr</span>
-              <span className="block">Sa: 10:00–14:00 Uhr</span>
+              <a
+                href="mailto:info@primeenergie.de"
+                className="mt-1 block font-medium hover:underline"
+              >
+                info@primeenergie.de
+              </a>
             </span>
           </motion.div>
           <motion.h1
@@ -103,8 +106,7 @@ function KontaktPage() {
             transition={{ ...fadeUp.transition, delay: 0.1 }}
             className="mx-auto mt-5 max-w-2xl text-lg text-muted-foreground md:text-xl"
           >
-            Persönlich, kostenlos und ohne Verpflichtung. Wählen Sie den Weg, der für Sie am
-            bequemsten ist.
+            Persönlich und ohne Umwege. Wählen Sie den Kontaktweg, der zu Ihrem Anliegen passt.
           </motion.p>
         </div>
       </section>
@@ -120,11 +122,6 @@ function KontaktPage() {
               transition={{ ...fadeUp.transition, delay: i * 0.05 }}
               className="group relative overflow-hidden rounded-3xl border border-border bg-card p-7 shadow-soft transition-all hover:-translate-y-1 hover:border-success/40 hover:shadow-card"
             >
-              {c.badge && (
-                <span className="absolute right-4 top-4 rounded-full bg-success/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-success">
-                  {c.badge}
-                </span>
-              )}
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-success/15 to-success/5 text-success ring-1 ring-success/20">
                 <c.icon className="h-7 w-7" />
               </div>
@@ -156,7 +153,7 @@ function KontaktPage() {
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-success/10 text-success">
                 <Clock className="h-6 w-6" />
               </div>
-              <h2 className="mt-5 text-xl font-bold text-primary">Beratungszeiten</h2>
+              <h2 className="mt-5 text-xl font-bold text-primary">Kontaktmöglichkeiten</h2>
               <ul className="mt-4 divide-y divide-border">
                 {hours.map((h) => (
                   <li key={h.day} className="flex items-center justify-between py-3 text-sm">
@@ -176,14 +173,16 @@ function KontaktPage() {
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-success/10 text-success">
                 <Building2 className="h-6 w-6" />
               </div>
-              <h2 className="mt-5 text-xl font-bold text-primary">Digital erreichbar</h2>
+              <h2 className="mt-5 text-xl font-bold text-primary">PRIME ENERGIE in Dortmund</h2>
               <p className="mt-4 text-muted-foreground">
-                Starten Sie Ihre Anfrage online oder rufen Sie uns für eine persönliche Beratung
-                direkt an. Unser Team unterstützt Sie bei der Prüfung Ihrer Angaben und der
-                Auswahl passender Tarife.
+                Alpha Energie GmbH
+                <br />
+                Alter Hellweg 50
+                <br />
+                44379 Dortmund
               </p>
               <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-success/10 px-3 py-1 text-xs font-semibold text-success">
-                <MapPin className="h-3.5 w-3.5" /> Deutschlandweite Beratung
+                <MapPin className="h-3.5 w-3.5" /> Beratung deutschlandweit
               </div>
             </motion.div>
 
@@ -196,10 +195,10 @@ function KontaktPage() {
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 text-success">
                 <ShieldCheck className="h-6 w-6" />
               </div>
-              <h2 className="mt-5 text-xl font-bold">Ihre Daten sind sicher</h2>
+              <h2 className="mt-5 text-xl font-bold">Datenschutz transparent erklärt</h2>
               <p className="mt-3 text-sm text-primary-foreground/80">
-                Verarbeitung DSGVO-konform in Deutschland. Wir geben Ihre Daten niemals ohne
-                Einwilligung weiter und rufen genau einmal zur Beratung an.
+                Wir verarbeiten Ihre Angaben zweckgebunden für Ihre Anfrage. Details zu
+                Dienstleistern, Empfängern und Ihren Rechten finden Sie in der Datenschutzerklärung.
               </p>
               <Link
                 to="/datenschutz"
@@ -221,13 +220,14 @@ function KontaktPage() {
           <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
             <div className="max-w-xl">
               <div className="inline-flex items-center gap-2 rounded-full bg-success/15 px-3 py-1 text-xs font-semibold text-success">
-                <Send className="h-3.5 w-3.5" /> Schneller geht's online
+                <Send className="h-3.5 w-3.5" /> Direkt online starten
               </div>
               <h2 className="mt-4 text-3xl font-bold text-primary md:text-4xl">
                 Direkt zur Tarifprüfung
               </h2>
               <p className="mt-3 text-muted-foreground">
-                2 Minuten Aufwand, bis zu 850 € Ersparnis pro Jahr. Ganz ohne Anruf.
+                Übermitteln Sie die wichtigsten Eckdaten online. Unser Team prüft Ihre Anfrage und
+                meldet sich persönlich.
               </p>
             </div>
             <Button

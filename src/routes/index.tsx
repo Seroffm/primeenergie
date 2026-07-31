@@ -63,20 +63,20 @@ export const Route = createFileRoute("/")({
   validateSearch: (s) => homeSearchSchema.parse(s) ?? {},
   head: () => ({
     meta: [
-      { title: "PRIME ENERGIE | Strom & Gas vergleichen, bis zu 850 € sparen" },
+      { title: "PRIME ENERGIE | Tarife für Strom und Gas persönlich prüfen" },
       {
         name: "description",
         content:
-          "Kostenloser Strom- und Gasvergleich mit persönlicher Beratung. Geprüfte Anbieter, einfacher Wechsel, keine Versorgungslücke.",
+          "PRIME ENERGIE prüft Tarife für Strom und Gas für private Haushalte und Unternehmen. Persönliche Beratung, verständliche Konditionen und Begleitung beim Wechsel.",
       },
       {
         property: "og:title",
-        content: "PRIME ENERGIE | Strom & Gas vergleichen, bis zu 850 € sparen",
+        content: "PRIME ENERGIE | Tarife für Strom und Gas persönlich prüfen",
       },
       {
         property: "og:description",
         content:
-          "Kostenloser Strom- und Gasvergleich mit persönlicher Beratung. Geprüfte Anbieter, einfacher Wechsel, keine Versorgungslücke.",
+          "PRIME ENERGIE prüft Tarife für Strom und Gas für private Haushalte und Unternehmen. Persönliche Beratung, verständliche Konditionen und Begleitung beim Wechsel.",
       },
     ],
   }),
@@ -189,22 +189,22 @@ function Hero() {
             transition={{ duration: 0.4, ease: "easeOut" }}
           >
             <span className="inline-flex items-center gap-2 rounded-full border border-success/30 bg-success/10 px-3 py-1 text-xs font-semibold text-success">
-              <BadgeCheck className="h-3.5 w-3.5" /> Manuell geprüfte Tarife · Kostenlos
+              <BadgeCheck className="h-3.5 w-3.5" /> Persönlich geprüft · Kostenlos angefragt
             </span>
             <h1 className="mt-5 font-display text-4xl font-extrabold leading-[1.05] text-primary md:text-6xl">
-              Strom & Gas in 2 Minuten <span className="text-success">vergleichen.</span>
+              Energie neu denken. <span className="text-success">Persönlich entscheiden.</span>
             </h1>
             <p className="mt-5 max-w-xl text-lg text-muted-foreground">
-              Bis zu <strong className="text-primary">850 € pro Jahr</strong> sparen. Mit
-              persönlicher Beratung statt Tariflotterie. Unabhängig, transparent und ohne versteckte
-              Kosten.
+              PRIME ENERGIE prüft passende Tarife für Strom und Gas anhand Ihrer Angaben und erklärt
+              die Konditionen verständlich. So treffen Sie eine Entscheidung, die zu Ihrem Verbrauch
+              passt.
             </p>
 
             <ul className="mt-6 grid max-w-md gap-2.5 text-sm">
               {[
-                "Persönlicher Berater statt anonymes Vergleichsportal",
-                "Komplette Wechselabwicklung inkl. Kündigung",
-                "Keine Versorgungslücke. Garantiert",
+                "Persönliche Beratung statt anonymer Ergebnisliste",
+                "Tarifdetails verständlich und transparent erklärt",
+                "Begleitung von der Anfrage bis zum Anbieterwechsel",
               ].map((b) => (
                 <li key={b} className="flex items-start gap-2 text-foreground">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 flex-none text-success" />
@@ -221,7 +221,7 @@ function Hero() {
                 <PhoneCall className="h-4 w-4 text-success" /> Persönliche Beratung per Telefon
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <FileSearch className="h-4 w-4 text-success" /> Manuell geprüfte Tarife
+                <FileSearch className="h-4 w-4 text-success" /> Prüfung nach Ihren Angaben
               </span>
             </div>
           </motion.div>
@@ -283,7 +283,7 @@ function QuickCalculator() {
   function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!/^\d{5}$/.test(plz)) {
-      setPlzError("Bitte gib deine 5-stellige Postleitzahl ein.");
+      setPlzError("Bitte geben Sie Ihre 5-stellige Postleitzahl ein.");
       return;
     }
     if (audience === "gewerbe" && !invoiceName) {
@@ -307,10 +307,10 @@ function QuickCalculator() {
         <div className="flex items-center justify-between">
           <div>
             <div className="font-display text-lg font-bold text-primary">Tarifrechner</div>
-            <div className="text-xs text-muted-foreground">Vergleich in unter 2 Minuten</div>
+            <div className="text-xs text-muted-foreground">Anfrage in wenigen Schritten</div>
           </div>
           <div className="rounded-full bg-success/10 px-3 py-1 text-xs font-semibold text-success">
-            bis 850 € sparen
+            kostenlos anfragen
           </div>
         </div>
 
@@ -476,7 +476,7 @@ function QuickCalculator() {
             <BadgeCheck className="h-3.5 w-3.5 text-success" /> DSGVO-konform
           </span>
           <span className="inline-flex items-center gap-1">
-            <Award className="h-3.5 w-3.5 text-success" /> Geprüfte Anbieter
+            <Award className="h-3.5 w-3.5 text-success" /> Transparente Konditionen
           </span>
         </div>
       </div>
@@ -491,7 +491,7 @@ function TrustStrip() {
     { icon: BadgeCheck, label: "Kostenlos" },
     { icon: ShieldCheck, label: "DSGVO-konforme Anfrage" },
     { icon: Award, label: "Manuelle Tarifprüfung" },
-    { icon: CheckCircle2, label: "Keine Versorgungsunterbrechung" },
+    { icon: CheckCircle2, label: "Begleitung beim Wechsel" },
     { icon: PhoneCall, label: "Persönlicher Ansprechpartner" },
   ];
   return (
@@ -515,30 +515,34 @@ function HowItWorks() {
     {
       n: "01",
       icon: FileSearch,
-      t: "Daten eingeben",
-      k: "~ 90 Sek.",
-      d: "PLZ, Jahresverbrauch und Wunsch. Fertig. Keine Registrierung, keine Zwangsfelder.",
-      bullets: ["Online oder telefonisch", "Auch ohne alte Rechnung", "Verschlüsselte Übertragung"],
+      t: "Bedarf angeben",
+      k: "wenige Minuten",
+      d: "Sie übermitteln Postleitzahl, Verbrauch und Ihre Wünsche über das Formular oder telefonisch.",
+      bullets: [
+        "Online oder telefonisch",
+        "Rechnung optional hochladen",
+        "Verschlüsselte Übertragung",
+      ],
     },
     {
       n: "02",
       icon: PhoneCall,
-      t: "Persönliches Angebot",
-      k: "≤ 24 Std.",
-      d: "Ein echter Berater prüft 1.200+ Tarife manuell und ruft mit dem besten Vorschlag zurück.",
+      t: "Tarife prüfen",
+      k: "individuell",
+      d: "Das Team von PRIME ENERGIE prüft verfügbare Optionen und ordnet Preis, Laufzeit und Konditionen ein.",
       bullets: [
-        "Vergleich inkl. Kleingedrucktem",
-        "Lockboni ausgeschlossen",
-        "Festpreisgarantie möglich",
+        "Gesamtkosten im Blick",
+        "Boni und Laufzeiten erklärt",
+        "Preisgarantien klar eingeordnet",
       ],
     },
     {
       n: "03",
       icon: FileSignature,
-      t: "Wechseln & sparen",
-      k: "Ø 380 €/Jahr",
-      d: "Wir übernehmen Kündigung beim Altanbieter und Anmeldung beim Neuen. Sie machen nichts.",
-      bullets: ["Lückenlose Versorgung", "Schriftliche Bestätigung", "Erinnerung vor Vertragsende"],
+      t: "Entscheiden & wechseln",
+      k: "nach Ihrer Freigabe",
+      d: "Sie entscheiden in Ruhe. Wenn das Angebot passt, begleitet PRIME ENERGIE die nächsten Schritte.",
+      bullets: ["Angebot in Ruhe prüfen", "Wechselprozess begleitet", "Unterlagen nachvollziehbar"],
     },
   ];
   return (
@@ -548,10 +552,10 @@ function HowItWorks() {
           <Sparkles className="h-3.5 w-3.5" /> So funktioniert es
         </span>
         <h2 className="mt-3 font-display text-3xl font-bold text-primary md:text-5xl">
-          Drei Schritte. <span className="text-success">Null</span> Papierkram.
+          Drei Schritte zu Ihrer <span className="text-success">Tarifentscheidung.</span>
         </h2>
         <p className="mt-3 text-muted-foreground">
-          Links siehst du, was wir kombinieren. Rechts, wie es im Detail abläuft.
+          Von der ersten Angabe bis zum Wechsel bleibt der Ablauf klar und persönlich.
         </p>
       </div>
 
@@ -588,7 +592,7 @@ function HowItWorks() {
             })}
           </div>
           <p className="mx-auto mt-8 max-w-sm text-center text-sm text-muted-foreground">
-            Dein Wunsch + unser Marktcheck + persönliche Betreuung. Alles in einem Paket.
+            Ihre Angaben, unsere Tarifprüfung und eine persönliche Einordnung aus einer Hand.
           </p>
         </motion.div>
 
@@ -601,7 +605,7 @@ function HowItWorks() {
           className="flex flex-col rounded-3xl border border-border bg-card p-6 shadow-card sm:p-8"
         >
           <h3 className="font-display text-xl font-bold text-primary sm:text-2xl">
-            So läuft dein Wechsel:
+            So läuft Ihre Tarifprüfung:
           </h3>
 
           <Accordion type="single" collapsible defaultValue="step-0" className="mt-4 flex-1">
@@ -653,7 +657,7 @@ function HowItWorks() {
             className="mt-6 w-full bg-success text-success-foreground hover:bg-success/90 sm:w-auto sm:self-start"
           >
             <Link to="/angebot">
-              Jetzt passendes Angebot sichern <ArrowRight className="ml-1 h-4 w-4" />
+              Persönliches Angebot anfragen <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
           </Button>
         </motion.div>
@@ -670,10 +674,10 @@ function BenefitsSection() {
       <div className="mx-auto max-w-6xl px-4">
         <div className="mx-auto max-w-2xl text-center">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1 text-xs font-semibold text-success">
-            <TrendingDown className="h-3.5 w-3.5" /> Spar-Rechner
+            <TrendingDown className="h-3.5 w-3.5" /> Beispielrechnung
           </span>
           <h2 className="mt-3 font-display text-3xl font-bold text-primary md:text-5xl">
-            Wie viel <span className="text-success">sparst du</span>?
+            Was könnte ein <span className="text-success">Tarifwechsel verändern?</span>
           </h2>
           <p className="mt-3 text-muted-foreground">
             Unverbindliche Modellrechnung mit transparenten Beispielpreisen.
@@ -696,13 +700,13 @@ function SavingsCalculator() {
 
   const result = useMemo(() => {
     const pricePerKwh = energy === "strom" ? 0.41 : 0.12;
-    const cleverPrice = energy === "strom" ? 0.31 : 0.085;
+    const comparisonPrice = energy === "strom" ? 0.31 : 0.085;
     const base = energy === "strom" ? 145 : 110;
     const grund = Math.round(base + kwh * pricePerKwh);
     const portal = Math.round(grund * 0.87);
-    const clever = Math.round(base + kwh * cleverPrice);
-    const saved = grund - clever;
-    return { grund, portal, clever, saved };
+    const comparison = Math.round(base + kwh * comparisonPrice);
+    const saved = grund - comparison;
+    return { grund, portal, clever: comparison, saved };
   }, [kwh, energy]);
 
   const max = Math.max(result.grund, result.portal, result.clever);
@@ -847,7 +851,7 @@ function SavingsCalculator() {
       <div className="relative mt-7 flex items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-success/15 via-success/10 to-transparent p-5">
         <div>
           <div className="text-xs font-semibold uppercase tracking-wider text-success">
-            Deine Ersparnis
+            Rechnerischer Unterschied
           </div>
           <div className="font-display text-4xl font-extrabold tabular-nums text-primary">
             {result.saved.toLocaleString("de-DE")} €
@@ -860,7 +864,7 @@ function SavingsCalculator() {
           className="bg-success text-success-foreground hover:bg-success/90"
         >
           <Link to="/angebot">
-            Sichern <ArrowRight className="ml-1 h-4 w-4" />
+            Tarif prüfen <ArrowRight className="ml-1 h-4 w-4" />
           </Link>
         </Button>
       </div>
@@ -875,9 +879,9 @@ function SavingsCalculator() {
 
 function ComparisonCard() {
   const us = [
-    "Ein fester Berater begleitet dich. Per Telefon, kein Chatbot.",
-    "Wir kündigen deinen Altvertrag und übernehmen den Wechsel komplett.",
-    "Tarife werden manuell auf Preisgarantie, Lockboni und Laufzeit geprüft.",
+    "Eine persönliche Ansprechperson ordnet das Angebot mit Ihnen ein.",
+    "Auf Wunsch begleiten wir die Abstimmung mit dem bisherigen und dem neuen Anbieter.",
+    "Preis, Laufzeit, Boni und Preisgarantie werden nachvollziehbar dargestellt.",
   ];
 
   return (
@@ -996,10 +1000,10 @@ function AudienceSection() {
 
 function StatsBand() {
   const stats = [
-    { v: "24 h", l: "Persönliche Prüfung", sub: "in der Regel am nächsten Werktag" },
-    { v: "1:1", l: "Persönliche Beratung", sub: "ein fester Ansprechpartner" },
-    { v: "100 %", l: "Manuelle Prüfung", sub: "Tarifdetails statt Rangliste" },
-    { v: "0 €", l: "Kostenlos & unverbindlich", sub: "kein Risiko, kein Haken" },
+    { v: "1:1", l: "Persönliche Beratung", sub: "direkter Austausch mit unserem Team" },
+    { v: "Klar", l: "Konditionen im Blick", sub: "Preis, Laufzeit und Boni verständlich" },
+    { v: "Sicher", l: "Begleiteter Wechsel", sub: "Unterstützung bei den nächsten Schritten" },
+    { v: "0 €", l: "Kostenlose Anfrage", sub: "Sie entscheiden unverbindlich" },
   ];
 
   return (
@@ -1008,7 +1012,7 @@ function StatsBand() {
         {/* Headline only — no eyebrow, no split */}
         <div className="border-b border-white/[0.08] py-10 md:py-14">
           <h2 className="font-display text-2xl font-extrabold text-primary-foreground sm:text-3xl md:text-4xl">
-            Zahlen, die für sich sprechen.
+            Was PRIME ENERGIE für Sie auszeichnet.
           </h2>
         </div>
 
@@ -1065,7 +1069,7 @@ function PriceBreakdown() {
       short: "Netz & Messung",
       value: 26,
       color: "#0b3b2e",
-      desc: "Regulierte Gebühren für die Nutzung der Strom- und Gasnetze sowie Messstellenbetrieb. Fix pro Region. Unabhängig vom Anbieter.",
+      desc: "Regulierte Gebühren für die Nutzung der Netze für Strom und Gas sowie den Messstellenbetrieb. Diese Kosten hängen vom jeweiligen Netzgebiet ab.",
     },
     {
       key: "steuern",
@@ -1108,11 +1112,11 @@ function PriceBreakdown() {
             Transparenz
           </div>
           <h2 className="mt-3 text-3xl font-bold tracking-tight md:text-5xl">
-            Wie setzt sich dein Strompreis zusammen?
+            Wie setzt sich Ihr Strompreis zusammen?
           </h2>
           <p className="mt-4 text-base text-muted-foreground md:text-lg">
-            Nur ein Bruchteil deiner Stromrechnung geht an den Anbieter selbst. Der Rest sind Netze
-            und Steuern. Genau hier setzen wir an.
+            Der Endpreis besteht aus Beschaffung, Vertrieb, Netzentgelten, Steuern und Abgaben. Wir
+            zeigen, welche Tarifbestandteile für Ihre Entscheidung relevant sind.
           </p>
         </motion.div>
 
@@ -1221,17 +1225,17 @@ function Testimonials() {
     {
       n: "Sandra K.",
       c: "Familie, München",
-      t: "Innerhalb eines Tages hatte ich ein passendes Angebot. Spare jetzt 520 € im Jahr. Ohne Stress.",
+      t: "Die Konditionen wurden verständlich erklärt und ich konnte das Angebot in Ruhe prüfen.",
     },
     {
       n: "Markus B.",
       c: "Inhaber Café, Köln",
-      t: "Endlich Klartext statt Klick-Strecke. Die Gewerbeberatung war Gold wert.",
+      t: "Für unseren Betrieb wurden Verbrauch und Vertragsbedingungen nachvollziehbar eingeordnet.",
     },
     {
       n: "Familie Weiß",
       c: "Hannover",
-      t: "Komplett ohne Aufwand. Kündigung beim alten Anbieter haben sie für uns übernommen.",
+      t: "Bei den nächsten Schritten hatte ich eine feste Ansprechperson an meiner Seite.",
     },
   ];
   return (
@@ -1303,8 +1307,8 @@ function MoreSolutions() {
       title: "Solaranlage",
       bullets: [
         "Solaranlage kaufen oder mieten",
-        "Mit geprüften Fach-Partnern",
-        "Nachhaltig und unabhängig",
+        "Bedarf und Möglichkeiten einordnen",
+        "Nächste Schritte persönlich abstimmen",
       ],
       cta: "Jetzt beraten lassen",
       to: "/kontakt",
@@ -1318,7 +1322,7 @@ function MoreSolutions() {
           {...fadeUp}
           className="max-w-3xl font-display text-3xl font-extrabold leading-tight text-primary md:text-5xl"
         >
-          Noch mehr clevere Energie-Lösungen<span className="text-success">.</span>
+          Weitere Energielösungen für Ihren Bedarf<span className="text-success">.</span>
         </motion.h2>
 
         <div className="mt-12 grid gap-6 md:grid-cols-3">
@@ -1387,7 +1391,7 @@ function RatgeberSection() {
     },
     {
       t: "Über PRIME ENERGIE",
-      d: "Warum wir unabhängig sind und wie wir Geld verdienen. Transparent erklärt.",
+      d: "Wie PRIME ENERGIE arbeitet und wie sich unsere Beratung finanziert.",
       img: "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=800&q=70",
       to: "/ueber-uns",
     },
@@ -1490,7 +1494,8 @@ function ContactSection() {
     {
       title: (
         <>
-          Du hast Fragen zu deinem <span className="text-success">Strom- oder Gasvertrag</span>?
+          Sie haben Fragen zu Ihrem <span className="text-success">Vertrag für Strom oder Gas</span>
+          ?
         </>
       ),
       items: [
@@ -1498,12 +1503,12 @@ function ContactSection() {
           icon: PhoneCall,
           text: (
             <>
-              <div>Ruf uns an Montag bis Freitag, 9:00 bis 17:00 Uhr</div>
+              <div>Rufen Sie das Team von PRIME ENERGIE direkt an</div>
               <a
-                href="tel:08001234567"
+                href="tel:+4923139989390"
                 className="font-semibold text-success underline-offset-4 hover:underline"
               >
-                0800 123 4567
+                0231 39989390
               </a>
             </>
           ),
@@ -1512,12 +1517,12 @@ function ContactSection() {
           icon: FileSignature,
           text: (
             <>
-              <div>Schreib uns jederzeit</div>
+              <div>Schreiben Sie uns eine E Mail</div>
               <a
-                href="mailto:hallo@energieclever.de"
+                href="mailto:info@primeenergie.de"
                 className="font-semibold text-success underline-offset-4 hover:underline"
               >
-                hallo@energieclever.de
+                info@primeenergie.de
               </a>
             </>
           ),
@@ -1539,21 +1544,21 @@ function ContactSection() {
       ],
       footer: (
         <p className="mt-6 text-sm text-primary-foreground/80">
-          Bevor du uns kontaktierst, lies dir gerne unsere Gedanken zu einem{" "}
+          Mehr über unseren persönlichen und transparenten{" "}
           <Link
             to="/service"
             className="font-semibold text-success underline-offset-4 hover:underline"
           >
-            respektvollen Service
+            Service von PRIME ENERGIE
           </Link>{" "}
-          durch.
+          erfahren Sie auf unserer Serviceseite.
         </p>
       ),
     },
     {
       title: (
         <>
-          Du hast Fragen zu deiner <span className="text-success">Wärmepumpe</span>?
+          Sie möchten Ihre <span className="text-success">Energielösung</span> besprechen?
         </>
       ),
       items: [
@@ -1561,12 +1566,12 @@ function ContactSection() {
           icon: PhoneCall,
           text: (
             <>
-              <div>Ruf uns an Montag bis Freitag, 9:00 bis 17:00 Uhr</div>
+              <div>Rufen Sie das Team von PRIME ENERGIE direkt an</div>
               <a
-                href="tel:08938031600"
+                href="tel:+4923139989390"
                 className="font-semibold text-success underline-offset-4 hover:underline"
               >
-                089 38031 600
+                0231 39989390
               </a>
             </>
           ),
@@ -1575,12 +1580,12 @@ function ContactSection() {
           icon: FileSignature,
           text: (
             <>
-              <div>Schreib uns jederzeit:</div>
+              <div>Schreiben Sie uns eine E Mail</div>
               <a
-                href="mailto:waermepumpe@energieclever.de"
+                href="mailto:info@primeenergie.de"
                 className="font-semibold text-success underline-offset-4 hover:underline"
               >
-                waermepumpe@energieclever.de
+                info@primeenergie.de
               </a>
             </>
           ),
@@ -1589,12 +1594,12 @@ function ContactSection() {
           icon: Users,
           text: (
             <>
-              <div>Sprich direkt mit uns auf unseren Wärmepumpen-Events.</div>
+              <div>Stimmen Sie Ihren Beratungsbedarf direkt mit uns ab.</div>
               <Link
                 to="/kontakt"
                 className="font-semibold text-success underline-offset-4 hover:underline"
               >
-                Jetzt Termin anfragen.
+                Beratung anfragen
               </Link>
             </>
           ),
@@ -1616,12 +1621,12 @@ function ContactSection() {
       ],
       footer: (
         <p className="mt-6 text-sm text-primary-foreground/80">
-          Unsere Wärmepumpen-AGB findest du{" "}
+          Unsere Vertragsinformationen finden Sie{" "}
           <Link
             to="/widerruf"
             className="font-semibold text-success underline-offset-4 hover:underline"
           >
-            hier.
+            in den AGB.
           </Link>
         </p>
       ),
@@ -1697,7 +1702,7 @@ function FinalCta() {
               Bereit, weniger zu zahlen?
             </h2>
             <p className="mt-3 max-w-xl opacity-95">
-              Starten Sie jetzt Ihre kostenlose Tarifprüfung. 2 Minuten. Mehr brauchen wir nicht.
+              Starten Sie jetzt Ihre kostenlose Tarifprüfung mit wenigen Angaben.
             </p>
             <div className="mt-4 flex items-start gap-2 text-sm opacity-95">
               <Phone className="mt-0.5 h-4 w-4 shrink-0" />
@@ -1735,10 +1740,10 @@ function WechselCta() {
             <Sparkles className="h-3.5 w-3.5" /> Jetzt wechseln
           </div>
           <h2 className="mt-4 font-display text-3xl font-extrabold text-primary md:text-5xl">
-            Einmal wechseln, <span className="text-success">für immer faire Preise</span>
+            Tarif prüfen, <span className="text-success">bewusst entscheiden.</span>
           </h2>
           <p className="mt-4 text-base text-muted-foreground md:text-lg">
-            Wechsle in 2 Minuten zu Deutschlands smartem Strom- und Gasanbieter.
+            Starten Sie Ihre Anfrage bei PRIME ENERGIE in wenigen Schritten.
           </p>
         </motion.div>
 
@@ -1768,11 +1773,11 @@ function WechselCta() {
                 <Zap className="h-4 w-4" /> Ökostrom · Gas
               </div>
               <h3 className="mt-3 font-display text-2xl font-bold md:text-3xl">
-                Hol' dir jetzt dein persönliches Angebot
+                Ihr persönliches Energieangebot
               </h3>
               <p className="mt-2 text-sm text-primary-foreground/75">
-                Gib deine Postleitzahl ein. Wir zeigen dir in Sekunden die besten Tarife in deiner
-                Region.
+                Geben Sie Ihre Postleitzahl ein. Anschließend ergänzen Sie die Angaben, die wir für
+                Ihre persönliche Tarifprüfung benötigen.
               </p>
 
               <form
@@ -1789,7 +1794,7 @@ function WechselCta() {
                   <Input
                     value={plz}
                     onChange={(e) => setPlz(e.target.value.replace(/\D/g, "").slice(0, 5))}
-                    placeholder="Deine Postleitzahl"
+                    placeholder="Ihre Postleitzahl"
                     inputMode="numeric"
                     aria-label="Postleitzahl"
                     className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 text-base font-semibold text-primary-foreground placeholder:font-normal placeholder:text-primary-foreground/50 focus-visible:ring-0"
@@ -1805,13 +1810,13 @@ function WechselCta() {
 
                 <ul className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-primary-foreground/80">
                   <li className="flex items-center gap-1.5">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-success" /> 100% kostenlos
+                    <CheckCircle2 className="h-3.5 w-3.5 text-success" /> Kostenlose Anfrage
                   </li>
                   <li className="flex items-center gap-1.5">
                     <CheckCircle2 className="h-3.5 w-3.5 text-success" /> Unverbindlich
                   </li>
                   <li className="flex items-center gap-1.5">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-success" /> Wechsel in 2 Min.
+                    <CheckCircle2 className="h-3.5 w-3.5 text-success" /> Persönlich geprüft
                   </li>
                 </ul>
               </form>
@@ -1830,7 +1835,7 @@ const faqs = [
   },
   {
     q: "Wie lange dauert ein Wechsel?",
-    a: "Der Wechselprozess dauert in der Regel 4–8 Wochen. Die Versorgung läuft währenddessen lückenlos weiter.",
+    a: "Die Dauer hängt von Kündigungsfrist, Vertragslaufzeit und dem gewählten Anbieter ab. PRIME ENERGIE erklärt Ihnen den voraussichtlichen Ablauf vor der Beauftragung.",
   },
   {
     q: "Gibt es eine Versorgungsunterbrechung?",
@@ -1842,7 +1847,7 @@ const faqs = [
   },
   {
     q: "Was passiert mit meinen Daten?",
-    a: "Alle Daten werden DSGVO-konform in Deutschland verarbeitet und nur zur Tarifprüfung verwendet.",
+    a: "Wir verarbeiten Ihre Angaben zweckgebunden und nach den geltenden Datenschutzvorgaben. Details zu eingesetzten Diensten und Empfängern finden Sie in unserer Datenschutzerklärung.",
   },
   {
     q: "Bin ich verpflichtet, das Angebot anzunehmen?",
@@ -1850,7 +1855,7 @@ const faqs = [
   },
   {
     q: "Auch für Gewerbekunden?",
-    a: "Ja, wir betreuen Selbstständige, kleine Unternehmen und Hausverwaltungen mit Sondertarifen.",
+    a: "Ja. PRIME ENERGIE prüft auch Anfragen von Selbstständigen, Unternehmen und Hausverwaltungen anhand des jeweiligen Verbrauchsprofils.",
   },
   {
     q: "Wie kündige ich meinen alten Vertrag?",

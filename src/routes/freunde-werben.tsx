@@ -18,20 +18,20 @@ import { requestReferralCode } from "@/lib/api-client";
 export const Route = createFileRoute("/freunde-werben")({
   head: () => ({
     meta: [
-      { title: "Freunde empfehlen & 30 € verdienen | PRIME ENERGIE" },
+      { title: "PRIME ENERGIE empfehlen & 30 € sichern" },
       {
         name: "description",
         content:
-          "Empfehle EnergieClever an Freunde und erhalte für jeden abgeschlossenen Energiewechsel einen 30-€-Amazon-Gutschein. Einfach, kostenlos und fair.",
+          "Empfehlen Sie PRIME ENERGIE weiter und erhalten Sie nach einem erfolgreichen Energiewechsel einen Amazon-Gutschein im Wert von 30 €.",
       },
       {
         property: "og:title",
-        content: "Freunde werben & 30 € Amazon-Gutschein sichern | PRIME ENERGIE",
+        content: "PRIME ENERGIE weiterempfehlen",
       },
       {
         property: "og:description",
         content:
-          "Teile deinen persönlichen Link. Für jeden abgeschlossenen Energiewechsel deines Freundes bekommst du 30 € als Amazon-Gutschein.",
+          "Persönlichen Empfehlungslink teilen und nach einem erfolgreichen Wechsel 30 € als Amazon-Gutschein erhalten.",
       },
     ],
   }),
@@ -43,19 +43,19 @@ const steps = [
     icon: Share2,
     title: "Link teilen",
     description:
-      "Teile deinen persönlichen Empfehlungs-Link einfach per WhatsApp, E-Mail oder Social Media mit Freunden und Familie.",
+      "Teilen Sie Ihren persönlichen Empfehlungslink per WhatsApp, E-Mail oder über einen anderen Kanal.",
   },
   {
     icon: UserCheck,
-    title: "Freund wechselt",
+    title: "Empfehlung wird Kunde",
     description:
-      "Dein Freund füllt das Formular aus und schließt seinen Energiewechsel über deinen Link ab.",
+      "Die empfohlene Person stellt über Ihren Link eine Anfrage und schließt den Energiewechsel ab.",
   },
   {
     icon: Gift,
-    title: "Du verdienst 30 €",
+    title: "Sie erhalten 30 €",
     description:
-      "Nach 30 Tagen Wartezeit bekommst du automatisch einen Amazon-Gutschein im Wert von 30 € per E-Mail.",
+      "Nach Ablauf der Wartezeit erhalten Sie den Amazon-Gutschein im Wert von 30 € per E-Mail.",
   },
 ];
 
@@ -63,12 +63,12 @@ const conditions = [
   {
     title: "Nur Neukunden zählen",
     content:
-      "Der geworbene Freund darf noch keinen bestehenden Vertrag oder keine laufende Anfrage bei EnergieClever haben. Nur echte Neukunden qualifizieren sich für die Prämie.",
+      "Die empfohlene Person darf noch keine laufende Anfrage bei PRIME ENERGIE haben. Nur Neukunden qualifizieren sich für die Prämie.",
   },
   {
-    title: "Keine Selbstreferral",
+    title: "Keine Eigenempfehlung",
     content:
-      "Du kannst dich nicht selbst empfehlen. Die E-Mail-Adresse des geworbenen Kunden darf nicht mit deiner eigenen übereinstimmen.",
+      "Eine Empfehlung der eigenen Person ist ausgeschlossen. Die E-Mail-Adressen müssen voneinander abweichen.",
   },
   {
     title: "Monatliches Limit",
@@ -78,12 +78,12 @@ const conditions = [
   {
     title: "Code-Gültigkeit: 90 Tage",
     content:
-      "Dein persönlicher Empfehlungs-Code ist 90 Tage ab Ausstellung gültig. Danach kannst du einen neuen Code über das Formular unten anfordern.",
+      "Ihr persönlicher Empfehlungscode ist 90 Tage ab Ausstellung gültig. Danach können Sie einen neuen Code anfordern.",
   },
   {
     title: "30 Tage Wartezeit",
     content:
-      "Nach dem abgeschlossenen Wechsel deines Freundes gilt eine Wartezeit von 30 Tagen. Erst danach wird der Amazon-Gutschein per E-Mail versendet.",
+      "Nach dem abgeschlossenen Wechsel gilt eine Wartezeit von 30 Tagen. Anschließend wird der Amazon-Gutschein per E-Mail versendet.",
   },
   {
     title: "Prämie: 30-€-Amazon-Gutschein",
@@ -105,14 +105,14 @@ function FreundeWerbenPage() {
       await requestReferralCode(email.trim());
       setSubmitted(true);
       toast.success(
-        "Falls du einen abgeschlossenen Wechsel bei uns hast, hast du soeben deinen Link per E-Mail erhalten.",
+        "Wenn ein abgeschlossener Wechsel bei PRIME ENERGIE vorliegt, erhalten Sie Ihren Link per E-Mail.",
         { duration: 6000 },
       );
     } catch {
       // Kein Fehler zeigen (Security)
       setSubmitted(true);
       toast.success(
-        "Falls du einen abgeschlossenen Wechsel bei uns hast, hast du soeben deinen Link per E-Mail erhalten.",
+        "Wenn ein abgeschlossener Wechsel bei PRIME ENERGIE vorliegt, erhalten Sie Ihren Link per E-Mail.",
         { duration: 6000 },
       );
     } finally {
@@ -135,11 +135,11 @@ function FreundeWerbenPage() {
               30 € Amazon-Gutschein pro Empfehlung
             </div>
             <h1 className="font-display text-4xl font-extrabold leading-tight text-primary-foreground md:text-5xl">
-              Freunde empfehlen &ndash; 30 &euro; verdienen
+              PRIME ENERGIE empfehlen &ndash; 30 &euro; sichern
             </h1>
             <p className="mt-5 text-lg text-primary-foreground/80">
-              Teile deinen persönlichen Link. Für jeden abgeschlossenen Energiewechsel
-              deines Freundes bekommst du einen{" "}
+              Teilen Sie Ihren persönlichen Link. Für jeden qualifizierten und abgeschlossenen
+              Energiewechsel erhalten Sie einen{" "}
               <strong className="text-primary-foreground">30-€-Amazon-Gutschein</strong>.
             </p>
           </motion.div>
@@ -159,9 +159,7 @@ function FreundeWerbenPage() {
             <h2 className="font-display text-3xl font-extrabold text-primary md:text-4xl">
               So einfach funktioniert&apos;s
             </h2>
-            <p className="mt-3 text-muted-foreground">
-              In drei Schritten zu deiner Prämie.
-            </p>
+            <p className="mt-3 text-muted-foreground">In drei klaren Schritten zu Ihrer Prämie.</p>
           </motion.div>
 
           <div className="grid gap-8 md:grid-cols-3">
@@ -244,42 +242,35 @@ function FreundeWerbenPage() {
                 <Mail className="h-6 w-6 text-success" />
               </div>
               <h2 className="mb-2 font-display text-2xl font-extrabold text-primary">
-                Deinen Empfehlungs-Link anfordern
+                Ihren Empfehlungslink anfordern
               </h2>
               <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
-                Du hast bereits über EnergieClever gewechselt? Dann gib einfach deine
-                E-Mail-Adresse ein und wir schicken dir deinen persönlichen Link sofort zu.
+                Sie haben bereits über PRIME ENERGIE gewechselt? Geben Sie Ihre E-Mail-Adresse ein,
+                damit wir Ihren persönlichen Link zuordnen können.
               </p>
 
               {submitted ? (
                 <div className="rounded-xl border border-success/20 bg-success/10 p-5 text-center">
-                  <p className="text-sm font-semibold text-success">
-                    E-Mail wird gesendet
-                  </p>
+                  <p className="text-sm font-semibold text-success">E-Mail wird gesendet</p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Falls du einen abgeschlossenen Wechsel bei uns hast, hast du soeben
-                    deinen Link per E-Mail erhalten.
+                    Wenn ein abgeschlossener Wechsel vorliegt, erhalten Sie Ihren Link per E-Mail.
                   </p>
                 </div>
               ) : (
                 <form onSubmit={handleRequestCode} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="referral-email">Deine E-Mail-Adresse</Label>
+                    <Label htmlFor="referral-email">Ihre E-Mail-Adresse</Label>
                     <Input
                       id="referral-email"
                       type="email"
-                      placeholder="deine@email.de"
+                      placeholder="name@beispiel.de"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       disabled={loading}
                     />
                   </div>
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={loading || !email.trim()}
-                  >
+                  <Button type="submit" className="w-full" disabled={loading || !email.trim()}>
                     {loading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -290,7 +281,7 @@ function FreundeWerbenPage() {
                     )}
                   </Button>
                   <p className="text-center text-xs text-muted-foreground">
-                    Nur für Kunden mit abgeschlossenem Energiewechsel bei EnergieClever.
+                    Nur für Kunden mit abgeschlossenem Energiewechsel bei PRIME ENERGIE.
                   </p>
                 </form>
               )}

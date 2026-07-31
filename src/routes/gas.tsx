@@ -18,18 +18,22 @@ import ctaBg from "@/assets/final-cta-bg.jpg";
 export const Route = createFileRoute("/gas")({
   head: () => ({
     meta: [
-      { title: "Gas vergleichen: Heizkosten ehrlich senken | PRIME ENERGIE" },
+      { title: "Gastarife persönlich prüfen | PRIME ENERGIE" },
       {
         name: "description",
         content:
-          "Gastarife persönlich vergleichen: Erdgas, Bio-Erdgas und Gewerbe-Gas. Geprüfte Anbieter, transparente Konditionen, kostenloser Wechsel.",
+          "PRIME ENERGIE prüft Gastarife für private Haushalte und Unternehmen und erklärt Preise, Laufzeiten und Garantien verständlich.",
       },
       { property: "og:title", content: "Gas vergleichen | PRIME ENERGIE" },
       {
         property: "og:description",
-        content: "Gastarife vergleichen und Heizkosten ehrlich senken. Persönlich beraten.",
+        content: "Gastarife verständlich prüfen und persönlich beraten lassen.",
       },
-      { property: "og:image", content: "https://images.unsplash.com/photo-1611735341450-74d61e660ad2?w=1200&h=630&fit=crop&q=80" },
+      {
+        property: "og:image",
+        content:
+          "https://images.unsplash.com/photo-1611735341450-74d61e660ad2?w=1200&h=630&fit=crop&q=80",
+      },
     ],
   }),
   component: GasPage,
@@ -38,33 +42,33 @@ export const Route = createFileRoute("/gas")({
 const features = [
   {
     icon: TrendingDown,
-    title: "Bis zu 600 € sparen",
-    desc: "Vor allem bei Verbräuchen ab 12.000 kWh lohnt sich der Wechsel deutlich.",
+    title: "Gesamtkosten prüfen",
+    desc: "Wir betrachten Arbeitspreis, Grundpreis und Vertragsdauer passend zu Ihrem Verbrauch.",
   },
   {
     icon: ShieldCheck,
-    title: "Preisgarantien geprüft",
-    desc: "Wir erkennen Marketing-Garantien und empfehlen nur echte Festpreise.",
+    title: "Preisgarantie verstehen",
+    desc: "Wir erklären Umfang, Laufzeit und mögliche Ausnahmen einer Preisgarantie.",
   },
   {
     icon: Sparkles,
     title: "Persönliche Beratung",
-    desc: "Wir erklären den Tarif so lange, bis Sie ihn verstehen. Ohne Kleingedrucktes.",
+    desc: "Unser Team beantwortet Ihre Fragen und ordnet Vertragsbedingungen verständlich ein.",
   },
   {
     icon: Leaf,
     title: "Bio-Erdgas auf Wunsch",
-    desc: "Zertifizierte Bio-Gas-Tarife. Ohne Aufpreis.",
+    desc: "Auf Wunsch beziehen wir Biogasoptionen und deren Herkunftsnachweise ein.",
   },
   {
     icon: Building2,
     title: "Auch für Gewerbe",
-    desc: "Sonderkonditionen für KMU, Gastronomie und Mehrfamilienhäuser.",
+    desc: "Auch Gewerbe, Gastronomie und Hausverwaltungen können individuelle Anfragen stellen.",
   },
   {
     icon: BadgeCheck,
-    title: "Wechsel ohne Risiko",
-    desc: "Versorgung läuft lückenlos weiter, gesetzlich abgesichert.",
+    title: "Begleiteter Wechsel",
+    desc: "Wenn Sie wechseln möchten, unterstützt PRIME ENERGIE bei den vereinbarten Schritten.",
   },
 ];
 
@@ -73,8 +77,8 @@ function GasPage() {
     <SiteLayout>
       <TopicHero
         kicker="Gas vergleichen"
-        title={<>Heizen ohne Bauchschmerzen.</>}
-        lead="Gastarife sind kompliziert geworden. Wir machen sie wieder verständlich. Ehrliche Beratung, geprüfte Anbieter und ein Wechsel, der Sie keinen Cent kostet."
+        title={<>Gaspreise verstehen. Bewusst entscheiden.</>}
+        lead="PRIME ENERGIE macht Gastarife vergleichbar und erklärt, welche Konditionen zu Ihrem Verbrauch und Ihren Wünschen passen."
         image={heroImg}
         imageAlt="Blaue Gasflamme auf modernem Herd"
         Icon={Flame}
@@ -82,20 +86,20 @@ function GasPage() {
       />
 
       <FeatureGrid
-        title="Warum mit uns Gas wechseln?"
-        intro="Gas-Tarife verändern sich schnell. Wir behalten den Markt täglich im Blick."
+        title="Was PRIME ENERGIE für Sie prüft"
+        intro="Sechs Punkte, die bei einer Gastarifentscheidung eine wichtige Rolle spielen."
         items={features}
       />
 
       <ImageSplit
         eyebrow="Heizkosten verstehen"
-        title="Wo Ihre Heizkosten wirklich entstehen"
-        body="Über 70 % Ihrer Gasrechnung ist reiner Arbeitspreis. Also direkt vom Anbieter beeinflussbar. Wir zeigen Ihnen, wie viel Spielraum tatsächlich drin ist, ohne dass Sie frieren müssen."
+        title="Arbeitspreis, Grundpreis und Verbrauch"
+        body="Die Höhe Ihrer Gasrechnung hängt nicht nur vom Arbeitspreis ab. Wir betrachten auch Grundpreis, Vertragsdauer und Ihr Verbrauchsprofil."
         image={splitImg}
         imageAlt="Heizungsthermostat wird eingestellt"
         bullets={[
-          "Arbeitspreis vs. Grundpreis. Wo Sie wirklich sparen",
-          "Wann sich ein Festpreis lohnt. Und wann nicht",
+          "Arbeitspreis und Grundpreis gemeinsam betrachten",
+          "Preisgarantie und Vertragslaufzeit einordnen",
           "Verbrauchsschätzung auch ohne alte Jahresrechnung",
         ]}
       />
@@ -103,20 +107,20 @@ function GasPage() {
       <ImageSplit
         reverse
         eyebrow="Bio-Erdgas"
-        title="Klimafreundlich heizen. Ohne versteckte Aufpreise"
-        body="Bio-Erdgas wird aus organischen Reststoffen gewonnen und ist CO₂-neutral. Viele Anbieter werben damit, nur wenige liefern es ehrlich. Wir kennen den Unterschied."
+        title="Biogasoptionen nachvollziehbar einordnen"
+        body="Biogastarife können sich bei Anteil, Herkunft und Nachweisen deutlich unterscheiden. Wir zeigen Ihnen, welche Angaben im konkreten Angebot enthalten sind."
         image={ctaBg}
         imageAlt="Grünes Feld mit Biogas-Anlage"
         bullets={[
-          "Echte Bio-Anteile statt Zertifikate-Handel",
-          "Geprüfte Herkunftsnachweise",
-          "Preisaufschlag oft geringer als gedacht",
+          "Biogasanteil im Tarif nachvollziehen",
+          "Herkunfts- und Produktnachweise berücksichtigen",
+          "Mehrkosten transparent gegenüberstellen",
         ]}
       />
 
       <FinalCta
-        title="Heizkosten ehrlich senken."
-        body="Lassen Sie uns gemeinsam prüfen, was Ihr Tarif heute wirklich kostet. Und was er kosten sollte."
+        title="Passt Ihr Gastarif noch?"
+        body="Übermitteln Sie Ihre Eckdaten. PRIME ENERGIE prüft die Ausgangslage und bespricht passende Optionen persönlich mit Ihnen."
         image={ctaBg}
       />
     </SiteLayout>

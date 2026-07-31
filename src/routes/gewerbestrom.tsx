@@ -18,19 +18,23 @@ import ctaBg from "@/assets/final-cta-bg.jpg";
 export const Route = createFileRoute("/gewerbestrom")({
   head: () => ({
     meta: [
-      { title: "Gewerbestrom vergleichen: Bis 30 % sparen | PRIME ENERGIE" },
+      { title: "Gewerbestrom persönlich prüfen | PRIME ENERGIE" },
       {
         name: "description",
         content:
-          "Gewerbestrom-Tarife persönlich vergleichen: bis zu 30 % Ersparnis für KMU, Handwerk, Gastronomie und Filialbetriebe. Festpreise, Preisgarantie, Wechselgarantie.",
+          "PRIME ENERGIE prüft Gewerbestrom für Unternehmen, Handwerk, Gastronomie und mehrere Standorte persönlich und nachvollziehbar.",
       },
       { property: "og:title", content: "Gewerbestrom vergleichen | PRIME ENERGIE" },
       {
         property: "og:description",
         content:
-          "Gewerbestrom: Festpreise, Preisgarantie bis 36 Monate, individuelle Beratung für Ihr Unternehmen.",
+          "Gewerbestrom mit persönlicher Einordnung von Preis, Laufzeit und Verbrauchsprofil.",
       },
-      { property: "og:image", content: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1200&h=630&fit=crop&q=80" },
+      {
+        property: "og:image",
+        content:
+          "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1200&h=630&fit=crop&q=80",
+      },
     ],
   }),
   component: GewerbestromPage,
@@ -39,33 +43,33 @@ export const Route = createFileRoute("/gewerbestrom")({
 const features = [
   {
     icon: TrendingDown,
-    title: "Bis zu 30 % Ersparnis",
-    desc: "Gewerbetarife liegen oft deutlich unter Grundversorgung. Wir holen Festpreis-Angebote ein, die sich auf 24 Monate wirklich rechnen.",
+    title: "Kostenstruktur verstehen",
+    desc: "Wir betrachten Preisbestandteile, Laufzeit und Verbrauchsprofil Ihres Betriebs.",
   },
   {
     icon: ShieldCheck,
-    title: "Preisgarantie bis 36 Mt.",
-    desc: "Kein Risiko durch Preisanpassungen mitten im Jahr. Wir verhandeln Festpreise mit echter Garantie.",
+    title: "Planbarkeit einordnen",
+    desc: "Verfügbare Festpreis- und Garantieoptionen werden mit ihren Bedingungen dargestellt.",
   },
   {
     icon: FileText,
     title: "Mehrere Standorte",
-    desc: "Auch Filial- und Mehrstandortverträge übernehmen wir gebündelt. Ein Ansprechpartner für alle Zähler.",
+    desc: "Mehrere Zähler oder Standorte können in einer gemeinsamen Anfrage erfasst werden.",
   },
   {
     icon: Users,
-    title: "Persönlicher Account-Manager",
-    desc: "Direkter Draht statt Hotline. Wir kennen Ihr Profil und prüfen jährlich, ob es noch passt.",
+    title: "Persönlicher Kontakt",
+    desc: "Rückfragen zu Lastprofil, Vertragsdaten und Angeboten besprechen Sie direkt mit unserem Team.",
   },
   {
     icon: Sparkles,
-    title: "Lastgangoptimierung",
-    desc: "Bei Verbräuchen ab 100.000 kWh prüfen wir Sondervertragstarife und Spitzenlast-Optimierung.",
+    title: "Lastprofil berücksichtigen",
+    desc: "Bei größeren Verbräuchen beziehen wir vorhandene Lastgangdaten in die Anfrage ein.",
   },
   {
     icon: BadgeCheck,
-    title: "100 % unabhängig",
-    desc: "Wir vergleichen alle relevanten Versorger. Keine Bindung an einen Konzern, keine Lockangebote.",
+    title: "Transparent entscheiden",
+    desc: "Sie erhalten die entscheidenden Konditionen verständlich aufbereitet und entscheiden selbst.",
   },
 ];
 
@@ -77,10 +81,10 @@ function GewerbestromPage() {
         title={
           <>
             Strom für Ihr Unternehmen.{" "}
-            <span className="text-success">Verhandelt statt abgestempelt.</span>
+            <span className="text-success">Passend zum Verbrauchsprofil.</span>
           </>
         }
-        lead="Vom Handwerksbetrieb bis zum Filialnetz: Wir vergleichen 200+ Gewerbestrom-Tarife und holen für Sie echte Festpreis-Angebote ein."
+        lead="Vom Handwerksbetrieb bis zum Filialnetz: PRIME ENERGIE erfasst Ihren Bedarf und ordnet verfügbare Gewerbestromangebote verständlich ein."
         image={heroImg}
         imageAlt="Modernes Bürogebäude mit beleuchteten Fenstern"
         Icon={Building2}
@@ -89,41 +93,41 @@ function GewerbestromPage() {
 
       <FeatureGrid
         title="Warum Gewerbestrom über PRIME ENERGIE?"
-        intro="Sechs Gründe, warum Geschäftsführer und Einkäufer mit uns vergleichen."
+        intro="Sechs Punkte, die Unternehmen bei der Tarifprüfung mit PRIME ENERGIE unterstützen."
         items={features}
       />
 
       <ImageSplit
         eyebrow="Für wen das passt"
         title="Vom Café bis zur Maschinenhalle"
-        body="Wir betreuen Gewerbekunden mit Verbräuchen zwischen 10.000 und 1 Mio. kWh. Branchenübergreifend. Je nach Lastprofil bekommen Sie Festpreis-, Spot- oder Mischtarife."
+        body="Jede Branche hat ein anderes Verbrauchsprofil. Wir erfassen Jahresverbrauch, Zähler, Standorte und Lastgangdaten, soweit sie für die Anfrage erforderlich sind."
         image={splitImg}
         imageAlt="Werkstatt mit moderner Beleuchtung"
         bullets={[
           "Handwerk, Gastronomie, Einzelhandel, Praxen",
           "Filialnetze & Hausverwaltungen mit mehreren Zählern",
-          "Produzierendes Gewerbe ab 100.000 kWh. Inkl. Lastgangoptimierung",
-          "Steuerlich saubere Rechnungen, immer mit Vorsteuerabzug",
+          "Produzierendes Gewerbe mit individuellem Lastprofil",
+          "Vorhandene Vertrags- und Rechnungsdaten strukturiert erfassen",
         ]}
       />
 
       <ImageSplit
         reverse
         eyebrow="So läuft es ab"
-        title="3 Schritte zum besseren Gewerbetarif"
-        body="Sie übergeben uns einmal Ihre letzte Jahresrechnung. Wir kümmern uns um den Rest. Vergleich, Verhandlung, Kündigung, Anmeldung. Sie unterschreiben nur ein Mal."
+        title="3 Schritte zur passenden Tarifentscheidung"
+        body="Sie übermitteln die relevanten Unterlagen. Wir prüfen die Ausgangslage, besprechen verfügbare Optionen und begleiten auf Wunsch die nächsten Schritte."
         image={ctaBg}
         imageAlt="Unternehmer prüft Vertragsangebote"
         bullets={[
           "1. Rechnung hochladen oder per E-Mail senden",
-          "2. Wir holen 3–5 Festpreis-Angebote für Ihr Lastprofil",
-          "3. Vertragswechsel komplett durch uns. Keine Versorgungslücke",
+          "2. PRIME ENERGIE ordnet verfügbare Optionen für Ihr Profil ein",
+          "3. Sie entscheiden und beauftragen die gewünschten nächsten Schritte",
         ]}
       />
 
       <FinalCta
-        title="Wie viel könnte Ihr Unternehmen sparen?"
-        body="Schicken Sie uns Ihre letzte Jahresrechnung. Wir rechnen kostenlos und unverbindlich."
+        title="Gewerbestrom passend zum Betrieb prüfen"
+        body="Senden Sie uns Ihre letzte Jahresrechnung. Die erste Einordnung ist kostenlos und unverbindlich."
         image={ctaBg}
       />
     </SiteLayout>

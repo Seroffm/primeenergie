@@ -8,10 +8,11 @@ import { getArticleBySlug, getPublishedArticles, ApiError } from "@/lib/api-clie
 export const Route = createFileRoute("/wissen/$slug")({
   head: () => ({
     meta: [
-      { title: "Energie-Wissen & Ratgeber | PRIME ENERGIE" },
+      { title: "Energiewissen und Ratgeber | PRIME ENERGIE" },
       {
         name: "description",
-        content: "Ratgeber, Erklärartikel und Marktupdates rund um Strom, Gas, Solar und Wärmepumpe.",
+        content:
+          "Ratgeber, Erklärartikel und Marktupdates rund um Strom, Gas, Solar und Wärmepumpe.",
       },
     ],
   }),
@@ -32,7 +33,11 @@ export const Route = createFileRoute("/wissen/$slug")({
 function ArticlePage() {
   const { slug } = useParams({ from: "/wissen/$slug" });
 
-  const { data: article, isError, isLoading } = useQuery({
+  const {
+    data: article,
+    isError,
+    isLoading,
+  } = useQuery({
     queryKey: ["article", slug],
     queryFn: () => getArticleBySlug(slug),
     retry: (failureCount, error) => {
@@ -92,9 +97,7 @@ function ArticlePage() {
       });
 
   const relatedArticles = allArticles
-    ? allArticles
-        .filter((x) => x.slug !== slug && x.tag === article.tag)
-        .slice(0, 4)
+    ? allArticles.filter((x) => x.slug !== slug && x.tag === article.tag).slice(0, 4)
     : [];
 
   return (
@@ -149,9 +152,12 @@ function ArticlePage() {
         </div>
 
         <div className="mt-16 rounded-3xl bg-gradient-to-br from-primary to-primary/90 p-8 text-primary-foreground md:p-12">
-          <h2 className="font-display text-2xl font-bold md:text-3xl">Lieber direkt sparen?</h2>
+          <h2 className="font-display text-2xl font-bold md:text-3xl">
+            Tarif persönlich prüfen lassen
+          </h2>
           <p className="mt-3 text-primary-foreground/80">
-            2 Minuten Tarifprüfung. Bis zu 850 € Ersparnis pro Jahr.
+            PRIME ENERGIE prüft Ihre Angaben kostenlos und ordnet passende Angebote verständlich für
+            Sie ein.
           </p>
           <Button asChild className="mt-6 bg-success text-success-foreground hover:bg-success/90">
             <Link to="/angebot">

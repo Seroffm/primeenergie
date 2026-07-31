@@ -20,17 +20,17 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/ueber-uns")({
   head: () => ({
     meta: [
-      { title: "Über uns: Unabhängige Energieberatung | PRIME ENERGIE" },
+      { title: "Über PRIME ENERGIE | Persönliche Tarifberatung" },
       {
         name: "description",
         content:
-          "Wir sind ein unabhängiges Beratungsteam für Strom- und Gastarife mit Sitz in Deutschland. Persönlich, transparent, ohne Provisionsdruck.",
+          "PRIME ENERGIE unterstützt private Haushalte und Unternehmen dabei, Tarife für Strom und Gas verständlich zu prüfen und passende Entscheidungen zu treffen.",
       },
       { property: "og:title", content: "Über uns | PRIME ENERGIE" },
       {
         property: "og:description",
         content:
-          "Unabhängige Energieberatung aus Deutschland. Persönlich, transparent, ohne Provisionsdruck.",
+          "Persönliche Tarifberatung aus Dortmund: verständlich, transparent und unverbindlich.",
       },
     ],
   }),
@@ -47,71 +47,71 @@ const fadeUp = {
 const values = [
   {
     icon: ShieldCheck,
-    title: "Unabhängig",
-    desc: "Kein Versorger besitzt uns Anteile. Wir empfehlen, was wirklich passt. Nicht, was am meisten Provision bringt.",
+    title: "Transparent",
+    desc: "Wir erläutern Preise, Laufzeiten, Boni und Kündigungsfristen so, dass Sie die Unterschiede nachvollziehen können.",
   },
   {
     icon: Heart,
     title: "Persönlich",
-    desc: "Echte Menschen am Telefon, die zuhören. Keine Warteschleifen, keine Bots, keine Verkaufsmasche.",
+    desc: "Ihre Situation steht am Anfang der Beratung. Wir hören zu, fragen nach und erklären verständlich.",
   },
   {
     icon: Sparkles,
     title: "Verständlich",
-    desc: "Wir übersetzen Tarif-Kleingedrucktes in klare Empfehlungen. Sie verstehen, was Sie unterschreiben.",
+    desc: "Wir übersetzen Tarifbedingungen in klare Sprache, damit Sie bewusst entscheiden können.",
   },
   {
     icon: Leaf,
-    title: "Nachhaltig",
-    desc: "Auf Wunsch finden wir geprüfte Ökotarife. Ohne versteckte Aufpreise.",
+    title: "Verantwortungsvoll",
+    desc: "Wir versprechen nur, was wir tatsächlich leisten können, und behandeln Ihre Daten mit Sorgfalt.",
   },
 ];
 
 const stats = [
-  { value: "15+", label: "Jahre Branchenerfahrung" },
-  { value: "50.000+", label: "Beratungen durchgeführt" },
-  { value: "Ø 480 €", label: "Ersparnis pro Haushalt" },
-  { value: "4,8 / 5", label: "Kundenbewertung" },
+  { value: "Strom", label: "Tarife verständlich prüfen" },
+  { value: "Gas", label: "Konditionen klar vergleichen" },
+  { value: "Privat", label: "Persönlich beraten lassen" },
+  { value: "Gewerbe", label: "Bedarf individuell einordnen" },
 ];
 
 const team = [
   {
-    name: "Markus Hoffmann",
-    role: "Geschäftsführung & Beratung",
-    bio: "12 Jahre Energievertrieb, davon 6 bei einem großen Versorger. Wechselte 2019 die Seite. Heute steht er auf Kundenseite.",
+    name: "Tarifberatung",
+    role: "Bedarf verstehen",
+    bio: "Wir erfassen Verbrauch, Vertragssituation und Wünsche, bevor wir Tarifoptionen einordnen.",
   },
   {
-    name: "Sandra Lehmann",
-    role: "Leitung Kundenberatung",
-    bio: "Zertifizierte Energieberaterin (HWK). Spezialistin für komplexe Verbrauchsprofile und Gewerbetarife.",
+    name: "Kundenservice",
+    role: "Persönlich begleiten",
+    bio: "Unser Team beantwortet Rückfragen und begleitet die nächsten Schritte bis zum gewünschten Wechsel.",
   },
   {
-    name: "Jonas Vogel",
-    role: "Tarifanalyse & Datenschutz",
-    bio: "Sorgt dafür, dass Tarifdaten täglich aktuell sind und Ihre Daten DSGVO-konform verarbeitet werden.",
+    name: "Qualität & Datenschutz",
+    role: "Sorgfältig arbeiten",
+    bio: "Wir achten auf nachvollziehbare Angaben, sichere Prozesse und einen verantwortungsvollen Umgang mit Daten.",
   },
 ];
 
 const milestones = [
   {
-    year: "2018",
-    title: "Gründung in Berlin",
-    desc: "Drei Branchenprofis starten PRIME ENERGIE mit einer Idee: Beratung ohne Provisionsdruck.",
+    year: "01",
+    title: "Zuhören",
+    desc: "Wir klären, was Ihnen bei Preis, Laufzeit, Service und Energieart wichtig ist.",
   },
   {
-    year: "2020",
-    title: "10.000 Kunden",
-    desc: "Erster großer Meilenstein. Inklusive TÜV-zertifiziertem Beratungsprozess.",
+    year: "02",
+    title: "Prüfen",
+    desc: "Wir betrachten verfügbare Tarifoptionen und ordnen die Konditionen verständlich ein.",
   },
   {
-    year: "2022",
-    title: "Krisen-Hotline",
-    desc: "Während der Energiekrise: kostenlose Soforthilfe für überforderte Haushalte.",
+    year: "03",
+    title: "Erklären",
+    desc: "Sie erhalten eine klare Übersicht und können Rückfragen direkt mit uns besprechen.",
   },
   {
-    year: "2025",
-    title: "50.000 Beratungen",
-    desc: "Heute beraten wir täglich Haushalte und Gewerbe in ganz Deutschland.",
+    year: "04",
+    title: "Begleiten",
+    desc: "Wenn Sie sich entscheiden, unterstützen wir Sie bei den vereinbarten nächsten Schritten.",
   },
 ];
 
@@ -126,7 +126,7 @@ function UeberUnsPage() {
             {...fadeUp}
             className="inline-flex items-center gap-2 rounded-full border border-success/30 bg-success/10 px-4 py-1.5 text-xs font-medium text-success"
           >
-            <MapPin className="h-3.5 w-3.5" /> Made in Germany · Sitz in Berlin
+            <MapPin className="h-3.5 w-3.5" /> PRIME ENERGIE · Persönlich aus Dortmund
           </motion.div>
           <motion.h1
             {...fadeUp}
@@ -135,15 +135,15 @@ function UeberUnsPage() {
           >
             Energieberatung,
             <br />
-            wie sie sein sollte.
+            die Sie verstehen.
           </motion.h1>
           <motion.p
             {...fadeUp}
             transition={{ ...fadeUp.transition, delay: 0.1 }}
             className="mx-auto mt-5 max-w-2xl text-lg text-muted-foreground md:text-xl"
           >
-            Wir sind ein unabhängiges Team aus Energieprofis. Ohne Versorger im Rücken, ohne
-            Provisionsdruck, mit einer einzigen Aufgabe: dass Sie weniger zahlen.
+            PRIME ENERGIE verbindet digitale Tarifprüfung mit persönlicher Beratung. Unser Ziel:
+            klare Informationen, passende Optionen und eine Entscheidung, die zu Ihnen passt.
           </motion.p>
         </div>
       </section>
@@ -178,12 +178,13 @@ function UeberUnsPage() {
               Energieverträge sollen verständlich sein.
             </h2>
             <p className="mt-5 text-muted-foreground">
-              Tarife mit drei Sternchentexten, Boni, die im zweiten Jahr verfallen, Preisgarantien,
-              die keine sind. Das System ist gemacht, um zu verwirren. Wir machen es einfach.
+              Energieverträge enthalten viele Einzelheiten: Arbeitspreis, Grundpreis, Laufzeit,
+              Preisgarantie, Bonus und Kündigungsfrist. Wir bringen diese Punkte in eine
+              verständliche Reihenfolge.
             </p>
             <p className="mt-4 text-muted-foreground">
-              Unser Anspruch: Sie verstehen am Ende des Telefonats, warum dieser eine Tarif für Sie
-              der richtige ist. Und warum sich der Wechsel rechnet. Schwarz auf weiß.
+              Unser Anspruch: Sie kennen die entscheidenden Konditionen, verstehen mögliche
+              Unterschiede und entscheiden ohne Zeitdruck.
             </p>
           </motion.div>
           <motion.div
@@ -195,10 +196,10 @@ function UeberUnsPage() {
             <h3 className="mt-6 text-2xl font-semibold">Unser Versprechen</h3>
             <ul className="mt-6 space-y-3">
               {[
-                "Die Beratung kostet Sie keinen Cent. Wir werden vom neuen Anbieter vergütet.",
-                "Wir empfehlen ausschließlich Anbieter, die wir geprüft haben.",
-                "Sie entscheiden. Immer. Wir machen niemals Druck.",
-                "Keine Daten ohne Ihre Einwilligung an Dritte.",
+                "Die erste Tarifprüfung ist für Sie kostenlos und unverbindlich.",
+                "Wir erklären die wichtigen Konditionen in nachvollziehbarer Sprache.",
+                "Sie entscheiden selbst, ob Sie ein Angebot annehmen möchten.",
+                "Daten werden nur im erforderlichen und vereinbarten Umfang verarbeitet.",
               ].map((p) => (
                 <li key={p} className="flex items-start gap-3 text-primary-foreground/90">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-success" /> {p}
@@ -247,8 +248,8 @@ function UeberUnsPage() {
             Menschen, die Energie verstehen
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Zertifizierte Energieberater, ehemalige Vertriebsprofis großer Versorger und
-            Service-Spezialisten. Zusammen über 15 Jahre Branchenerfahrung.
+            Beratung, Service und Qualität arbeiten zusammen, damit Ihre Anfrage verständlich,
+            sorgfältig und persönlich bearbeitet wird.
           </p>
         </div>
         <div className="mt-12 grid gap-6 md:grid-cols-3">
@@ -281,7 +282,7 @@ function UeberUnsPage() {
               <Award className="h-3.5 w-3.5" /> Unser Weg
             </div>
             <h2 className="mt-4 text-3xl font-bold text-primary md:text-4xl">
-              Sieben Jahre PRIME ENERGIE
+              So arbeitet PRIME ENERGIE
             </h2>
           </div>
           <ol className="relative mt-14 space-y-8 border-l-2 border-success/20 pl-8">
@@ -310,9 +311,11 @@ function UeberUnsPage() {
           <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
             <div className="max-w-xl">
               <Handshake className="h-10 w-10 text-success" />
-              <h2 className="mt-4 text-3xl font-bold md:text-4xl">Lernen Sie uns kennen.</h2>
+              <h2 className="mt-4 text-3xl font-bold md:text-4xl">
+                Lernen Sie PRIME ENERGIE kennen.
+              </h2>
               <p className="mt-3 text-primary-foreground/80">
-                Ein Anruf, eine ehrliche Einschätzung. Keine Verpflichtung.
+                Stellen Sie Ihre Fragen und erhalten Sie eine klare erste Einschätzung.
               </p>
             </div>
             <div className="flex flex-col gap-3">

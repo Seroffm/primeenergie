@@ -158,7 +158,7 @@ export const Route = createFileRoute("/api/leads/$id/status")({
 
         // Referral-Logik bei "completed"
         if (status === "completed") {
-          const appUrl = process.env.APP_URL ?? "https://strom-sandy.vercel.app";
+          const appUrl = process.env.APP_URL ?? "https://project-gqhfy.vercel.app";
           const leadEmail = current.email as string;
           const leadFirstName = current.first_name as string;
 

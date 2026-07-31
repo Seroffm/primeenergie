@@ -273,7 +273,7 @@ export const Route = createFileRoute("/api/public/leads")({
         }
 
         // E-Mails asynchron versenden (blockiert die Response nicht)
-        const appUrl = process.env.APP_URL ?? "https://strom-sandy.vercel.app";
+        const appUrl = process.env.APP_URL ?? "https://project-gqhfy.vercel.app";
         const notificationEmail = process.env.NOTIFICATION_EMAIL;
 
         // 1. Bestätigung an Kunden

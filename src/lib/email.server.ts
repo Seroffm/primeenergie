@@ -9,12 +9,10 @@ export interface EmailPayload {
 
 export async function sendEmail(payload: EmailPayload): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM ?? "EnergieClever <noreply@energieclever.de>";
+  const from = process.env.EMAIL_FROM ?? "PRIME ENERGIE <info@primeenergie.de>";
 
   if (!apiKey) {
-    console.log(
-      `[EMAIL DEV] An: ${payload.to} | Betreff: ${payload.subject}`,
-    );
+    console.log(`[EMAIL DEV] An: ${payload.to} | Betreff: ${payload.subject}`);
     return;
   }
 

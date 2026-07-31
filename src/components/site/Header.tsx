@@ -24,8 +24,8 @@ const mainNav: NavItem[] = [
       mainLinks: [
         { label: "Haushaltsstrom", to: "/strom" },
         { label: "Gewerbestrom", to: "/gewerbestrom" },
-        { label: "Anbieterwechsel leicht gemacht", to: "/ablauf" },
-        { label: "Strom-Ratgeber", to: "/wissen" },
+        { label: "Stromtarif prüfen", to: "/angebot" },
+        { label: "Wechsel mit PRIME ENERGIE", to: "/ablauf" },
       ],
     },
   },
@@ -35,10 +35,10 @@ const mainNav: NavItem[] = [
     dropdown: {
       title: "Gas",
       mainLinks: [
-        { label: "Erdgas Privat", to: "/gas" },
+        { label: "Gas für Zuhause", to: "/gas" },
         { label: "Gewerbegas", to: "/gewerbegas" },
-        { label: "Gasanbieter wechseln", to: "/ablauf" },
-        { label: "Gas-Ratgeber", to: "/wissen" },
+        { label: "Gastarif prüfen", to: "/angebot" },
+        { label: "Wechsel mit PRIME ENERGIE", to: "/ablauf" },
       ],
     },
   },
@@ -53,9 +53,9 @@ const mainNav: NavItem[] = [
     dropdown: {
       title: "Solar",
       mainLinks: [
-        { label: "Unsere Energielösungen", to: "/solar" },
-        { label: "Gewerbe Photovoltaik", to: "/kontakt" },
-        { label: "Solar-Ratgeber", to: "/wissen" },
+        { label: "Photovoltaik & Speicher", to: "/solar" },
+        { label: "Wärmepumpe", to: "/solar" },
+        { label: "Beratung anfragen", to: "/kontakt" },
       ],
     },
   },
@@ -65,9 +65,9 @@ const mainNav: NavItem[] = [
     dropdown: {
       title: "Service",
       mainLinks: [
-        { label: "Kontakt aufnehmen", to: "/kontakt" },
+        { label: "Persönlich beraten lassen", to: "/kontakt" },
         { label: "Hilfe & FAQ", to: "/faq" },
-        { label: "Freunde werben & profitieren", to: "/freunde-werben" },
+        { label: "PRIME ENERGIE empfehlen", to: "/freunde-werben" },
       ],
     },
   },
@@ -148,7 +148,7 @@ export function Header() {
               className="hidden items-center gap-2 text-sm font-medium text-primary transition hover:text-success md:inline-flex"
             >
               <UserPlus className="h-4 w-4 text-success" />
-              <span>Freunde werben</span>
+              <span>Weiterempfehlen</span>
             </Link>
             <button
               type="button"

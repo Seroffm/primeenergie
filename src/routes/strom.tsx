@@ -18,18 +18,22 @@ import ctaBg from "@/assets/final-cta-bg.jpg";
 export const Route = createFileRoute("/strom")({
   head: () => ({
     meta: [
-      { title: "Strom vergleichen: Bis zu 850 € sparen | PRIME ENERGIE" },
+      { title: "Stromtarife persönlich prüfen | PRIME ENERGIE" },
       {
         name: "description",
         content:
-          "Stromtarife persönlich vergleichen: Haushaltsstrom, Ökostrom, Autostrom und Wärmestrom. Geprüfte Anbieter, kostenloser Wechsel ohne Versorgungslücke.",
+          "PRIME ENERGIE prüft Stromtarife für Haushalt, Ökostrom, E-Auto und Wärmepumpe persönlich und verständlich.",
       },
       { property: "og:title", content: "Strom vergleichen | PRIME ENERGIE" },
       {
         property: "og:description",
-        content: "Stromtarife persönlich vergleichen und bis zu 850 € pro Jahr sparen.",
+        content: "Stromtarife verständlich prüfen und den Wechsel auf Wunsch begleiten lassen.",
       },
-      { property: "og:image", content: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=1200&h=630&fit=crop&q=80" },
+      {
+        property: "og:image",
+        content:
+          "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=1200&h=630&fit=crop&q=80",
+      },
     ],
   }),
   component: StromPage,
@@ -38,33 +42,33 @@ export const Route = createFileRoute("/strom")({
 const features = [
   {
     icon: TrendingDown,
-    title: "Bis zu 850 € sparen",
-    desc: "Ein Tarifwechsel rechnet sich fast immer. Wir zeigen Ihnen schwarz auf weiß, wie viel.",
+    title: "Kosten im Blick",
+    desc: "Wir betrachten Grundpreis, Arbeitspreis, Laufzeit und mögliche Boni gemeinsam.",
   },
   {
     icon: ShieldCheck,
-    title: "Geprüfte Anbieter",
-    desc: "Über 800 Stromanbieter im Vergleich. Nur Versorger mit guter Service- und Preisstabilität.",
+    title: "Nachvollziehbare Auswahl",
+    desc: "Sie erfahren, welche Tarifmerkmale für Ihre Situation besonders wichtig sind.",
   },
   {
     icon: Sparkles,
     title: "Persönliche Beratung",
-    desc: "Echte Menschen am Telefon. Keine Bots, keine Verkaufsmasche, keine versteckten Gebühren.",
+    desc: "Sie können Rückfragen direkt mit unserem Team besprechen und Konditionen einordnen lassen.",
   },
   {
     icon: BadgeCheck,
-    title: "Wechselgarantie",
-    desc: "Wir übernehmen den kompletten Wechsel inklusive Kündigung beim alten Anbieter.",
+    title: "Wechselunterstützung",
+    desc: "Wenn Sie sich entscheiden, begleiten wir die vereinbarten Schritte zum neuen Tarif.",
   },
   {
     icon: Leaf,
     title: "Ökostrom-Tarife",
-    desc: "Auf Wunsch ausschließlich zertifizierte Ökostrom-Anbieter. Ohne versteckte Aufpreise.",
+    desc: "Auf Wunsch beziehen wir Ökostromtarife und deren Nachweise in die Prüfung ein.",
   },
   {
     icon: Car,
     title: "Autostrom & Wärmestrom",
-    desc: "Spezial-Tarife für E-Autos und Wärmepumpen. Getrennte Zähler, getrennt günstig.",
+    desc: "Wir berücksichtigen Sondertarife für Wallbox, Wärmepumpe oder getrennte Zähler.",
   },
 ];
 
@@ -74,7 +78,7 @@ function StromPage() {
       <TopicHero
         kicker="Strom vergleichen"
         title={<>Strom, der zu Ihrem Leben passt.</>}
-        lead="Egal ob Haushaltsstrom, Ökostrom, Autostrom oder Wärmestrom. Wir finden den Tarif, der wirklich zu Ihrem Verbrauch passt."
+        lead="Ob Haushalt, Ökostrom, E-Auto oder Wärmepumpe: PRIME ENERGIE ordnet passende Tarifoptionen für Ihren Verbrauch verständlich ein."
         image={heroImg}
         imageAlt="Modernes Wohnzimmer mit smartem Stromzähler"
         Icon={Zap}
@@ -83,19 +87,19 @@ function StromPage() {
 
       <FeatureGrid
         title="Warum mit PRIME ENERGIE wechseln?"
-        intro="Sechs Gründe, warum sich der Anruf lohnt. Auch wenn Sie schon mal verglichen haben."
+        intro="Sechs Punkte, auf die wir bei Ihrer persönlichen Tarifprüfung achten."
         items={features}
       />
 
       <ImageSplit
         eyebrow="Tarifarten"
-        title="Vier Strom-Welten, ein Berater"
-        body="Wir unterscheiden nicht nach Provision, sondern nach Bedarf. Haushalt, Familie, E-Auto, Wärmepumpe. Jede Situation hat ihren passenden Tarif. Wir filtern sie für Sie heraus."
+        title="Vier Anwendungen, eine klare Beratung"
+        body="Haushalt, E-Auto und Wärmepumpe stellen unterschiedliche Anforderungen an einen Tarif. Wir berücksichtigen Verbrauch, Zählerart und Ihre persönlichen Wünsche."
         image={splitImg}
         imageAlt="E-Auto wird zuhause an Wallbox geladen"
         bullets={[
           "Haushaltsstrom. Stabil, einfach, transparent",
-          "100 % Ökostrom, zertifiziert nach OK-Power oder Grüner Strom-Label",
+          "Ökostrom mit nachvollziehbaren Herkunfts- oder Gütenachweisen",
           "Autostrom: Sondertarif für Wallbox und E-Auto",
           "Wärmestrom: Für Nachtspeicher- und Wärmepumpenheizungen",
         ]}
@@ -104,20 +108,20 @@ function StromPage() {
       <ImageSplit
         reverse
         eyebrow="So sparen Sie wirklich"
-        title="Wir prüfen genauer als jeder Online-Rechner"
-        body="Online-Vergleichsportale zeigen oft Lockangebote mit Bonus im ersten Jahr. Wir rechnen ehrlich auf 24 Monate. Inklusive Preisgleitklauseln, Kündigungsfristen und realer Nettokosten."
+        title="Mehr als nur den ersten Abschlag betrachten"
+        body="Ein niedriger Monatsabschlag allein sagt wenig aus. Wir beziehen Laufzeit, Preisgarantie, Kündigungsfrist und mögliche Boni in die Einordnung ein."
         image={ctaBg}
         imageAlt="Hand vergleicht Stromrechnung mit Taschenrechner"
         bullets={[
-          "Volle 24-Monats-Berechnung statt Bonus-Marketing",
-          "Preisgarantien werden auf Belastbarkeit geprüft",
-          "Service-Bewertungen aus echten Kundenstimmen",
+          "Gesamtkosten über die betrachtete Vertragsdauer",
+          "Preisgarantie und Ausnahmen verständlich erklärt",
+          "Vertragslaufzeit und Kündigungsfrist im Blick",
         ]}
       />
 
       <FinalCta
-        title="Wie viel könnten Sie sparen?"
-        body="Zwei Minuten Aufwand, ein klares Sparergebnis. Komplett kostenlos und unverbindlich."
+        title="Passt Ihr aktueller Stromtarif noch?"
+        body="Starten Sie die kostenlose Anfrage. PRIME ENERGIE prüft Ihre Angaben und meldet sich mit einer persönlichen Einschätzung."
         image={ctaBg}
       />
     </SiteLayout>

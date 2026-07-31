@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS public.blog_articles (
   teaser text NOT NULL,
   tag text NOT NULL DEFAULT 'Allgemein',
   image text NOT NULL DEFAULT '',
-  author text NOT NULL DEFAULT 'EnergieClever Redaktion',
+  author text NOT NULL DEFAULT 'PRIME ENERGIE Redaktion',
   body jsonb NOT NULL DEFAULT '[]'::jsonb,
   seo_title text,
   seo_description text,

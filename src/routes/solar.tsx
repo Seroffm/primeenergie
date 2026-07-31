@@ -19,18 +19,22 @@ import ctaBg from "@/assets/final-cta-bg.jpg";
 export const Route = createFileRoute("/solar")({
   head: () => ({
     meta: [
-      { title: "Solar & Wärmepumpe: Unabhängig beraten | PRIME ENERGIE" },
+      { title: "Solar & Wärmepumpe verständlich planen | PRIME ENERGIE" },
       {
         name: "description",
         content:
-          "Solaranlage, Stromspeicher und Wärmepumpe. Wir vermitteln geprüfte Fachbetriebe, kennen die Förderungen und beraten ehrlich.",
+          "Erste Orientierung zu Photovoltaik, Stromspeicher und Wärmepumpe – verständlich erklärt und auf Ihre Immobilie bezogen.",
       },
       { property: "og:title", content: "Solar & Wärmepumpe | PRIME ENERGIE" },
       {
         property: "og:description",
-        content: "Unabhängige Beratung zu Solaranlage, Stromspeicher und Wärmepumpe.",
+        content: "Persönliche Orientierung zu Solaranlage, Stromspeicher und Wärmepumpe.",
       },
-      { property: "og:image", content: "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1200&h=630&fit=crop&q=80" },
+      {
+        property: "og:image",
+        content:
+          "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1200&h=630&fit=crop&q=80",
+      },
     ],
   }),
   component: SolarPage,
@@ -39,33 +43,33 @@ export const Route = createFileRoute("/solar")({
 const features = [
   {
     icon: Sun,
-    title: "Solaranlage planen",
-    desc: "Wir kalkulieren Ertrag, Amortisation und passende Anlagengröße für Ihr Dach.",
+    title: "Bedarf einordnen",
+    desc: "Dach, Verbrauch und Zukunftspläne bilden die Grundlage für die ersten Überlegungen.",
   },
   {
     icon: Battery,
     title: "Stromspeicher",
-    desc: "Damit Ihr Strom auch abends fließt. Größenwahl ohne Übertreibung.",
+    desc: "Wir erklären, wann ein Speicher sinnvoll sein kann und welche Angaben dafür wichtig sind.",
   },
   {
     icon: Thermometer,
     title: "Wärmepumpe",
-    desc: "Wirtschaftlichkeitsprüfung & passender Wärmestromtarif aus einer Hand.",
+    desc: "Wir betrachten Heizsystem, Gebäude und einen möglichen Wärmestromtarif im Zusammenhang.",
   },
   {
     icon: BadgeCheck,
-    title: "Geprüfte Fachbetriebe",
-    desc: "Wir vermitteln nur regionale Installateure mit lückenloser Referenzliste.",
+    title: "Nächste Schritte",
+    desc: "Nach der Erstberatung klären wir mit Ihnen, welche Fachplanung oder welches Angebot benötigt wird.",
   },
   {
     icon: Wrench,
-    title: "Förderung gesichert",
-    desc: "BAFA, KfW, regionale Töpfe. Wir wissen, was wann beantragt werden muss.",
+    title: "Förderung mitdenken",
+    desc: "Wir weisen auf mögliche Förderwege hin; verbindlich ist die Prüfung der zuständigen Stelle.",
   },
   {
     icon: Leaf,
-    title: "CO₂ runter, Wert rauf",
-    desc: "Eigenversorgung senkt nicht nur Kosten, sondern hebt Ihren Immobilienwert.",
+    title: "Eigenverbrauch verstehen",
+    desc: "Sie erfahren, wie Erzeugung, Verbrauch und mögliche Speicherung zusammenspielen.",
   },
 ];
 
@@ -74,8 +78,8 @@ function SolarPage() {
     <SiteLayout>
       <TopicHero
         kicker="Eigene Energie produzieren"
-        title={<>Ihr Dach kann mehr als nur Dach sein.</>}
-        lead="Photovoltaik, Stromspeicher und Wärmepumpe. Wir planen Ihre Energiezukunft ehrlich und ohne Verkaufsdruck. Mit geprüften Fachbetrieben aus Ihrer Region."
+        title={<>Ihre Energie zuhause neu denken.</>}
+        lead="Photovoltaik, Stromspeicher und Wärmepumpe gehören zusammen gedacht. PRIME ENERGIE schafft eine verständliche erste Orientierung."
         image={heroImg}
         imageAlt="Einfamilienhaus mit Solaranlage auf dem Dach"
         Icon={Sun}
@@ -85,20 +89,20 @@ function SolarPage() {
 
       <FeatureGrid
         title="Energie aus dem eigenen Haus"
-        intro="Eine Solaranlage zahlt sich in 8–12 Jahren ab. Wir sorgen dafür, dass es schneller geht."
+        intro="Sechs Themen, die vor einem konkreten Angebot sorgfältig betrachtet werden sollten."
         items={features}
       />
 
       <ImageSplit
         eyebrow="Photovoltaik"
-        title="Solaranlage. Transparent kalkuliert"
-        body="Die meisten Angebote rechnen mit Idealbedingungen. Wir kalkulieren mit Ihren tatsächlichen Dachflächen, Ihrem Verbrauchsprofil und realen Strompreis-Szenarien. Das Ergebnis: belastbare Zahlen, mit denen Sie planen können."
+        title="Photovoltaik verständlich vorbereiten"
+        body="Dachfläche, Ausrichtung, Verschattung und Verbrauch beeinflussen die passende Anlagengröße. Wir helfen Ihnen, die richtigen Informationen für eine Fachplanung zusammenzustellen."
         image={splitImg}
         imageAlt="Photovoltaik-Module aus der Nähe"
         bullets={[
-          "Dachvermessung per Satellit & Vor-Ort-Termin",
-          "Verbrauchsanalyse aus Ihrer Jahresabrechnung",
-          "Wirtschaftlichkeitsprüfung über 20 Jahre",
+          "Dachfläche, Ausrichtung und Verschattung erfassen",
+          "Jahresverbrauch und zukünftige Verbraucher berücksichtigen",
+          "Angebote anhand vergleichbarer Angaben bewerten",
         ]}
       />
 
@@ -106,19 +110,19 @@ function SolarPage() {
         reverse
         eyebrow="Wärmepumpe"
         title="Heizen mit der Wärme der Umgebung"
-        body="Eine Wärmepumpe braucht das richtige Haus, den richtigen Tarif und den richtigen Fachbetrieb. Wir prüfen alle drei. Und sagen Ihnen ehrlich, wenn es noch nicht passt."
+        body="Eine Wärmepumpe muss zu Gebäude, Heizflächen und Wärmebedarf passen. Zusätzlich kann ein geeigneter Stromtarif wichtig sein. Wir ordnen diese Punkte für Sie ein."
         image={splitImg2}
         imageAlt="Moderne Wärmepumpe im Außenbereich"
         bullets={[
-          "Heizlastberechnung statt Pauschal-Angebot",
-          "Passender Wärmestromtarif inklusive",
-          "Fördermittel-Check inklusive Antragsbegleitung",
+          "Heizlast und vorhandene Heizflächen fachlich prüfen lassen",
+          "Strombedarf und mögliche Wärmestromtarife berücksichtigen",
+          "Förderbedingungen vor Beauftragung aktuell prüfen",
         ]}
       />
 
       <FinalCta
         title="Energie aus dem eigenen Haus."
-        body="Wir hören erst zu. Und beraten dann. Ohne Vertriebsdruck, ohne Vorkasse."
+        body="Sprechen Sie mit uns über Gebäude, Verbrauch und Ziele. Danach kennen Sie die sinnvollen nächsten Schritte."
         image={ctaBg}
       />
     </SiteLayout>

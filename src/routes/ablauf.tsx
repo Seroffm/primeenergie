@@ -23,13 +23,12 @@ export const Route = createFileRoute("/ablauf")({
       {
         name: "description",
         content:
-          "In 4 Schritten zum besseren Strom- oder Gastarif: Anfrage, Prüfung, Angebot, Wechsel. Persönlich, kostenlos, ohne Versorgungslücke.",
+          "So begleitet PRIME ENERGIE Ihre Tarifprüfung: Anfrage, persönliche Einordnung, Angebot und Wechselunterstützung.",
       },
       { property: "og:title", content: "Ablauf: So funktioniert der Tarifwechsel | PRIME ENERGIE" },
       {
         property: "og:description",
-        content:
-          "In 4 Schritten zum besseren Strom- oder Gastarif. Persönlich, kostenlos, ohne Versorgungslücke.",
+        content: "In vier verständlichen Schritten von der Anfrage bis zur eigenen Entscheidung.",
       },
     ],
   }),
@@ -48,59 +47,63 @@ const steps = [
     icon: FileSearch,
     kicker: "Schritt 1",
     title: "Anfrage senden",
-    duration: "ca. 2 Minuten",
-    desc: "Sie füllen unser kurzes Online-Formular aus. PLZ, ungefährer Verbrauch, Kontaktdaten. Mehr brauchen wir nicht, um loszulegen.",
+    duration: "wenige Minuten",
+    desc: "Sie übermitteln Postleitzahl, Verbrauch und Kontaktdaten. Eine vorhandene Rechnung kann die Prüfung erleichtern.",
     bullets: ["100 % unverbindlich", "Keine Registrierung", "Auf Wunsch mit alter Rechnung"],
   },
   {
     icon: PhoneCall,
     kicker: "Schritt 2",
     title: "Persönliche Prüfung",
-    duration: "innerhalb von 24 Std.",
-    desc: "Ein zertifizierter Berater prüft Ihre Verbrauchs- und Vertragsdaten und filtert passende Tarife aus unserem Pool geprüfter Anbieter.",
+    duration: "nach Eingang",
+    desc: "Unser Team prüft Ihre Angaben und klärt bei Bedarf Rückfragen zu Verbrauch, Laufzeit oder Tarifwünschen.",
     bullets: [
-      "Echte Menschen, kein Bot",
-      "Unabhängig & ohne Provisionsdruck",
-      "Auf Ihre Situation zugeschnitten",
+      "Persönliche Rückmeldung",
+      "Wichtige Konditionen im Blick",
+      "Auf Ihre Angaben zugeschnitten",
     ],
   },
   {
     icon: FileSignature,
     kicker: "Schritt 3",
     title: "Angebot erhalten",
-    duration: "schriftlich & klar",
-    desc: "Sie erhalten ein konkretes Angebot per E-Mail oder Telefon. Mit Sparpotenzial, Vertragsdetails und allen wichtigen Konditionen auf einen Blick.",
+    duration: "verständlich aufbereitet",
+    desc: "Sie erhalten eine persönliche Einordnung der verfügbaren Option mit den wichtigen Konditionen für Ihre Entscheidung.",
     bullets: [
       "Transparente Konditionen",
-      "Inkl. Sparberechnung",
-      "Bedenkzeit so lange Sie möchten",
+      "Kosten nachvollziehbar dargestellt",
+      "Annahme bleibt Ihre Entscheidung",
     ],
   },
   {
     icon: PlugZap,
     kicker: "Schritt 4",
     title: "Wechsel auf Wunsch",
-    duration: "4–8 Wochen",
-    desc: "Sagen Sie ja, übernehmen wir den kompletten Wechsel. Inklusive Kündigung beim alten Anbieter. Sie merken davon nichts außer der Ersparnis.",
-    bullets: ["Keine Versorgungslücke", "Komplette Abwicklung durch uns", "Bestätigung per E-Mail"],
+    duration: "abhängig vom Vertrag",
+    desc: "Wenn Sie das Angebot annehmen, unterstützt PRIME ENERGIE bei den vereinbarten nächsten Schritten zum Anbieterwechsel.",
+    bullets: [
+      "Bestehende Laufzeit berücksichtigen",
+      "Erforderliche Daten strukturiert übermitteln",
+      "Bestätigung und Vertragsunterlagen prüfen",
+    ],
   },
 ];
 
 const guarantees = [
   {
     icon: ShieldCheck,
-    title: "Versorgungsgarantie",
-    desc: "Der Wechsel ist gesetzlich abgesichert. Sie haben jederzeit Strom und Gas.",
+    title: "Versorgung bleibt abgesichert",
+    desc: "Ein Anbieterwechsel führt nicht dazu, dass Strom oder Gas einfach abgeschaltet werden.",
   },
   {
     icon: BadgeCheck,
-    title: "Geprüfte Anbieter",
-    desc: "Wir empfehlen ausschließlich Versorger mit nachweislich gutem Service.",
+    title: "Konditionen im Blick",
+    desc: "Wir machen Preis, Laufzeit, Garantie, Bonus und Kündigungsfrist sichtbar.",
   },
   {
     icon: Clock,
-    title: "Wir halten Fristen ein",
-    desc: "Kündigungsfristen und Wechseltermine werden punktgenau eingehalten.",
+    title: "Persönliche Begleitung",
+    desc: "Fragen und nächste Schritte besprechen Sie direkt mit dem Team von PRIME ENERGIE.",
   },
 ];
 
@@ -115,22 +118,22 @@ function AblaufPage() {
             {...fadeUp}
             className="inline-flex items-center gap-2 rounded-full border border-success/30 bg-success/10 px-4 py-1.5 text-xs font-medium text-success"
           >
-            <Sparkles className="h-3.5 w-3.5" /> So einfach geht Tarifwechsel heute
+            <Sparkles className="h-3.5 w-3.5" /> So begleitet PRIME ENERGIE
           </motion.div>
           <motion.h1
             {...fadeUp}
             transition={{ ...fadeUp.transition, delay: 0.05 }}
             className="mt-6 text-4xl font-bold leading-tight text-primary md:text-6xl"
           >
-            In 4 Schritten zum besseren Tarif
+            In 4 Schritten zur klaren Tarifentscheidung
           </motion.h1>
           <motion.p
             {...fadeUp}
             transition={{ ...fadeUp.transition, delay: 0.1 }}
             className="mx-auto mt-5 max-w-2xl text-lg text-muted-foreground md:text-xl"
           >
-            Transparent, persönlich und ohne versteckte Schritte. Wir nehmen Ihnen die ganze Arbeit
-            ab. Sie genießen die Ersparnis.
+            Von der ersten Angabe bis zur eigenen Entscheidung: persönlich, verständlich und ohne
+            unnötige Umwege.
           </motion.p>
           <motion.div
             {...fadeUp}
@@ -156,9 +159,9 @@ function AblaufPage() {
       {/* STEPS */}
       <section className="mx-auto max-w-6xl px-4 py-20 md:py-28">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold text-primary md:text-4xl">Ihr Weg zur Ersparnis</h2>
+          <h2 className="text-3xl font-bold text-primary md:text-4xl">Ihr Weg mit PRIME ENERGIE</h2>
           <p className="mt-4 text-muted-foreground">
-            Vier klare Etappen. Sie investieren wenige Minuten. Den Rest erledigen wir.
+            Vier klare Etappen. Sie behalten jederzeit den Überblick und treffen die Entscheidung.
           </p>
         </div>
 
@@ -205,10 +208,10 @@ function AblaufPage() {
         <div className="mx-auto max-w-6xl px-4 py-20 md:py-24">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-bold text-primary md:text-4xl">
-              Was wir Ihnen garantieren
+              Darauf können Sie sich verlassen
             </h2>
             <p className="mt-4 text-muted-foreground">
-              Drei Versprechen, die für jeden Wechsel über PRIME ENERGIE gelten.
+              Drei Grundsätze für jede Tarifprüfung mit PRIME ENERGIE.
             </p>
           </div>
           <div className="mt-12 grid gap-6 md:grid-cols-3">
@@ -237,11 +240,11 @@ function AblaufPage() {
                 <Clock className="h-3.5 w-3.5" /> Ihr Zeiteinsatz
               </div>
               <h2 className="mt-4 text-3xl font-bold md:text-4xl">
-                2 Minuten Ihrer Zeit. Bis zu 850 € Ersparnis pro Jahr
+                Wenige Angaben. Eine persönliche Einordnung.
               </h2>
               <p className="mt-3 text-primary-foreground/80">
-                Mehr ist es nicht. Alles Weitere übernehmen wir. Von der Prüfung bis zur Kündigung
-                beim alten Anbieter.
+                Starten Sie online und besprechen Sie anschließend transparent, welche Option und
+                welcher nächste Schritt zu Ihnen passen.
               </p>
             </div>
             <div className="flex flex-col gap-3">
