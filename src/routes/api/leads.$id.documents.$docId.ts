@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { requireAuth, ok, err } from "@/lib/api/helpers.server";
+import { requireAuth, requireLeadAccess, ok, err } from "@/lib/api/helpers.server";
 import { createServiceClient } from "@/lib/supabase.server";
 
 export const Route = createFileRoute("/api/leads/$id/documents/$docId")({
@@ -17,16 +17,8 @@ export const Route = createFileRoute("/api/leads/$id/documents/$docId")({
           if (!auth.ok) return auth.response;
 
           const supabase = createServiceClient();
-          const { data: lead, error: leadError } = await supabase
-            .from("leads")
-            .select("id, assigned_to")
-            .eq("id", params.id)
-            .single();
-
-          if (leadError || !lead) return err("Lead nicht gefunden", 404);
-          if (auth.user.role === "employee" && lead.assigned_to !== auth.user.userId) {
-            return err("Zugriff verweigert", 403);
-          }
+          const access = await requireLeadAccess(supabase, auth.user, params.id);
+          if (!access.ok) return access.response;
 
           const { data: document, error: documentError } = await supabase
             .from("lead_documents")

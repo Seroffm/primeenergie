@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { createOpenAIProvider } from "@/lib/ai-gateway.server";
+import { consumeRateLimit } from "@/lib/api/helpers.server";
 
 const SYSTEM_PROMPT = `Du bist der "Prime Assistent", die digitale Orientierungshilfe von PRIME ENERGIE.
 
@@ -35,9 +36,21 @@ export const Route = createFileRoute("/api/chat")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const { messages } = (await request.json()) as { messages?: UIMessage[] };
-        if (!Array.isArray(messages)) {
+        const allowed = await consumeRateLimit(request, "public_chat_ip", 20, 900);
+        if (!allowed) return new Response("Zu viele Anfragen", { status: 429 });
+
+        let body: { messages?: UIMessage[] };
+        try {
+          body = (await request.json()) as { messages?: UIMessage[] };
+        } catch {
+          return new Response("Ungültige Anfrage", { status: 400 });
+        }
+        const { messages } = body;
+        if (!Array.isArray(messages) || messages.length === 0 || messages.length > 20) {
           return new Response("Messages are required", { status: 400 });
+        }
+        if (JSON.stringify(messages).length > 20_000) {
+          return new Response("Anfrage ist zu groß", { status: 413 });
         }
         const key = process.env.OPENAI_API_KEY;
         if (!key) return new Response("Missing OPENAI_API_KEY", { status: 500 });

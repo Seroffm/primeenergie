@@ -1,22 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { requireAuth, getPagination, ok, err } from "@/lib/api/helpers.server";
+import { requireAuth, requireLeadAccess, getPagination, ok, err } from "@/lib/api/helpers.server";
 import { createServiceClient } from "@/lib/supabase.server";
 
 export const Route = createFileRoute("/api/leads/$id/documents")({
   server: {
     handlers: {
-      GET: async ({
-        request,
-        params,
-      }: {
-        request: Request;
-        params: { id: string };
-      }) => {
+      GET: async ({ request, params }: { request: Request; params: { id: string } }) => {
         const auth = await requireAuth(request);
         if (!auth.ok) return auth.response;
 
         const { page, pageSize, from, to } = getPagination(request, 100);
         const supabase = createServiceClient();
+        const access = await requireLeadAccess(supabase, auth.user, params.id);
+        if (!access.ok) return access.response;
 
         const { data, count, error } = await supabase
           .from("lead_documents")

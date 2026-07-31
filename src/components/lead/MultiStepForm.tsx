@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, type ReactNode } from "react";
+import { useState, useEffect, useMemo, useRef, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "@tanstack/react-router";
 import {
@@ -44,6 +44,23 @@ import {
 
 type Draft = Partial<LeadInput> & { ziele: LeadInput["ziele"] };
 
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (
+        element: HTMLElement,
+        options: {
+          sitekey: string;
+          callback: (token: string) => void;
+          "expired-callback": () => void;
+          "error-callback": () => void;
+        },
+      ) => string;
+      remove: (widgetId: string) => void;
+    };
+  }
+}
+
 const STORAGE_KEY = "lead-draft-v1";
 const TOTAL_STEPS = 8;
 let handledOfferReloadRedirect = false;
@@ -78,6 +95,9 @@ export function MultiStepForm({
     typeof window === "undefined" ? [] : getPendingInvoice(),
   );
   const [invoiceError, setInvoiceError] = useState<string | null>(null);
+  const [website, setWebsite] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined;
 
   useEffect(() => {
     // Nur wenn die Angebotsseite selbst neu geladen wurde, zurück zur Startseite.
@@ -178,7 +198,7 @@ export function MultiStepForm({
       // Finalize numeric estimates
       const payload = finalizePayload(data);
       const invoiceFile = invoiceFiles[0] ?? null;
-      const res = await submitLead(payload, undefined, referralCode, invoiceFile);
+      const res = await submitLead(payload, turnstileToken, referralCode, invoiceFile, website);
       track("lead_submitted", { leadId: res.leadId });
       if (invoiceFile && res.invoiceUploaded) track("invoice_uploaded");
       sessionStorage.removeItem(STORAGE_KEY);
@@ -206,6 +226,21 @@ export function MultiStepForm({
 
   return (
     <div className="form-contrast w-full">
+      <div
+        className="pointer-events-none absolute -left-[10000px] h-px w-px overflow-hidden"
+        aria-hidden="true"
+      >
+        <label htmlFor="website">Webseite</label>
+        <input
+          id="website"
+          name="website"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          value={website}
+          onChange={(event) => setWebsite(event.target.value)}
+        />
+      </div>
       <div className="mb-6 flex items-center justify-between text-sm">
         <span className="font-medium text-primary">
           Schritt {step} von {TOTAL_STEPS}
@@ -255,6 +290,10 @@ export function MultiStepForm({
         </motion.div>
       </AnimatePresence>
 
+      {step === TOTAL_STEPS && turnstileSiteKey && (
+        <TurnstileWidget siteKey={turnstileSiteKey} onToken={setTurnstileToken} />
+      )}
+
       {error && (
         <div className="mt-4 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
@@ -278,7 +317,7 @@ export function MultiStepForm({
           <Button
             type="button"
             onClick={handleSubmit}
-            disabled={!canContinue || submitting}
+            disabled={!canContinue || submitting || Boolean(turnstileSiteKey && !turnstileToken)}
             className="bg-success text-success-foreground hover:bg-success/90"
           >
             {submitting ? (
@@ -300,6 +339,55 @@ export function MultiStepForm({
       )}
     </div>
   );
+}
+
+function TurnstileWidget({
+  siteKey,
+  onToken,
+}: {
+  siteKey: string;
+  onToken: (token: string) => void;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let widgetId: string | undefined;
+    let cancelled = false;
+
+    const renderWidget = () => {
+      if (cancelled || !containerRef.current || !window.turnstile || widgetId) return;
+      widgetId = window.turnstile.render(containerRef.current, {
+        sitekey: siteKey,
+        callback: onToken,
+        "expired-callback": () => onToken(""),
+        "error-callback": () => onToken(""),
+      });
+    };
+
+    const existingScript = document.querySelector<HTMLScriptElement>(
+      'script[src^="https://challenges.cloudflare.com/turnstile/v0/api.js"]',
+    );
+    if (window.turnstile) {
+      renderWidget();
+    } else if (existingScript) {
+      existingScript.addEventListener("load", renderWidget, { once: true });
+    } else {
+      const script = document.createElement("script");
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.defer = true;
+      script.addEventListener("load", renderWidget, { once: true });
+      document.head.appendChild(script);
+    }
+
+    return () => {
+      cancelled = true;
+      onToken("");
+      if (widgetId && window.turnstile) window.turnstile.remove(widgetId);
+    };
+  }, [onToken, siteKey]);
+
+  return <div ref={containerRef} className="mt-6 flex min-h-[65px] justify-center" />;
 }
 
 /* ----------------------------- Steps ----------------------------- */

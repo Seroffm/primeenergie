@@ -19,10 +19,7 @@ import type { BlogArticle } from "@/lib/api-types";
 
 export const Route = createFileRoute("/mitarbeiter/redaktion")({
   head: () => ({
-    meta: [
-      { title: "Redaktion – Mitarbeiter" },
-      { name: "robots", content: "noindex,nofollow" },
-    ],
+    meta: [{ title: "Redaktion – Mitarbeiter" }, { name: "robots", content: "noindex,nofollow" }],
   }),
   component: RedaktionPage,
 });
@@ -36,10 +33,14 @@ function formatDate(iso: string): string {
 }
 
 function RedaktionPage() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const { location } = useRouterState();
   if (location.pathname !== "/mitarbeiter/redaktion") return <Outlet />;
+  return <RedaktionOverview />;
+}
+
+function RedaktionOverview() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [deleteTarget, setDeleteTarget] = useState<BlogArticle | null>(null);
 
@@ -107,14 +108,9 @@ function RedaktionPage() {
             </div>
             <div>
               <p className="font-medium">Noch keine Artikel</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Erstelle deinen ersten Artikel.
-              </p>
+              <p className="mt-1 text-sm text-muted-foreground">Erstelle deinen ersten Artikel.</p>
             </div>
-            <Button
-              size="sm"
-              onClick={() => navigate({ to: "/mitarbeiter/redaktion/neu" })}
-            >
+            <Button size="sm" onClick={() => navigate({ to: "/mitarbeiter/redaktion/neu" })}>
               <Plus className="mr-2 h-4 w-4" />
               Artikel erstellen
             </Button>
@@ -150,11 +146,7 @@ function RedaktionPage() {
                   </div>
                 </div>
                 <div className="flex shrink-0 gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    asChild
-                  >
+                  <Button variant="outline" size="sm" asChild>
                     <Link to="/mitarbeiter/redaktion/$id" params={{ id: article.id }}>
                       <Pencil className="mr-1.5 h-3.5 w-3.5" />
                       Bearbeiten
@@ -186,8 +178,8 @@ function RedaktionPage() {
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
             Willst du den Artikel{" "}
-            <span className="font-medium text-foreground">"{deleteTarget?.title}"</span>{" "}
-            wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
+            <span className="font-medium text-foreground">"{deleteTarget?.title}"</span> wirklich
+            löschen? Diese Aktion kann nicht rückgängig gemacht werden.
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteTarget(null)}>

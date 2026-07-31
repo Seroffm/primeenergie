@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { AdminShell } from "@/components/mitarbeiter/AdminShell";
 import { useAuth } from "@/lib/auth-context";
-import { getMe } from "@/lib/api-client";
+import { getMe, updateMe } from "@/lib/api-client";
 import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/mitarbeiter/einstellungen")({
@@ -70,6 +70,8 @@ function SettingsPage() {
       setFirstName(parts[0] ?? "");
       setLastName(parts.slice(1).join(" ") ?? "");
       setEmail(profile.email ?? "");
+      setPhone(profile.phone ?? "");
+      setNotifState((current) => ({ ...current, ...(profile.notification_prefs ?? {}) }));
     }
   }, [profile]);
 
@@ -78,11 +80,7 @@ function SettingsPage() {
     setIsSavingProfile(true);
     try {
       const full_name = `${firstName.trim()} ${lastName.trim()}`.trim();
-      const { error } = await supabase
-        .from("profiles")
-        .update({ full_name, phone: phone.trim() || null })
-        .eq("auth_user_id", user.id);
-      if (error) throw error;
+      await updateMe({ full_name, phone: phone.trim() || null });
       toast.success("Profil gespeichert");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unbekannter Fehler";
@@ -94,6 +92,10 @@ function SettingsPage() {
 
   async function handleChangePassword() {
     if (!newPw) return;
+    if (!currentPw) {
+      toast.error("Bitte aktuelles Passwort eingeben");
+      return;
+    }
     if (newPw !== confirmPw) {
       toast.error("Passwörter stimmen nicht überein");
       return;
@@ -104,6 +106,11 @@ function SettingsPage() {
     }
     setIsSavingPw(true);
     try {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user?.email ?? "",
+        password: currentPw,
+      });
+      if (signInError) throw new Error("Aktuelles Passwort ist nicht korrekt");
       const { error } = await supabase.auth.updateUser({ password: newPw });
       if (error) throw error;
       setCurrentPw("");
@@ -118,11 +125,17 @@ function SettingsPage() {
     }
   }
 
-  function handleToggleNotif(key: string, checked: boolean) {
-    setNotifState((prev) => ({ ...prev, [key]: checked }));
-    // Kein notification_prefs-Feld in der DB-Spalte → nur lokaler State + Toast
-    console.log("notification_prefs update:", key, checked);
-    toast.success("Einstellung gespeichert");
+  async function handleToggleNotif(key: string, checked: boolean) {
+    const previous = notifState;
+    const next = { ...notifState, [key]: checked };
+    setNotifState(next);
+    try {
+      await updateMe({ notification_prefs: next });
+      toast.success("Einstellung gespeichert");
+    } catch {
+      setNotifState(previous);
+      toast.error("Einstellung konnte nicht gespeichert werden");
+    }
   }
 
   return (
@@ -244,25 +257,22 @@ function SettingsPage() {
           </CardContent>
         </Card>
 
-        {/* ── TEAM-ÜBERSICHT (statisch) ──────────────────────────────────── */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Team-Mitglieder</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="mb-4 text-sm text-muted-foreground">
-              Eine vollständige Team-Verwaltung ist unter{" "}
-              <span className="font-medium">Mitarbeiter → Team</span> verfügbar.
-            </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => toast.info("Einladung – Feature in Kürze verfügbar")}
-            >
-              Mitarbeiter einladen
-            </Button>
-          </CardContent>
-        </Card>
+        {user?.role !== "mitarbeiter" && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Team-Mitglieder</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4 text-sm text-muted-foreground">
+                Eine vollständige Team-Verwaltung ist unter{" "}
+                <span className="font-medium">Mitarbeiter → Team</span> verfügbar.
+              </p>
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/mitarbeiter/team">Team verwalten</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </AdminShell>
   );

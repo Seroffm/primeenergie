@@ -14,6 +14,9 @@ import type {
   PublicLeadPayload,
   BackendReferral,
   BlogArticle,
+  BackendProvider,
+  BackendTariff,
+  BackendEmailTemplate,
 } from "./api-types";
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string) || "";
@@ -84,6 +87,89 @@ async function patch<T>(path: string, body: unknown): Promise<T> {
 export async function getMe(): Promise<BackendProfile> {
   const res = await get<BackendSingleResponse<BackendProfile>>("/api/me");
   return res.data;
+}
+
+export async function updateMe(update: {
+  full_name?: string;
+  phone?: string | null;
+  notification_prefs?: Record<string, boolean>;
+}): Promise<BackendProfile> {
+  const res = await patch<BackendSingleResponse<BackendProfile>>("/api/me", update);
+  return res.data;
+}
+
+// ---------------------------------------------------------------------------
+// CRM catalog
+// ---------------------------------------------------------------------------
+
+export type ProviderInput = Pick<
+  BackendProvider,
+  "name" | "energy_type" | "rating" | "is_partner"
+> & { is_active?: boolean };
+
+export async function getProviders(): Promise<BackendProvider[]> {
+  return (await get<{ data: BackendProvider[] }>("/api/providers")).data;
+}
+
+export async function createProvider(input: ProviderInput): Promise<BackendProvider> {
+  return (await post<{ data: BackendProvider }>("/api/providers", input)).data;
+}
+
+export async function updateProvider(
+  id: string,
+  input: Partial<ProviderInput>,
+): Promise<BackendProvider> {
+  return (await patch<{ data: BackendProvider }>(`/api/providers/${id}`, input)).data;
+}
+
+export type TariffInput = Pick<
+  BackendTariff,
+  | "provider_id"
+  | "name"
+  | "energy_type"
+  | "segment"
+  | "price_per_kwh"
+  | "base_price"
+  | "duration_months"
+  | "price_guarantee_months"
+  | "is_eco"
+> & { is_active?: boolean };
+
+export async function getTariffs(): Promise<BackendTariff[]> {
+  return (await get<{ data: BackendTariff[] }>("/api/tariffs")).data;
+}
+
+export async function createTariff(input: TariffInput): Promise<BackendTariff> {
+  return (await post<{ data: BackendTariff }>("/api/tariffs", input)).data;
+}
+
+export async function updateTariff(
+  id: string,
+  input: Partial<TariffInput>,
+): Promise<BackendTariff> {
+  return (await patch<{ data: BackendTariff }>(`/api/tariffs/${id}`, input)).data;
+}
+
+export type EmailTemplateInput = Pick<
+  BackendEmailTemplate,
+  "name" | "subject" | "trigger_name" | "body" | "is_active"
+>;
+
+export async function getEmailTemplates(): Promise<BackendEmailTemplate[]> {
+  return (await get<{ data: BackendEmailTemplate[] }>("/api/email-templates")).data;
+}
+
+export async function createEmailTemplate(
+  input: EmailTemplateInput,
+): Promise<BackendEmailTemplate> {
+  return (await post<{ data: BackendEmailTemplate }>("/api/email-templates", input)).data;
+}
+
+export async function updateEmailTemplate(
+  id: string,
+  input: Partial<EmailTemplateInput>,
+): Promise<BackendEmailTemplate> {
+  return (await patch<{ data: BackendEmailTemplate }>(`/api/email-templates/${id}`, input)).data;
 }
 
 // ---------------------------------------------------------------------------

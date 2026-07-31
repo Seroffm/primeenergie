@@ -5,8 +5,7 @@ import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { AdminShell } from "@/components/mitarbeiter/AdminShell";
-import { employees } from "@/lib/mock-leads";
-import { getLeads } from "@/lib/api-client";
+import { getLeads, getTeam } from "@/lib/api-client";
 import { mapLeadStatus } from "@/lib/api-types";
 import type { BackendLead } from "@/lib/api-types";
 
@@ -23,6 +22,7 @@ function adaptLead(l: BackendLead) {
     status: mapLeadStatus(l.status),
     backendStatus: l.status,
     createdAt: l.created_at,
+    assignedTo: l.assigned_to,
   };
 }
 
@@ -31,6 +31,10 @@ function StatistikenPage() {
     queryKey: ["leads"],
     queryFn: () => getLeads({ pageSize: 500 }),
   });
+  const { data: team = [], isLoading: isTeamLoading } = useQuery({
+    queryKey: ["team"],
+    queryFn: getTeam,
+  });
 
   const leads = useMemo(() => (data?.data ?? []).map(adaptLead), [data]);
 
@@ -38,8 +42,7 @@ function StatistikenPage() {
   const total = data?.count ?? leads.length;
   const completed = leads.filter((l) => l.backendStatus === "completed").length;
   const offerSent = leads.filter((l) => l.backendStatus === "offer_sent").length;
-  const conversionRate =
-    total > 0 ? ((completed / total) * 100).toFixed(1) + " %" : "0,0 %";
+  const conversionRate = total > 0 ? ((completed / total) * 100).toFixed(1) + " %" : "0,0 %";
 
   const kpi = [
     {
@@ -81,6 +84,21 @@ function StatistikenPage() {
 
   const maxMonthly = Math.max(...monthly, 1);
 
+  const employeeRanking = useMemo(
+    () =>
+      team
+        .filter((member) => member.is_active)
+        .map((member) => ({
+          id: member.id,
+          name: member.full_name || member.email || "Mitarbeiter",
+          closed: leads.filter(
+            (lead) => lead.backendStatus === "completed" && lead.assignedTo === member.auth_user_id,
+          ).length,
+        }))
+        .sort((a, b) => b.closed - a.closed),
+    [leads, team],
+  );
+
   // Funnel-Werte aus echten Leads
   const funnelItems = useMemo(
     () => [
@@ -94,8 +112,7 @@ function StatistikenPage() {
       {
         label: "Vertrag vorbereitet",
         value: leads.filter(
-          (l) =>
-            l.backendStatus === "contract_prepared" || l.backendStatus === "contract_sent",
+          (l) => l.backendStatus === "contract_prepared" || l.backendStatus === "contract_sent",
         ).length,
       },
       {
@@ -158,16 +175,19 @@ function StatistikenPage() {
           </CardContent>
         </Card>
 
-        {/* Mitarbeiter-Ranking (aus Mock, da keine Aggregation per Lead vorhanden) */}
+        {/* Mitarbeiter Ranking aus echten Team und Lead Daten */}
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Mitarbeiter-Ranking</CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
-            {[...employees]
-              .sort((a, b) => b.closed - a.closed)
-              .map((e, i) => (
-                <div key={e.name}>
+            {isTeamLoading ? (
+              <div className="text-sm text-muted-foreground">Wird geladen…</div>
+            ) : employeeRanking.length === 0 ? (
+              <div className="text-sm text-muted-foreground">Keine Teamdaten vorhanden.</div>
+            ) : (
+              employeeRanking.map((e, i) => (
+                <div key={e.id}>
                   <div className="mb-1 flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
                       <span className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-xs font-medium">
@@ -177,9 +197,15 @@ function StatistikenPage() {
                     </div>
                     <span className="text-xs text-muted-foreground">{e.closed} Abschlüsse</span>
                   </div>
-                  <Progress value={(e.closed / 20) * 100} className="h-2" />
+                  <Progress
+                    value={
+                      employeeRanking[0]?.closed ? (e.closed / employeeRanking[0].closed) * 100 : 0
+                    }
+                    className="h-2"
+                  />
                 </div>
-              ))}
+              ))
+            )}
           </CardContent>
         </Card>
 
@@ -192,9 +218,7 @@ function StatistikenPage() {
             <div className="space-y-3">
               {funnelItems.map((f) => {
                 const pct =
-                  funnelItems[0].value > 0
-                    ? Math.round((f.value / funnelItems[0].value) * 100)
-                    : 0;
+                  funnelItems[0].value > 0 ? Math.round((f.value / funnelItems[0].value) * 100) : 0;
                 return (
                   <div key={f.label} className="flex items-center gap-4">
                     <div className="w-40 text-sm">{f.label}</div>
@@ -261,9 +285,7 @@ function StatistikenPage() {
                 <div key={s.label}>
                   <div className="flex justify-between">
                     <span>{s.label}</span>
-                    <span className="text-muted-foreground">
-                      {isLoading ? "…" : s.count}
-                    </span>
+                    <span className="text-muted-foreground">{isLoading ? "…" : s.count}</span>
                   </div>
                   <div className="mt-1 h-1.5 overflow-hidden rounded bg-muted">
                     <div className={`h-full ${s.color}`} style={{ width: `${pct}%` }} />

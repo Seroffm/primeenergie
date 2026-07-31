@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ok, err, generateReferralCode } from "@/lib/api/helpers.server";
+import { consumeRateLimit, ok, err, generateReferralCode } from "@/lib/api/helpers.server";
 import { createServiceClient } from "@/lib/supabase.server";
 import { sendEmail } from "@/lib/email.server";
 import { referralCodeRequestTemplate } from "@/lib/email-templates.server";
@@ -9,6 +9,9 @@ export const Route = createFileRoute("/api/referral-request")({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
+        if (!(await consumeRateLimit(request, "referral_request_ip", 5, 3600))) {
+          return ok({ data: { sent: true } });
+        }
         let body: { email?: string };
         try {
           body = (await request.json()) as { email?: string };
@@ -17,12 +20,15 @@ export const Route = createFileRoute("/api/referral-request")({
         }
 
         const email = body.email?.trim().toLowerCase();
-        if (!email) {
+        if (!email || email.length > 254 || !/^\S+@\S+\.\S+$/.test(email)) {
           // Security: kein Fehler zeigen
           return ok({ data: { sent: true } });
         }
 
         const supabase = createServiceClient();
+        if (!(await consumeRateLimit(request, "referral_request_email", 3, 86_400, email))) {
+          return ok({ data: { sent: true } });
+        }
 
         // Lead mit dieser E-Mail suchen der status = 'completed' hat
         const { data: lead } = await supabase

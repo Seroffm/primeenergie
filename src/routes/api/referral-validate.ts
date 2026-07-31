@@ -1,11 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ok, err } from "@/lib/api/helpers.server";
+import { consumeRateLimit, ok, err } from "@/lib/api/helpers.server";
 import { createServiceClient } from "@/lib/supabase.server";
 
 export const Route = createFileRoute("/api/referral-validate")({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
+        if (!(await consumeRateLimit(request, "referral_validate_ip", 30, 900))) {
+          return err("Zu viele Anfragen", 429);
+        }
         let body: { code?: string };
         try {
           body = (await request.json()) as { code?: string };
@@ -14,7 +17,7 @@ export const Route = createFileRoute("/api/referral-validate")({
         }
 
         const code = body.code?.trim().toUpperCase();
-        if (!code) {
+        if (!code || !/^[A-Z2-9]{8}$/.test(code)) {
           return ok({ data: { valid: false } });
         }
 
@@ -26,7 +29,11 @@ export const Route = createFileRoute("/api/referral-validate")({
           .eq("code", code)
           .single();
 
-        if (!codeRow || !codeRow.is_active || new Date(codeRow.expires_at as string) <= new Date()) {
+        if (
+          !codeRow ||
+          !codeRow.is_active ||
+          new Date(codeRow.expires_at as string) <= new Date()
+        ) {
           return ok({ data: { valid: false } });
         }
 
@@ -42,7 +49,8 @@ export const Route = createFileRoute("/api/referral-validate")({
 
         // Nur Anfangsbuchstabe des Nachnamens aus Datenschutzgründen
         const lastName = referrerLead.last_name as string;
-        const referrerName = `${referrerLead.first_name as string} ${lastName ? lastName[0] + "." : ""}`.trim();
+        const referrerName =
+          `${referrerLead.first_name as string} ${lastName ? lastName[0] + "." : ""}`.trim();
 
         return ok({ data: { valid: true, referrer_name: referrerName } });
       },

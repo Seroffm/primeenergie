@@ -163,6 +163,48 @@ export interface BackendProfile {
   full_name: string;
   email: string;
   is_active: boolean;
+  phone: string | null;
+  notification_prefs: Record<string, boolean>;
+}
+
+export interface BackendProvider {
+  id: string;
+  name: string;
+  energy_type: "strom" | "gas" | "beide";
+  rating: number;
+  is_partner: boolean;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  tariffs?: Array<{ count: number }>;
+}
+
+export interface BackendTariff {
+  id: string;
+  provider_id: string;
+  name: string;
+  energy_type: "strom" | "gas";
+  segment: "privat" | "gewerbe";
+  price_per_kwh: number;
+  base_price: number;
+  duration_months: number;
+  price_guarantee_months: number;
+  is_eco: boolean;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  providers?: { name: string } | null;
+}
+
+export interface BackendEmailTemplate {
+  id: string;
+  name: string;
+  subject: string;
+  trigger_name: string;
+  body: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -194,7 +236,8 @@ export interface PublicLeadPayload {
   privacy_consent: true;
   contact_consent: true;
   address: { postal_code: string; city: string; street?: string };
-  turnstile_token: string;
+  turnstile_token?: string;
+  website?: string;
   electricity?: PublicLeadElectricityPayload;
   gas?: PublicLeadGasPayload;
   // Felder ohne dedizierte DB-Spalte — landen in leads.notes via p_initial_note

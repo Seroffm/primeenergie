@@ -1,22 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { requireAuth, getPagination, ok, err } from "@/lib/api/helpers.server";
+import { requireAuth, requireLeadAccess, getPagination, ok, err } from "@/lib/api/helpers.server";
 import { createServiceClient } from "@/lib/supabase.server";
 
 export const Route = createFileRoute("/api/leads/$id/notes")({
   server: {
     handlers: {
-      GET: async ({
-        request,
-        params,
-      }: {
-        request: Request;
-        params: { id: string };
-      }) => {
+      GET: async ({ request, params }: { request: Request; params: { id: string } }) => {
         const auth = await requireAuth(request);
         if (!auth.ok) return auth.response;
 
         const { page, pageSize, from, to } = getPagination(request, 100);
         const supabase = createServiceClient();
+        const access = await requireLeadAccess(supabase, auth.user, params.id);
+        if (!access.ok) return access.response;
 
         const { data, count, error } = await supabase
           .from("lead_notes")
@@ -30,13 +26,7 @@ export const Route = createFileRoute("/api/leads/$id/notes")({
         return ok({ data: data ?? [], count: count ?? 0, page, pageSize });
       },
 
-      POST: async ({
-        request,
-        params,
-      }: {
-        request: Request;
-        params: { id: string };
-      }) => {
+      POST: async ({ request, params }: { request: Request; params: { id: string } }) => {
         const auth = await requireAuth(request);
         if (!auth.ok) return auth.response;
 
@@ -49,8 +39,11 @@ export const Route = createFileRoute("/api/leads/$id/notes")({
 
         const note = body.note?.trim();
         if (!note) return err("Notiz darf nicht leer sein", 400);
+        if (note.length > 5000) return err("Notiz ist zu lang", 400);
 
         const supabase = createServiceClient();
+        const access = await requireLeadAccess(supabase, auth.user, params.id);
+        if (!access.ok) return access.response;
         const { data, error } = await supabase
           .from("lead_notes")
           .insert({ lead_id: params.id, created_by: auth.user.userId, note })

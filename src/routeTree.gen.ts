@@ -48,18 +48,24 @@ import { Route as MitarbeiterEinstellungenRouteImport } from './routes/mitarbeit
 import { Route as MitarbeiterDashboardRouteImport } from './routes/mitarbeiter.dashboard'
 import { Route as MitarbeiterAnbieterRouteImport } from './routes/mitarbeiter.anbieter'
 import { Route as ApiTeamRouteImport } from './routes/api/team'
+import { Route as ApiTariffsRouteImport } from './routes/api/tariffs'
 import { Route as ApiReferralsRouteImport } from './routes/api/referrals'
 import { Route as ApiReferralValidateRouteImport } from './routes/api/referral-validate'
 import { Route as ApiReferralRequestRouteImport } from './routes/api/referral-request'
+import { Route as ApiProvidersRouteImport } from './routes/api/providers'
 import { Route as ApiMeRouteImport } from './routes/api/me'
 import { Route as ApiLeadsRouteImport } from './routes/api/leads'
+import { Route as ApiEmailTemplatesRouteImport } from './routes/api/email-templates'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as MitarbeiterRedaktionNeuRouteImport } from './routes/mitarbeiter.redaktion.neu'
 import { Route as MitarbeiterRedaktionIdRouteImport } from './routes/mitarbeiter.redaktion.$id'
 import { Route as MitarbeiterLeadsIdRouteImport } from './routes/mitarbeiter.leads.$id'
 import { Route as ApiTeamIdRouteImport } from './routes/api/team.$id'
+import { Route as ApiTariffsIdRouteImport } from './routes/api/tariffs.$id'
 import { Route as ApiPublicLeadsRouteImport } from './routes/api/public.leads'
+import { Route as ApiProvidersIdRouteImport } from './routes/api/providers.$id'
 import { Route as ApiLeadsIdRouteImport } from './routes/api/leads.$id'
+import { Route as ApiEmailTemplatesIdRouteImport } from './routes/api/email-templates.$id'
 import { Route as ApiBlogArticlesRouteImport } from './routes/api/blog.articles'
 import { Route as ApiReferralsIdPayRouteImport } from './routes/api/referrals.$id.pay'
 import { Route as ApiLeadsIdStatusHistoryRouteImport } from './routes/api/leads.$id.status-history'
@@ -274,6 +280,11 @@ const ApiTeamRoute = ApiTeamRouteImport.update({
   path: '/api/team',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiTariffsRoute = ApiTariffsRouteImport.update({
+  id: '/api/tariffs',
+  path: '/api/tariffs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiReferralsRoute = ApiReferralsRouteImport.update({
   id: '/api/referrals',
   path: '/api/referrals',
@@ -289,6 +300,11 @@ const ApiReferralRequestRoute = ApiReferralRequestRouteImport.update({
   path: '/api/referral-request',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiProvidersRoute = ApiProvidersRouteImport.update({
+  id: '/api/providers',
+  path: '/api/providers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiMeRoute = ApiMeRouteImport.update({
   id: '/api/me',
   path: '/api/me',
@@ -297,6 +313,11 @@ const ApiMeRoute = ApiMeRouteImport.update({
 const ApiLeadsRoute = ApiLeadsRouteImport.update({
   id: '/api/leads',
   path: '/api/leads',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEmailTemplatesRoute = ApiEmailTemplatesRouteImport.update({
+  id: '/api/email-templates',
+  path: '/api/email-templates',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiChatRoute = ApiChatRouteImport.update({
@@ -324,15 +345,30 @@ const ApiTeamIdRoute = ApiTeamIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ApiTeamRoute,
 } as any)
+const ApiTariffsIdRoute = ApiTariffsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiTariffsRoute,
+} as any)
 const ApiPublicLeadsRoute = ApiPublicLeadsRouteImport.update({
   id: '/api/public/leads',
   path: '/api/public/leads',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiProvidersIdRoute = ApiProvidersIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiProvidersRoute,
+} as any)
 const ApiLeadsIdRoute = ApiLeadsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => ApiLeadsRoute,
+} as any)
+const ApiEmailTemplatesIdRoute = ApiEmailTemplatesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiEmailTemplatesRoute,
 } as any)
 const ApiBlogArticlesRoute = ApiBlogArticlesRouteImport.update({
   id: '/api/blog/articles',
@@ -437,11 +473,14 @@ export interface FileRoutesByFullPath {
   '/widerruf': typeof WiderrufRoute
   '/wissen': typeof WissenRouteWithChildren
   '/api/chat': typeof ApiChatRoute
+  '/api/email-templates': typeof ApiEmailTemplatesRouteWithChildren
   '/api/leads': typeof ApiLeadsRouteWithChildren
   '/api/me': typeof ApiMeRoute
+  '/api/providers': typeof ApiProvidersRouteWithChildren
   '/api/referral-request': typeof ApiReferralRequestRoute
   '/api/referral-validate': typeof ApiReferralValidateRoute
   '/api/referrals': typeof ApiReferralsRouteWithChildren
+  '/api/tariffs': typeof ApiTariffsRouteWithChildren
   '/api/team': typeof ApiTeamRouteWithChildren
   '/mitarbeiter/anbieter': typeof MitarbeiterAnbieterRoute
   '/mitarbeiter/dashboard': typeof MitarbeiterDashboardRoute
@@ -461,8 +500,11 @@ export interface FileRoutesByFullPath {
   '/wissen/$slug': typeof WissenSlugRoute
   '/mitarbeiter/': typeof MitarbeiterIndexRoute
   '/api/blog/articles': typeof ApiBlogArticlesRouteWithChildren
+  '/api/email-templates/$id': typeof ApiEmailTemplatesIdRoute
   '/api/leads/$id': typeof ApiLeadsIdRouteWithChildren
+  '/api/providers/$id': typeof ApiProvidersIdRoute
   '/api/public/leads': typeof ApiPublicLeadsRoute
+  '/api/tariffs/$id': typeof ApiTariffsIdRoute
   '/api/team/$id': typeof ApiTeamIdRoute
   '/mitarbeiter/leads/$id': typeof MitarbeiterLeadsIdRoute
   '/mitarbeiter/redaktion/$id': typeof MitarbeiterRedaktionIdRoute
@@ -504,11 +546,14 @@ export interface FileRoutesByTo {
   '/widerruf': typeof WiderrufRoute
   '/wissen': typeof WissenRouteWithChildren
   '/api/chat': typeof ApiChatRoute
+  '/api/email-templates': typeof ApiEmailTemplatesRouteWithChildren
   '/api/leads': typeof ApiLeadsRouteWithChildren
   '/api/me': typeof ApiMeRoute
+  '/api/providers': typeof ApiProvidersRouteWithChildren
   '/api/referral-request': typeof ApiReferralRequestRoute
   '/api/referral-validate': typeof ApiReferralValidateRoute
   '/api/referrals': typeof ApiReferralsRouteWithChildren
+  '/api/tariffs': typeof ApiTariffsRouteWithChildren
   '/api/team': typeof ApiTeamRouteWithChildren
   '/mitarbeiter/anbieter': typeof MitarbeiterAnbieterRoute
   '/mitarbeiter/dashboard': typeof MitarbeiterDashboardRoute
@@ -528,8 +573,11 @@ export interface FileRoutesByTo {
   '/wissen/$slug': typeof WissenSlugRoute
   '/mitarbeiter': typeof MitarbeiterIndexRoute
   '/api/blog/articles': typeof ApiBlogArticlesRouteWithChildren
+  '/api/email-templates/$id': typeof ApiEmailTemplatesIdRoute
   '/api/leads/$id': typeof ApiLeadsIdRouteWithChildren
+  '/api/providers/$id': typeof ApiProvidersIdRoute
   '/api/public/leads': typeof ApiPublicLeadsRoute
+  '/api/tariffs/$id': typeof ApiTariffsIdRoute
   '/api/team/$id': typeof ApiTeamIdRoute
   '/mitarbeiter/leads/$id': typeof MitarbeiterLeadsIdRoute
   '/mitarbeiter/redaktion/$id': typeof MitarbeiterRedaktionIdRoute
@@ -573,11 +621,14 @@ export interface FileRoutesById {
   '/widerruf': typeof WiderrufRoute
   '/wissen': typeof WissenRouteWithChildren
   '/api/chat': typeof ApiChatRoute
+  '/api/email-templates': typeof ApiEmailTemplatesRouteWithChildren
   '/api/leads': typeof ApiLeadsRouteWithChildren
   '/api/me': typeof ApiMeRoute
+  '/api/providers': typeof ApiProvidersRouteWithChildren
   '/api/referral-request': typeof ApiReferralRequestRoute
   '/api/referral-validate': typeof ApiReferralValidateRoute
   '/api/referrals': typeof ApiReferralsRouteWithChildren
+  '/api/tariffs': typeof ApiTariffsRouteWithChildren
   '/api/team': typeof ApiTeamRouteWithChildren
   '/mitarbeiter/anbieter': typeof MitarbeiterAnbieterRoute
   '/mitarbeiter/dashboard': typeof MitarbeiterDashboardRoute
@@ -597,8 +648,11 @@ export interface FileRoutesById {
   '/wissen/$slug': typeof WissenSlugRoute
   '/mitarbeiter/': typeof MitarbeiterIndexRoute
   '/api/blog/articles': typeof ApiBlogArticlesRouteWithChildren
+  '/api/email-templates/$id': typeof ApiEmailTemplatesIdRoute
   '/api/leads/$id': typeof ApiLeadsIdRouteWithChildren
+  '/api/providers/$id': typeof ApiProvidersIdRoute
   '/api/public/leads': typeof ApiPublicLeadsRoute
+  '/api/tariffs/$id': typeof ApiTariffsIdRoute
   '/api/team/$id': typeof ApiTeamIdRoute
   '/mitarbeiter/leads/$id': typeof MitarbeiterLeadsIdRoute
   '/mitarbeiter/redaktion/$id': typeof MitarbeiterRedaktionIdRoute
@@ -643,11 +697,14 @@ export interface FileRouteTypes {
     | '/widerruf'
     | '/wissen'
     | '/api/chat'
+    | '/api/email-templates'
     | '/api/leads'
     | '/api/me'
+    | '/api/providers'
     | '/api/referral-request'
     | '/api/referral-validate'
     | '/api/referrals'
+    | '/api/tariffs'
     | '/api/team'
     | '/mitarbeiter/anbieter'
     | '/mitarbeiter/dashboard'
@@ -667,8 +724,11 @@ export interface FileRouteTypes {
     | '/wissen/$slug'
     | '/mitarbeiter/'
     | '/api/blog/articles'
+    | '/api/email-templates/$id'
     | '/api/leads/$id'
+    | '/api/providers/$id'
     | '/api/public/leads'
+    | '/api/tariffs/$id'
     | '/api/team/$id'
     | '/mitarbeiter/leads/$id'
     | '/mitarbeiter/redaktion/$id'
@@ -710,11 +770,14 @@ export interface FileRouteTypes {
     | '/widerruf'
     | '/wissen'
     | '/api/chat'
+    | '/api/email-templates'
     | '/api/leads'
     | '/api/me'
+    | '/api/providers'
     | '/api/referral-request'
     | '/api/referral-validate'
     | '/api/referrals'
+    | '/api/tariffs'
     | '/api/team'
     | '/mitarbeiter/anbieter'
     | '/mitarbeiter/dashboard'
@@ -734,8 +797,11 @@ export interface FileRouteTypes {
     | '/wissen/$slug'
     | '/mitarbeiter'
     | '/api/blog/articles'
+    | '/api/email-templates/$id'
     | '/api/leads/$id'
+    | '/api/providers/$id'
     | '/api/public/leads'
+    | '/api/tariffs/$id'
     | '/api/team/$id'
     | '/mitarbeiter/leads/$id'
     | '/mitarbeiter/redaktion/$id'
@@ -778,11 +844,14 @@ export interface FileRouteTypes {
     | '/widerruf'
     | '/wissen'
     | '/api/chat'
+    | '/api/email-templates'
     | '/api/leads'
     | '/api/me'
+    | '/api/providers'
     | '/api/referral-request'
     | '/api/referral-validate'
     | '/api/referrals'
+    | '/api/tariffs'
     | '/api/team'
     | '/mitarbeiter/anbieter'
     | '/mitarbeiter/dashboard'
@@ -802,8 +871,11 @@ export interface FileRouteTypes {
     | '/wissen/$slug'
     | '/mitarbeiter/'
     | '/api/blog/articles'
+    | '/api/email-templates/$id'
     | '/api/leads/$id'
+    | '/api/providers/$id'
     | '/api/public/leads'
+    | '/api/tariffs/$id'
     | '/api/team/$id'
     | '/mitarbeiter/leads/$id'
     | '/mitarbeiter/redaktion/$id'
@@ -847,11 +919,14 @@ export interface RootRouteChildren {
   WiderrufRoute: typeof WiderrufRoute
   WissenRoute: typeof WissenRouteWithChildren
   ApiChatRoute: typeof ApiChatRoute
+  ApiEmailTemplatesRoute: typeof ApiEmailTemplatesRouteWithChildren
   ApiLeadsRoute: typeof ApiLeadsRouteWithChildren
   ApiMeRoute: typeof ApiMeRoute
+  ApiProvidersRoute: typeof ApiProvidersRouteWithChildren
   ApiReferralRequestRoute: typeof ApiReferralRequestRoute
   ApiReferralValidateRoute: typeof ApiReferralValidateRoute
   ApiReferralsRoute: typeof ApiReferralsRouteWithChildren
+  ApiTariffsRoute: typeof ApiTariffsRouteWithChildren
   ApiTeamRoute: typeof ApiTeamRouteWithChildren
   ApiBlogArticlesRoute: typeof ApiBlogArticlesRouteWithChildren
   ApiPublicLeadsRoute: typeof ApiPublicLeadsRoute
@@ -1133,6 +1208,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTeamRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/tariffs': {
+      id: '/api/tariffs'
+      path: '/api/tariffs'
+      fullPath: '/api/tariffs'
+      preLoaderRoute: typeof ApiTariffsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/referrals': {
       id: '/api/referrals'
       path: '/api/referrals'
@@ -1154,6 +1236,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiReferralRequestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/providers': {
+      id: '/api/providers'
+      path: '/api/providers'
+      fullPath: '/api/providers'
+      preLoaderRoute: typeof ApiProvidersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/me': {
       id: '/api/me'
       path: '/api/me'
@@ -1166,6 +1255,13 @@ declare module '@tanstack/react-router' {
       path: '/api/leads'
       fullPath: '/api/leads'
       preLoaderRoute: typeof ApiLeadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/email-templates': {
+      id: '/api/email-templates'
+      path: '/api/email-templates'
+      fullPath: '/api/email-templates'
+      preLoaderRoute: typeof ApiEmailTemplatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/chat': {
@@ -1203,6 +1299,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTeamIdRouteImport
       parentRoute: typeof ApiTeamRoute
     }
+    '/api/tariffs/$id': {
+      id: '/api/tariffs/$id'
+      path: '/$id'
+      fullPath: '/api/tariffs/$id'
+      preLoaderRoute: typeof ApiTariffsIdRouteImport
+      parentRoute: typeof ApiTariffsRoute
+    }
     '/api/public/leads': {
       id: '/api/public/leads'
       path: '/api/public/leads'
@@ -1210,12 +1313,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicLeadsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/providers/$id': {
+      id: '/api/providers/$id'
+      path: '/$id'
+      fullPath: '/api/providers/$id'
+      preLoaderRoute: typeof ApiProvidersIdRouteImport
+      parentRoute: typeof ApiProvidersRoute
+    }
     '/api/leads/$id': {
       id: '/api/leads/$id'
       path: '/$id'
       fullPath: '/api/leads/$id'
       preLoaderRoute: typeof ApiLeadsIdRouteImport
       parentRoute: typeof ApiLeadsRoute
+    }
+    '/api/email-templates/$id': {
+      id: '/api/email-templates/$id'
+      path: '/$id'
+      fullPath: '/api/email-templates/$id'
+      preLoaderRoute: typeof ApiEmailTemplatesIdRouteImport
+      parentRoute: typeof ApiEmailTemplatesRoute
     }
     '/api/blog/articles': {
       id: '/api/blog/articles'
@@ -1402,6 +1519,17 @@ const WissenRouteChildren: WissenRouteChildren = {
 const WissenRouteWithChildren =
   WissenRoute._addFileChildren(WissenRouteChildren)
 
+interface ApiEmailTemplatesRouteChildren {
+  ApiEmailTemplatesIdRoute: typeof ApiEmailTemplatesIdRoute
+}
+
+const ApiEmailTemplatesRouteChildren: ApiEmailTemplatesRouteChildren = {
+  ApiEmailTemplatesIdRoute: ApiEmailTemplatesIdRoute,
+}
+
+const ApiEmailTemplatesRouteWithChildren =
+  ApiEmailTemplatesRoute._addFileChildren(ApiEmailTemplatesRouteChildren)
+
 interface ApiLeadsIdDocumentsDocIdRouteChildren {
   ApiLeadsIdDocumentsDocIdUrlRoute: typeof ApiLeadsIdDocumentsDocIdUrlRoute
 }
@@ -1465,6 +1593,18 @@ const ApiLeadsRouteWithChildren = ApiLeadsRoute._addFileChildren(
   ApiLeadsRouteChildren,
 )
 
+interface ApiProvidersRouteChildren {
+  ApiProvidersIdRoute: typeof ApiProvidersIdRoute
+}
+
+const ApiProvidersRouteChildren: ApiProvidersRouteChildren = {
+  ApiProvidersIdRoute: ApiProvidersIdRoute,
+}
+
+const ApiProvidersRouteWithChildren = ApiProvidersRoute._addFileChildren(
+  ApiProvidersRouteChildren,
+)
+
 interface ApiReferralsRouteChildren {
   ApiReferralsIdPayRoute: typeof ApiReferralsIdPayRoute
 }
@@ -1475,6 +1615,18 @@ const ApiReferralsRouteChildren: ApiReferralsRouteChildren = {
 
 const ApiReferralsRouteWithChildren = ApiReferralsRoute._addFileChildren(
   ApiReferralsRouteChildren,
+)
+
+interface ApiTariffsRouteChildren {
+  ApiTariffsIdRoute: typeof ApiTariffsIdRoute
+}
+
+const ApiTariffsRouteChildren: ApiTariffsRouteChildren = {
+  ApiTariffsIdRoute: ApiTariffsIdRoute,
+}
+
+const ApiTariffsRouteWithChildren = ApiTariffsRoute._addFileChildren(
+  ApiTariffsRouteChildren,
 )
 
 interface ApiTeamRouteChildren {
@@ -1534,11 +1686,14 @@ const rootRouteChildren: RootRouteChildren = {
   WiderrufRoute: WiderrufRoute,
   WissenRoute: WissenRouteWithChildren,
   ApiChatRoute: ApiChatRoute,
+  ApiEmailTemplatesRoute: ApiEmailTemplatesRouteWithChildren,
   ApiLeadsRoute: ApiLeadsRouteWithChildren,
   ApiMeRoute: ApiMeRoute,
+  ApiProvidersRoute: ApiProvidersRouteWithChildren,
   ApiReferralRequestRoute: ApiReferralRequestRoute,
   ApiReferralValidateRoute: ApiReferralValidateRoute,
   ApiReferralsRoute: ApiReferralsRouteWithChildren,
+  ApiTariffsRoute: ApiTariffsRouteWithChildren,
   ApiTeamRoute: ApiTeamRouteWithChildren,
   ApiBlogArticlesRoute: ApiBlogArticlesRouteWithChildren,
   ApiPublicLeadsRoute: ApiPublicLeadsRoute,

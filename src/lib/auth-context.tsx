@@ -43,19 +43,7 @@ async function loadProfile(session: Session): Promise<AppUser | null> {
       role: mapRole(profile.role),
     };
   } catch {
-    // Backend-API nicht erreichbar → Fallback auf Supabase-Basisdaten
-    const name =
-      (session.user.user_metadata?.full_name as string | undefined) ??
-      session.user.email ??
-      "Mitarbeiter";
-    return {
-      id: session.user.id,
-      profileId: session.user.id,
-      name,
-      initials: getInitials(name),
-      email: session.user.email ?? "",
-      role: "mitarbeiter",
-    };
+    return null;
   }
 }
 
@@ -68,6 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (session) {
         const profile = await loadProfile(session);
         setUser(profile);
+        if (!profile) await supabase.auth.signOut();
       }
       setIsLoading(false);
     });
@@ -78,6 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (session) {
         const profile = await loadProfile(session);
         setUser(profile);
+        if (!profile) await supabase.auth.signOut();
       } else {
         setUser(null);
       }

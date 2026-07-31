@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { verifyTurnstile, computeScore, ok, err } from "@/lib/api/helpers.server";
+import { verifyTurnstile, consumeRateLimit, computeScore, ok, err } from "@/lib/api/helpers.server";
 import { createServiceClient } from "@/lib/supabase.server";
-import type { PublicLeadPayload } from "@/lib/api-types";
+import { publicLeadPayloadSchema } from "@/lib/api/public-lead-schema";
+import { hasValidFileSignature } from "@/lib/api/upload-validation.server";
 import { sendEmail } from "@/lib/email.server";
 import { leadConfirmationTemplate, newLeadInternalTemplate } from "@/lib/email-templates.server";
 import process from "node:process";
@@ -35,37 +36,43 @@ export const Route = createFileRoute("/api/public/leads")({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
-        let payload: PublicLeadPayload;
+        let rawPayload: unknown;
         let invoiceFiles: File[] = [];
         try {
           if (request.headers.get("content-type")?.includes("multipart/form-data")) {
             const formData = await request.formData();
-            const rawPayload = formData.get("payload");
-            if (typeof rawPayload !== "string") throw new Error("payload fehlt");
-            payload = JSON.parse(rawPayload) as PublicLeadPayload;
+            const rawPayloadEntry = formData.get("payload");
+            if (typeof rawPayloadEntry !== "string") throw new Error("payload fehlt");
+            rawPayload = JSON.parse(rawPayloadEntry);
             invoiceFiles = formData
               .getAll("invoice")
               .filter((value): value is File => value instanceof File && value.size > 0);
           } else {
-            payload = (await request.json()) as PublicLeadPayload;
+            rawPayload = await request.json();
           }
         } catch {
           return err("Ungültiger Request-Body", 400);
         }
 
-        // Pflichtfelder prüfen
-        if (!payload.first_name || !payload.last_name || !payload.email) {
-          return err("Pflichtfelder fehlen: first_name, last_name, email", 400);
-        }
-        if (!payload.privacy_consent || !payload.contact_consent) {
-          return err("Datenschutz-Einwilligung fehlt", 400);
-        }
-        if (!payload.product_type || !payload.customer_type) {
-          return err("product_type und customer_type sind erforderlich", 400);
+        const validation = publicLeadPayloadSchema.safeParse(rawPayload);
+        if (!validation.success) return err("Eingaben sind unvollständig oder ungültig", 400);
+        const payload = validation.data;
+
+        const withinIpLimit = await consumeRateLimit(request, "public_lead_ip", 5, 900);
+        const withinEmailLimit = await consumeRateLimit(
+          request,
+          "public_lead_email",
+          3,
+          86_400,
+          payload.email,
+        );
+        if (!withinIpLimit || !withinEmailLimit) {
+          return err("Zu viele Anfragen. Bitte versuchen Sie es später erneut.", 429);
         }
         if (invoiceFiles.length > MAX_INVOICE_FILES) {
           return err(`Maximal ${MAX_INVOICE_FILES} Rechnungsdateien erlaubt`, 400);
         }
+        const invoiceBuffers = new Map<File, ArrayBuffer>();
         for (const invoiceFile of invoiceFiles) {
           if (invoiceFile.size > MAX_INVOICE_SIZE) {
             return err("Rechnungsdatei ist zu groß (maximal 10 MB)", 413);
@@ -73,12 +80,19 @@ export const Route = createFileRoute("/api/public/leads")({
           if (!ALLOWED_INVOICE_TYPES.has(invoiceFile.type)) {
             return err("Dateityp nicht erlaubt (PDF, JPG oder PNG)", 415);
           }
+          const buffer = await invoiceFile.arrayBuffer();
+          if (!hasValidFileSignature(invoiceFile.type, buffer)) {
+            return err("Dateiinhalt stimmt nicht mit dem Dateityp überein", 415);
+          }
+          invoiceBuffers.set(invoiceFile, buffer);
         }
 
-        // Turnstile verifizieren
-        const turnstileOk = await verifyTurnstile(payload.turnstile_token);
-        if (!turnstileOk) {
-          return err("Bot-Schutz fehlgeschlagen. Bitte erneut versuchen.", 400);
+        // Turnstile wird zusätzlich geprüft, sobald echte Cloudflare Schlüssel hinterlegt sind.
+        if (process.env.TURNSTILE_SECRET_KEY) {
+          const turnstileOk = await verifyTurnstile(payload.turnstile_token);
+          if (!turnstileOk) {
+            return err("Bot-Schutz fehlgeschlagen. Bitte erneut versuchen.", 400);
+          }
         }
 
         const supabase = createServiceClient();
@@ -118,7 +132,7 @@ export const Route = createFileRoute("/api/public/leads")({
         for (const invoiceFile of invoiceFiles) {
           const safeName = invoiceFile.name.replace(/[^a-zA-Z0-9._-]/g, "_");
           const storagePath = `${leadId}/${Date.now()}-${crypto.randomUUID()}_${safeName}`;
-          const arrayBuffer = await invoiceFile.arrayBuffer();
+          const arrayBuffer = invoiceBuffers.get(invoiceFile)!;
           const { error: uploadError } = await supabase.storage
             .from("lead-documents")
             .upload(storagePath, arrayBuffer, {

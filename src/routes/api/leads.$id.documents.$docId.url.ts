@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { requireAuth, ok, err } from "@/lib/api/helpers.server";
+import { requireAuth, requireLeadAccess, ok, err } from "@/lib/api/helpers.server";
 import { createServiceClient } from "@/lib/supabase.server";
 
 export const Route = createFileRoute("/api/leads/$id/documents/$docId/url")({
@@ -16,6 +16,8 @@ export const Route = createFileRoute("/api/leads/$id/documents/$docId/url")({
         if (!auth.ok) return auth.response;
 
         const supabase = createServiceClient();
+        const access = await requireLeadAccess(supabase, auth.user, params.id);
+        if (!access.ok) return access.response;
 
         const { data: doc, error: docError } = await supabase
           .from("lead_documents")
@@ -25,15 +27,6 @@ export const Route = createFileRoute("/api/leads/$id/documents/$docId/url")({
           .single();
 
         if (docError || !doc) return err("Dokument nicht gefunden", 404);
-
-        if (auth.user.role === "employee" && auth.user.userId !== params.id) {
-          const { data: lead } = await supabase
-            .from("leads")
-            .select("assigned_to")
-            .eq("id", params.id)
-            .single();
-          if (lead?.assigned_to !== auth.user.userId) return err("Zugriff verweigert", 403);
-        }
 
         const bucket = (doc.storage_bucket as string) || "lead-documents";
         const path = doc.storage_path as string;

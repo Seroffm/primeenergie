@@ -23,17 +23,8 @@ function mapPriceGuarantee(val?: "ja" | "nein" | "weiss_nicht"): boolean | undef
   return undefined; // "weiss_nicht" und undefined → Feld wird im JSON weggelassen
 }
 
-// DEMO/STAGING: VITE_TURNSTILE_DEMO_TOKEN ist der Cloudflare always-pass Testschlüssel.
-// Production-Deployments müssen ein echtes Turnstile-Widget einbinden und
-// den echten VITE_TURNSTILE_SITE_KEY konfigurieren.
 function resolveTurnstileToken(widgetToken?: string): string {
-  if (widgetToken) return widgetToken;
-  const demoToken = import.meta.env.VITE_TURNSTILE_DEMO_TOKEN as string | undefined;
-  if (demoToken) return demoToken;
-  throw new Error(
-    "Kein Turnstile-Token verfügbar. " +
-      "Widget einbinden oder VITE_TURNSTILE_DEMO_TOKEN in .env.local setzen.",
-  );
+  return widgetToken?.trim() ?? "";
 }
 
 function buildElectricity(lead: LeadInput): PublicLeadPayload["electricity"] {
@@ -84,7 +75,11 @@ function buildGas(lead: LeadInput): PublicLeadPayload["gas"] {
   };
 }
 
-function mapToBackendPayload(lead: LeadInput, turnstileToken?: string): PublicLeadPayload {
+function mapToBackendPayload(
+  lead: LeadInput,
+  turnstileToken?: string,
+  website = "",
+): PublicLeadPayload {
   const product_type = PRODUCT_TYPE_MAP[lead.energyType];
   const customer_type = CUSTOMER_TYPE_MAP[lead.customerType];
 
@@ -105,6 +100,7 @@ function mapToBackendPayload(lead: LeadInput, turnstileToken?: string): PublicLe
     contact_consent: true,
     address,
     turnstile_token: resolveTurnstileToken(turnstileToken),
+    website,
 
     ...(product_type === "electricity" || product_type === "both"
       ? { electricity: buildElectricity(lead) }
@@ -124,8 +120,9 @@ export async function submitLead(
   turnstileToken?: string,
   referralCode?: string,
   invoiceFile?: File | null,
+  website = "",
 ): Promise<{ ok: true; leadId: string; leadNumber: string; invoiceUploaded: boolean }> {
-  const payload = mapToBackendPayload(lead, turnstileToken);
+  const payload = mapToBackendPayload(lead, turnstileToken, website);
   if (referralCode) payload.referral_code = referralCode.trim().toUpperCase();
   const pendingInvoiceFiles = getPendingInvoice();
   const invoiceFiles =

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { requireAuth, ok, err } from "@/lib/api/helpers.server";
+import { requireAuth, requireLeadAccess, ok, err } from "@/lib/api/helpers.server";
 import { createServiceClient } from "@/lib/supabase.server";
+import { hasValidFileSignature } from "@/lib/api/upload-validation.server";
 
 const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
 const ALLOWED_TYPES = new Set([
@@ -33,24 +34,17 @@ export const Route = createFileRoute("/api/leads/$id/documents/upload")({
           return err("Dateityp nicht erlaubt (PDF, JPG, PNG, WebP)", 415);
 
         const supabase = createServiceClient();
-
-        // Prüfen ob Lead existiert und zugänglich ist
-        const { data: lead, error: leadErr } = await supabase
-          .from("leads")
-          .select("id, assigned_to")
-          .eq("id", params.id)
-          .single();
-
-        if (leadErr || !lead) return err("Lead nicht gefunden", 404);
-        if (auth.user.role === "employee" && lead.assigned_to !== auth.user.userId) {
-          return err("Zugriff verweigert", 403);
-        }
+        const access = await requireLeadAccess(supabase, auth.user, params.id);
+        if (!access.ok) return access.response;
 
         // Eindeutiger Dateipfad: lead-id / timestamp_originalname
         const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
         const path = `${params.id}/${Date.now()}-${crypto.randomUUID()}_${safeName}`;
 
         const arrayBuf = await file.arrayBuffer();
+        if (!hasValidFileSignature(file.type, arrayBuf)) {
+          return err("Dateiinhalt stimmt nicht mit dem Dateityp überein", 415);
+        }
         const { error: uploadErr } = await supabase.storage
           .from("lead-documents")
           .upload(path, arrayBuf, {
