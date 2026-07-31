@@ -181,7 +181,7 @@ function Hero() {
         aria-hidden
       />
 
-      <div className="mx-auto max-w-6xl px-4 pt-12 pb-10 md:pt-20 md:pb-16">
+      <div className="mx-auto max-w-6xl px-4 pt-10 pb-8 md:pt-20 md:pb-16">
         <div className="grid items-start gap-10 lg:grid-cols-[1.05fr_1fr]">
           <motion.div
             initial={{ opacity: 0 }}
@@ -189,39 +189,21 @@ function Hero() {
             transition={{ duration: 0.4, ease: "easeOut" }}
           >
             <span className="inline-flex items-center gap-2 rounded-full border border-success/30 bg-success/10 px-3 py-1 text-xs font-semibold text-success">
-              <BadgeCheck className="h-3.5 w-3.5" /> Persönlich geprüft · Kostenlos angefragt
+              <BadgeCheck className="h-3.5 w-3.5" /> Persönliche Tarifprüfung
             </span>
-            <h1 className="mt-5 font-display text-4xl font-extrabold leading-[1.05] text-primary md:text-6xl">
+            <h1 className="mt-4 font-display text-4xl font-extrabold leading-[1.05] text-primary md:mt-5 md:text-6xl">
               Energie neu denken. <span className="text-success">Persönlich entscheiden.</span>
             </h1>
-            <p className="mt-5 max-w-xl text-lg text-muted-foreground">
-              PRIME ENERGIE prüft passende Tarife für Strom und Gas anhand Ihrer Angaben und erklärt
-              die Konditionen verständlich. So treffen Sie eine Entscheidung, die zu Ihrem Verbrauch
-              passt.
+            <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground md:mt-5 md:text-lg">
+              PRIME ENERGIE prüft Ihre Angaben und erklärt passende Tarife verständlich.
             </p>
 
-            <ul className="mt-6 grid max-w-md gap-2.5 text-sm">
-              {[
-                "Persönliche Beratung statt anonymer Ergebnisliste",
-                "Tarifdetails verständlich und transparent erklärt",
-                "Begleitung von der Anfrage bis zum Anbieterwechsel",
-              ].map((b) => (
-                <li key={b} className="flex items-start gap-2 text-foreground">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 flex-none text-success" />
-                  {b}
-                </li>
-              ))}
-            </ul>
-
-            <div className="mt-7 flex flex-wrap gap-x-5 gap-y-2 text-xs font-medium text-muted-foreground">
+            <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs font-medium text-muted-foreground md:mt-6">
               <span className="inline-flex items-center gap-1.5">
-                <ShieldCheck className="h-4 w-4 text-success" /> Kostenlos & unverbindlich
+                <ShieldCheck className="h-4 w-4 text-success" /> Kostenlos und unverbindlich
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <PhoneCall className="h-4 w-4 text-success" /> Persönliche Beratung per Telefon
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <FileSearch className="h-4 w-4 text-success" /> Prüfung nach Ihren Angaben
+                <PhoneCall className="h-4 w-4 text-success" /> Persönlich beraten
               </span>
             </div>
           </motion.div>
