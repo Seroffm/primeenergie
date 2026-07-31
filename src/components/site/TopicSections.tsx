@@ -59,12 +59,7 @@ export function TopicHero({
             )}
           </div>
         </motion.div>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="relative"
-        >
+        <div className="relative">
           <div className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-gradient-to-br from-success/20 via-success/5 to-transparent blur-2xl" />
           <div className="overflow-hidden rounded-3xl border border-border shadow-card">
             <img
@@ -72,10 +67,13 @@ export function TopicHero({
               alt={imageAlt}
               width={1600}
               height={900}
+              loading="eager"
+              decoding="async"
+              fetchPriority="high"
               className="aspect-[16/9] w-full object-cover"
             />
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

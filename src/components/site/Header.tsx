@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Phone, UserPlus, ChevronDown, Menu, X } from "lucide-react";
 import { useState, useRef, useLayoutEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -13,12 +13,18 @@ type DropdownContent = {
   secondaryLinks?: SimpleLink[];
   articles?: Article[];
 };
-type NavItem = { to: string; label: string; highlight?: boolean; dropdown?: DropdownContent };
+type NavItem = {
+  to: string;
+  label: string;
+  activePaths?: string[];
+  dropdown?: DropdownContent;
+};
 
 const mainNav: NavItem[] = [
   {
     to: "/strom",
     label: "Strom",
+    activePaths: ["/strom", "/gewerbestrom"],
     dropdown: {
       title: "Strom",
       mainLinks: [
@@ -32,6 +38,7 @@ const mainNav: NavItem[] = [
   {
     to: "/gas",
     label: "Gas",
+    activePaths: ["/gas", "/gewerbegas"],
     dropdown: {
       title: "Gas",
       mainLinks: [
@@ -45,23 +52,19 @@ const mainNav: NavItem[] = [
   {
     to: "/strom-gas",
     label: "Strom + Gas",
-    highlight: true,
   },
   {
     to: "/solar",
     label: "Solar",
     dropdown: {
       title: "Solar",
-      mainLinks: [
-        { label: "Photovoltaik & Speicher", to: "/solar" },
-        { label: "Wärmepumpe", to: "/solar" },
-        { label: "Beratung anfragen", to: "/kontakt" },
-      ],
+      mainLinks: [{ label: "Photovoltaik & Speicher", to: "/solar" }],
     },
   },
   {
     to: "/service",
     label: "Service",
+    activePaths: ["/service", "/kontakt", "/faq", "/freunde-werben"],
     dropdown: {
       title: "Service",
       mainLinks: [
@@ -77,7 +80,14 @@ const mainNav: NavItem[] = [
   },
 ];
 
+function isNavItemActive(item: NavItem, pathname: string) {
+  return (item.activePaths ?? [item.to]).some(
+    (path) => pathname === path || pathname.startsWith(`${path}/`),
+  );
+}
+
 export function Header() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openKey, setOpenKey] = useState<string | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -169,6 +179,7 @@ export function Header() {
         >
           {mainNav.map((n) => {
             const isOpen = openKey === n.label && !!n.dropdown;
+            const isActive = isNavItemActive(n, pathname);
             return (
               <div
                 key={n.label}
@@ -179,33 +190,32 @@ export function Header() {
                 onFocus={() => (n.dropdown ? open(n.label) : scheduleClose())}
                 className="relative"
               >
-                {isOpen && (
-                  <motion.span
-                    layoutId="nav-pill"
-                    transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                    className="absolute inset-0 -z-0 rounded-full bg-muted"
+                {(isOpen || isActive) && (
+                  <span
+                    className={cn(
+                      "absolute inset-0 -z-0 rounded-full",
+                      isActive ? "bg-success/10" : "bg-muted",
+                    )}
                     aria-hidden
                   />
                 )}
                 <Link
                   to={n.to}
+                  aria-current={isActive ? "page" : undefined}
                   className={cn(
                     "relative z-10 inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm transition-colors",
-                    n.highlight
-                      ? "font-bold text-primary"
+                    isActive
+                      ? "font-semibold text-success"
                       : "font-medium text-primary hover:text-success",
                   )}
-                  activeProps={{ className: "font-bold text-primary" }}
                 >
-                  {n.highlight && (
-                    <span className="mr-1 h-2 w-2 rounded-full bg-success" aria-hidden />
-                  )}
                   <span>{n.label}</span>
                   {n.dropdown && (
                     <ChevronDown
                       className={cn(
                         "h-3.5 w-3.5 text-muted-foreground transition-transform duration-300",
-                        isOpen && "rotate-180 text-success",
+                        (isOpen || isActive) && "text-success",
+                        isOpen && "rotate-180",
                       )}
                     />
                   )}
@@ -333,7 +343,12 @@ export function Header() {
           >
             <nav className="mx-auto flex max-w-6xl flex-col px-4 py-2">
               {mainNav.map((n) => (
-                <MobileNavItem key={n.label} item={n} onNavigate={() => setMobileOpen(false)} />
+                <MobileNavItem
+                  key={n.label}
+                  item={n}
+                  pathname={pathname}
+                  onNavigate={() => setMobileOpen(false)}
+                />
               ))}
               <div className="grid grid-cols-2 gap-2 py-4">
                 <Link
@@ -359,19 +374,29 @@ export function Header() {
   );
 }
 
-function MobileNavItem({ item, onNavigate }: { item: NavItem; onNavigate: () => void }) {
+function MobileNavItem({
+  item,
+  pathname,
+  onNavigate,
+}: {
+  item: NavItem;
+  pathname: string;
+  onNavigate: () => void;
+}) {
   const [open, setOpen] = useState(false);
+  const isActive = isNavItemActive(item, pathname);
   if (!item.dropdown) {
     return (
       <Link
         to={item.to}
+        aria-current={isActive ? "page" : undefined}
         onClick={onNavigate}
-        className="flex items-center justify-between border-b border-border py-3 text-sm font-medium text-primary"
+        className={cn(
+          "flex items-center justify-between border-b border-border px-3 py-3 text-sm font-medium",
+          isActive ? "bg-success/10 text-success" : "text-primary",
+        )}
       >
-        <span className="flex items-center gap-2">
-          {item.highlight && <span className="h-2 w-2 rounded-full bg-success" />}
-          {item.label}
-        </span>
+        <span>{item.label}</span>
       </Link>
     );
   }
@@ -380,16 +405,18 @@ function MobileNavItem({ item, onNavigate }: { item: NavItem; onNavigate: () => 
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between py-3 text-sm font-medium text-primary"
+        aria-current={isActive ? "page" : undefined}
+        className={cn(
+          "flex w-full items-center justify-between px-3 py-3 text-sm font-medium",
+          isActive ? "bg-success/10 text-success" : "text-primary",
+        )}
       >
-        <span className="flex items-center gap-2">
-          {item.highlight && <span className="h-2 w-2 rounded-full bg-success" />}
-          {item.label}
-        </span>
+        <span>{item.label}</span>
         <ChevronDown
           className={cn(
             "h-4 w-4 text-muted-foreground transition-transform duration-300",
-            open && "rotate-180 text-success",
+            (open || isActive) && "text-success",
+            open && "rotate-180",
           )}
         />
       </button>

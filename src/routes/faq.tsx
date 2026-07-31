@@ -75,7 +75,7 @@ const categories: { icon: typeof Zap; title: string; faqs: { q: string; a: strin
       },
       {
         q: "Kann es zu einer Versorgungslücke kommen?",
-        a: "Nein. Strom- und Gasversorgung sind gesetzlich abgesichert. Selbst wenn etwas schiefgehen sollte, springt der lokale Grundversorger automatisch ein.",
+        a: "Nein. Die Versorgung mit Strom und Gas ist gesetzlich abgesichert. Selbst wenn etwas schiefgehen sollte, springt der lokale Grundversorger automatisch ein.",
       },
       {
         q: "Muss ich selbst beim alten Anbieter kündigen?",
@@ -133,7 +133,7 @@ const categories: { icon: typeof Zap; title: string; faqs: { q: string; a: strin
       },
       {
         q: "Gibt es auch Ökotarife?",
-        a: "Ja. Auf Wunsch berücksichtigen wir Ökostrom- oder Biogasoptionen und erläutern die im konkreten Angebot genannten Nachweise und Mehrkosten.",
+        a: "Ja. Auf Wunsch berücksichtigen wir Tarife für Ökostrom oder Biogas und erläutern die im konkreten Angebot genannten Nachweise und Mehrkosten.",
       },
       {
         q: "Bin ich verpflichtet zu wechseln?",

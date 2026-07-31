@@ -65,9 +65,8 @@ const channels = [
 ];
 
 const hours = [
-  { day: "Telefon", time: "0231 39989390" },
-  { day: "E-Mail", time: "info@primeenergie.de" },
-  { day: "Online-Anfrage", time: "jederzeit möglich" },
+  { day: "Montag bis Freitag", time: "08:00–16:00 Uhr" },
+  { day: "Samstag", time: "10:00–14:00 Uhr" },
 ];
 
 function KontaktPage() {
@@ -106,7 +105,8 @@ function KontaktPage() {
             transition={{ ...fadeUp.transition, delay: 0.1 }}
             className="mx-auto mt-5 max-w-2xl text-lg text-muted-foreground md:text-xl"
           >
-            Persönlich und ohne Umwege. Wählen Sie den Kontaktweg, der zu Ihrem Anliegen passt.
+            Unser Team unterstützt Sie persönlich bei Fragen zu Tarifen, Verträgen und Ihrer
+            Energieversorgung. Rufen Sie uns an oder nutzen Sie unsere digitalen Kontaktwege.
           </motion.p>
         </div>
       </section>
@@ -153,12 +153,12 @@ function KontaktPage() {
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-success/10 text-success">
                 <Clock className="h-6 w-6" />
               </div>
-              <h2 className="mt-5 text-xl font-bold text-primary">Kontaktmöglichkeiten</h2>
+              <h2 className="mt-5 text-xl font-bold text-primary">Telefonische Erreichbarkeit</h2>
               <ul className="mt-4 divide-y divide-border">
                 {hours.map((h) => (
-                  <li key={h.day} className="flex items-center justify-between py-3 text-sm">
+                  <li key={h.day} className="flex items-center justify-between gap-4 py-3 text-sm">
                     <span className="text-muted-foreground">{h.day}</span>
-                    <span className="font-semibold text-primary">{h.time}</span>
+                    <span className="shrink-0 text-right font-semibold text-primary">{h.time}</span>
                   </li>
                 ))}
               </ul>

@@ -65,11 +65,12 @@ export function AiChatWidget() {
     return () => window.removeEventListener("cookie-consent-accepted", handler);
   }, []);
 
-  const { messages, sendMessage, status, error, setMessages, clearError, stop } = useChat({
-    id: "site-assistant",
-    messages: INITIAL,
-    transport,
-  });
+  const { messages, sendMessage, regenerate, status, error, setMessages, clearError, stop } =
+    useChat({
+      id: "site-assistant",
+      messages: INITIAL,
+      transport,
+    });
 
   const busy = status === "submitted" || status === "streaming";
   const showQuickActions = messages.length <= 1 && !busy;
@@ -135,6 +136,7 @@ export function AiChatWidget() {
 
   const send = (text: string) => {
     if (!text.trim() || busy) return;
+    clearError();
     void sendMessage({ text: text.trim() });
   };
 
@@ -296,8 +298,18 @@ export function AiChatWidget() {
               </div>
             )}
             {error && (
-              <div className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">
-                Es gab ein Problem. Bitte später erneut versuchen.
+              <div className="flex items-center justify-between gap-3 rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                <span>Die Antwort konnte nicht geladen werden.</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    clearError();
+                    void regenerate();
+                  }}
+                  className="shrink-0 rounded-full border border-destructive/30 px-2.5 py-1 font-semibold transition hover:bg-destructive/10"
+                >
+                  Erneut versuchen
+                </button>
               </div>
             )}
           </div>
