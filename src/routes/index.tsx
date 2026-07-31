@@ -39,7 +39,8 @@ import {
 } from "@/components/ui/accordion";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { BrandLogo } from "@/components/site/BrandLogo";
-import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import { DotLottieReact, setWasmUrl } from "@lottiefiles/dotlottie-react";
+import dotLottieWasmUrl from "@lottiefiles/dotlottie-web/dotlottie-player.wasm?url";
 import { cn } from "@/lib/utils";
 import solutionAutostrom from "@/assets/solution-autostrom.jpg";
 import solutionWaermestrom from "@/assets/solution-waermestrom.jpg";
@@ -91,6 +92,10 @@ const fadeUp = {
   viewport: { once: true, margin: "-80px" },
   transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
 };
+
+// Ship the player runtime with our own build. The library CDN fallback can be
+// blocked by browser privacy settings, which otherwise leaves this area empty.
+setWasmUrl(dotLottieWasmUrl);
 
 type Energy = "strom" | "gas" | "beides";
 type Audience = "privat" | "gewerbe";
