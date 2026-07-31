@@ -8,35 +8,35 @@ const columns: Col[] = [
   {
     title: "Strom",
     links: [
-      { to: "/strom", label: "Stromtarife" },
-      { to: "/angebot", label: "Tarifrechner" },
+      { to: "/strom", label: "Strom für Zuhause" },
+      { to: "/angebot", label: "Stromtarif prüfen" },
       { to: "/gewerbestrom", label: "Gewerbestrom" },
-      { to: "/ablauf", label: "Anbieterwechsel" },
+      { to: "/ablauf", label: "So begleitet PRIME ENERGIE" },
     ],
   },
   {
     title: "Gas",
     links: [
-      { to: "/gas", label: "Gastarife" },
-      { to: "/angebot", label: "Gasrechner" },
+      { to: "/gas", label: "Gas für Zuhause" },
+      { to: "/angebot", label: "Gastarif prüfen" },
       { to: "/gewerbegas", label: "Gewerbegas" },
-      { to: "/ablauf", label: "Gasanbieter wechseln" },
+      { to: "/strom-gas", label: "Strom & Gas gemeinsam prüfen" },
     ],
   },
   {
     title: "Service",
     links: [
-      { to: "/ablauf", label: "So funktioniert's" },
-      { to: "/kontakt", label: "Kontakt & Beratung" },
+      { to: "/ablauf", label: "Unser Ablauf" },
+      { to: "/kontakt", label: "Persönliche Beratung" },
       { to: "/faq", label: "Hilfe & FAQ" },
-      { to: "/wissen", label: "Magazin" },
+      { to: "/wissen", label: "Energie-Wissen" },
     ],
   },
   {
     title: "Über PRIME ENERGIE",
     links: [
       { to: "/ueber-uns", label: "Über uns" },
-      { to: "/freunde-werben", label: "Partnerprogramm" },
+      { to: "/freunde-werben", label: "PRIME ENERGIE empfehlen" },
       { to: "/kontakt", label: "Kontakt" },
       { to: "/wissen", label: "Ratgeber" },
     ],
@@ -102,7 +102,7 @@ export function Footer() {
               Anrufen
             </Link>
             <div className="mt-2 text-sm text-muted-foreground">
-              Direkte telefonische Beratung · kostenlos & unverbindlich
+              Direkter Kontakt zum Team von PRIME ENERGIE
             </div>
           </div>
 
@@ -123,7 +123,7 @@ export function Footer() {
       {/* Bottom bar */}
       <div className="border-t border-border bg-surface">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-5 text-xs text-muted-foreground">
-          <div>© {year} PRIME ENERGIE · Alle Tarife unverbindlich · DSGVO-konform</div>
+          <div>© {year} PRIME ENERGIE · Persönlich beraten · Transparent entscheiden</div>
           <div className="flex flex-wrap gap-x-6 gap-y-1">
             <Link to="/impressum" className="hover:text-success">
               Impressum

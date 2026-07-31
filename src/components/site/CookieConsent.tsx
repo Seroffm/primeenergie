@@ -5,7 +5,7 @@ import { Cookie, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 
-const STORAGE_KEY = "ec-cookie-consent-v1";
+const STORAGE_KEY = "prime-cookie-consent-v1";
 
 type Consent = { necessary: true; analytics: boolean; marketing: boolean; date: string };
 
@@ -64,8 +64,9 @@ export function CookieConsent() {
                 </button>
               </div>
               <p className="mt-1 text-sm text-muted-foreground">
-                Wir nutzen Cookies, um unsere Seite zu verbessern und passende Inhalte auszuspielen.
-                Notwendige Cookies sind immer aktiv. Mehr in unserer{" "}
+                PRIME ENERGIE speichert notwendige Einstellungen, damit diese Website zuverlässig
+                funktioniert. Optionale Dienste werden nur mit Ihrer Zustimmung aktiviert. Mehr in
+                unserer{" "}
                 <Link to="/datenschutz" className="underline hover:text-primary">
                   Datenschutzerklärung
                 </Link>
@@ -82,13 +83,13 @@ export function CookieConsent() {
                   />
                   <Row
                     title="Statistik"
-                    desc="Anonyme Nutzungsanalyse (z. B. GA4) zur Verbesserung der Seite."
+                    desc="Erlaubt statistische Auswertungen, sofern ein entsprechender Dienst aktiviert wird."
                     checked={analytics}
                     onCheck={setAnalytics}
                   />
                   <Row
                     title="Marketing"
-                    desc="Personalisierte Werbung (z. B. Meta Pixel, Google Ads)."
+                    desc="Erlaubt Marketingdienste, sofern diese künftig eingebunden werden."
                     checked={marketing}
                     onCheck={setMarketing}
                   />
@@ -101,7 +102,7 @@ export function CookieConsent() {
                   size="sm"
                   onClick={() => save({ necessary: true, analytics: false, marketing: false })}
                 >
-                  Nur notwendige
+                  Nur erforderliche
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => setSettings((s) => !s)}>
                   {settings ? "Schließen" : "Einstellungen"}

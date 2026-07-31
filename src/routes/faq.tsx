@@ -53,15 +53,15 @@ const categories: { icon: typeof Zap; title: string; faqs: { q: string; a: strin
     faqs: [
       {
         q: "Ist die Beratung wirklich kostenlos?",
-        a: "Ja, zu 100 %. Wir werden vom neu gewählten Anbieter vergütet. Nicht von Ihnen. Es entstehen Ihnen weder bei der Beratung noch beim Wechsel Kosten.",
+        a: "Die erste Tarifprüfung und unsere Vermittlungsunterstützung sind für Sie grundsätzlich kostenlos, sofern nicht vorab ausdrücklich etwas anderes vereinbart wird. PRIME ENERGIE kann für eine erfolgreiche Vermittlung eine Vergütung vom Produktanbieter oder Vertriebspartner erhalten.",
       },
       {
         q: "Gibt es versteckte Gebühren?",
         a: "Nein. Weder eine Wechselgebühr noch eine Servicepauschale. Was Sie zahlen, ist ausschließlich der Tarifpreis des neuen Anbieters.",
       },
       {
-        q: "Verdient ihr mehr, wenn ich einen teureren Tarif wählt?",
-        a: "Nein. Unsere Provisionen sind über alle empfohlenen Anbieter ähnlich strukturiert. Wir haben keinen Anreiz, Ihnen einen teureren Tarif zu empfehlen.",
+        q: "Wie finanziert sich PRIME ENERGIE?",
+        a: "Bei einer erfolgreichen Vermittlung kann PRIME ENERGIE eine Vergütung vom jeweiligen Produktanbieter oder Vertriebspartner erhalten. Für Ihre Entscheidung sind die im konkreten Angebot ausgewiesenen Konditionen maßgeblich.",
       },
     ],
   },
@@ -71,7 +71,7 @@ const categories: { icon: typeof Zap; title: string; faqs: { q: string; a: strin
     faqs: [
       {
         q: "Wie lange dauert ein Wechsel?",
-        a: "In der Regel 4–8 Wochen ab Unterschrift. Die Kündigungsfrist Ihres alten Vertrags bestimmt das Wechseldatum. Wir halten alle Fristen für Sie ein.",
+        a: "Das hängt vor allem von der Laufzeit und Kündigungsfrist Ihres bisherigen Vertrags ab. Den möglichen Lieferbeginn entnehmen Sie dem konkreten Angebot und der Bestätigung des neuen Anbieters.",
       },
       {
         q: "Kann es zu einer Versorgungslücke kommen?",
@@ -79,11 +79,11 @@ const categories: { icon: typeof Zap; title: string; faqs: { q: string; a: strin
       },
       {
         q: "Muss ich selbst beim alten Anbieter kündigen?",
-        a: "Nein, das übernehmen wir komplett für Sie. Inklusive fristgerechter Kündigung und schriftlicher Bestätigung.",
+        a: "Je nach Auftrag und Anbieter kann die Kündigung über den neuen Versorger erfolgen oder von uns unterstützt werden. Bei Sonderkündigungen sollten Sie die erforderliche Erklärung in der Regel selbst abgeben.",
       },
       {
         q: "Kann ich auch wechseln, wenn ich noch in der Vertragslaufzeit bin?",
-        a: "Wir prüfen das individuell. Bei laufenden Verträgen merken wir den Wechsel zum nächstmöglichen Kündigungstermin vor. Komplett automatisch.",
+        a: "Wir prüfen Laufzeit und Kündigungsfrist anhand Ihrer Angaben. Ob und zu welchem Termin ein Wechsel möglich ist, bestätigt letztlich der jeweilige Anbieter.",
       },
     ],
   },
@@ -111,11 +111,11 @@ const categories: { icon: typeof Zap; title: string; faqs: { q: string; a: strin
     faqs: [
       {
         q: "Was passiert mit meinen Daten?",
-        a: "Ihre Daten werden DSGVO-konform in Deutschland verarbeitet und ausschließlich zur Tarifprüfung verwendet. Keine Weitergabe an Dritte ohne Ihre Einwilligung.",
+        a: "Ihre Daten werden für die Bearbeitung Ihrer Anfrage und die gewünschte Vermittlung verarbeitet. Welche Dienstleister und Empfänger beteiligt sein können, erläutert unsere Datenschutzerklärung.",
       },
       {
         q: "Werde ich nach der Anfrage mit Werbung zugeschüttet?",
-        a: "Nein. Ihre Anfrage wird ausschließlich für die persönliche Beratung genutzt. Keine Newsletter, keine Werbung, keine Weitergabe an Callcenter.",
+        a: "Ihre Anfrage wird für die persönliche Bearbeitung genutzt. Einen Newsletter oder zusätzliche Werbung erhalten Sie nur, wenn dafür eine passende Rechtsgrundlage oder Einwilligung besteht.",
       },
       {
         q: "Kann ich meine Daten löschen lassen?",
@@ -128,12 +128,12 @@ const categories: { icon: typeof Zap; title: string; faqs: { q: string; a: strin
     title: "Tarife & Anbieter",
     faqs: [
       {
-        q: "Welche Anbieter prüft ihr?",
-        a: "Über 800 geprüfte Strom- und Gasanbieter in Deutschland. Große Versorger genauso wie regionale Spezialisten und Ökostrom-Anbieter.",
+        q: "Welche Anbieter prüft PRIME ENERGIE?",
+        a: "Die Auswahl kann sich auf Anbieter und Tarife beschränken, mit denen wir zusammenarbeiten oder für die verwertbare Angebotsdaten vorliegen. Ein vollständiger Marktvergleich aller Anbieter wird nicht versprochen.",
       },
       {
         q: "Gibt es auch Ökotarife?",
-        a: "Ja, auf Wunsch finden wir ausschließlich zertifizierte Ökostrom- oder Biogas-Tarife. Ohne dass Sie deshalb mehr zahlen müssen.",
+        a: "Ja. Auf Wunsch berücksichtigen wir Ökostrom- oder Biogasoptionen und erläutern die im konkreten Angebot genannten Nachweise und Mehrkosten.",
       },
       {
         q: "Bin ich verpflichtet zu wechseln?",
@@ -168,7 +168,7 @@ function FaqPage() {
             transition={{ ...fadeUp.transition, delay: 0.1 }}
             className="mx-auto mt-5 max-w-2xl text-lg text-muted-foreground md:text-xl"
           >
-            Alles Wichtige rund um Beratung, Wechsel, Datenschutz und Tarife. Ehrlich beantwortet.
+            Antworten zu Tarifprüfung, Vermittlung, Unterlagen und Datenschutz bei PRIME ENERGIE.
           </motion.p>
         </div>
       </section>

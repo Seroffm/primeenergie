@@ -1,4 +1,4 @@
-# Backend-Spezifikation — EnergieClever
+# Backend Spezifikation für PRIME ENERGIE
 
 Stand: Juni 2026  
 Zielgruppe: Backend-Entwickler, die das aktuelle Frontend-Mockup mit einem produktiven Backend verbinden.  
@@ -67,15 +67,15 @@ Genutzt in allen RLS-Policies für `_authenticated`-Routen. **Niemals** Rollench
 
 ### 2.4 RLS-Policies (Kurzfassung)
 
-| Tabelle | anon | authenticated | mitarbeiter | manager | admin |
-|---|---|---|---|---|---|
-| `providers` (active=true) | SELECT | SELECT | full | full | full |
-| `tariffs` (active=true) | SELECT | SELECT | full | full | full |
-| `leads` | INSERT (Formular) | — | SELECT/UPDATE wo `assignee_id = auth.uid()` | full | full |
-| `lead_notes/documents/emails/offers` | — | — | wo Lead zugewiesen | full | full |
-| `user_roles` | — | SELECT eigene | — | — | full |
-| `email_templates` | — | — | SELECT | full | full |
-| `audit_log` | — | — | — | SELECT | SELECT/INSERT |
+| Tabelle                              | anon              | authenticated | mitarbeiter                                 | manager | admin         |
+| ------------------------------------ | ----------------- | ------------- | ------------------------------------------- | ------- | ------------- |
+| `providers` (active=true)            | SELECT            | SELECT        | full                                        | full    | full          |
+| `tariffs` (active=true)              | SELECT            | SELECT        | full                                        | full    | full          |
+| `leads`                              | INSERT (Formular) | —             | SELECT/UPDATE wo `assignee_id = auth.uid()` | full    | full          |
+| `lead_notes/documents/emails/offers` | —                 | —             | wo Lead zugewiesen                          | full    | full          |
+| `user_roles`                         | —                 | SELECT eigene | —                                           | —       | full          |
+| `email_templates`                    | —                 | —             | SELECT                                      | full    | full          |
+| `audit_log`                          | —                 | —             | —                                           | SELECT  | SELECT/INSERT |
 
 Anonyme Leadanlage über `INSERT` auf `leads` mit Spalten-Whitelist; alles Sensible (Score, Assignee, Status) bleibt Default.
 
@@ -101,6 +101,7 @@ Alle App-internen Lese-/Schreib-Operationen laufen über TanStack Server Functio
 ### 3.2 Authentifiziert (`requireSupabaseAuth`)
 
 **Leads**
+
 - `listLeads({ status?, q?, assignee?, dateRange?, page })` — Mitarbeiter sehen nur eigene, Admin/Manager alle.
 - `getLead(id)` — inkl. notes/documents/emails/offers/status-history.
 - `updateLeadStatus(id, newStatus, comment?)` — schreibt `lead_status_history`, triggert Template-E-Mail wenn aktiv.
@@ -110,6 +111,7 @@ Alle App-internen Lese-/Schreib-Operationen laufen über TanStack Server Functio
 - `uploadLeadDocument(id, kind)` → signed upload URL.
 
 **Angebote / Verträge**
+
 - `createOffer(leadId, tariffId, customPricing?)` → PDF-Generierung (siehe 4.2), `lead_offers` insert, Status → `angebot_erstellt`.
 - `sendOffer(offerId)` → E-Mail mit PDF-Link versenden, Status → `angebot_gesendet`.
 - `prepareContract(leadId, offerId)` → Vertrags-PDF generieren, Status → `vertrag_vorbereitet`.
@@ -117,6 +119,7 @@ Alle App-internen Lese-/Schreib-Operationen laufen über TanStack Server Functio
 - `markContractSigned(leadId)` → Webhook von Signatur-Provider → Status `abgeschlossen`.
 
 **Verwaltung (Admin/Manager)**
+
 - `listProviders`, `upsertProvider`, `toggleProviderActive`.
 - `listTariffs`, `upsertTariff`, `importTariffsCsv`.
 - `listTeam`, `inviteEmployee(email, role)`, `setRole(userId, role)`, `deactivateEmployee(userId)` — nur Admin.
@@ -124,6 +127,7 @@ Alle App-internen Lese-/Schreib-Operationen laufen über TanStack Server Functio
 - `getStats({ from, to, assignee? })` — KPIs: Leads pro Status, Conversion, Ø Bearbeitungszeit, Ersparnis pro Vertrag.
 
 **Profile / Auth**
+
 - `getMe()`, `updateProfile(data)`.
 
 ### 3.3 Server-Routes (`src/routes/api/public/*`)
@@ -144,18 +148,18 @@ Alle Webhooks: Signature-Verify (HMAC) Pflicht.
 
 ### 4.1 E-Mail-Versand
 
-Lovable Cloud Email mit eigener Versand-Domain (z. B. `notify.energieclever.de`). Templates als MJML in `email_templates`. Variablen: `{{lead.name}}`, `{{lead.id}}`, `{{offer.yearly_price}}`, `{{assignee.name}}`, `{{unsubscribe_url}}`.
+Der E Mail Versand erfolgt über den konfigurierten Versanddienst und die freigegebene Absenderdomain. Templates verwenden die Variablen `{{lead.name}}`, `{{lead.id}}`, `{{offer.yearly_price}}`, `{{assignee.name}}` und `{{unsubscribe_url}}`.
 
 Trigger-Events (Funktion `enqueue_template(template_trigger, lead_id)` schreibt in pgmq):
 
-| Trigger | Auslöser |
-|---|---|
-| `lead_created` | nach `submitLeadForm` |
-| `status:rueckfrage` | Statuswechsel zu `rueckfrage` |
-| `status:angebot_gesendet` | `sendOffer` |
-| `status:vertrag_gesendet` | `sendContract` |
-| `48h_no_reaction` | Cron, wenn `status=neu` und `created_at < now() - 48h` |
-| `wiedervorlage_reached` | Cron, wenn `wiedervorlage_at <= now()` |
+| Trigger                   | Auslöser                                               |
+| ------------------------- | ------------------------------------------------------ |
+| `lead_created`            | nach `submitLeadForm`                                  |
+| `status:rueckfrage`       | Statuswechsel zu `rueckfrage`                          |
+| `status:angebot_gesendet` | `sendOffer`                                            |
+| `status:vertrag_gesendet` | `sendContract`                                         |
+| `48h_no_reaction`         | Cron, wenn `status=neu` und `created_at < now() - 48h` |
+| `wiedervorlage_reached`   | Cron, wenn `wiedervorlage_at <= now()`                 |
 
 DLQ + Retry per Lovable Cloud Email Queue (5x, dann manuell).
 

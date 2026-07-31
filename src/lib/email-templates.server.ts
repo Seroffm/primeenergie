@@ -10,7 +10,7 @@ function layout(content: string, previewText = ""): string {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EnergieClever</title>
+  <title>PRIME ENERGIE</title>
   ${previewText ? `<div style="display:none;max-height:0;overflow:hidden;">${previewText}&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌</div>` : ""}
 </head>
 <body style="margin:0;padding:0;background:#f8fafc;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#1e293b;">
@@ -21,9 +21,9 @@ function layout(content: string, previewText = ""): string {
         <tr>
           <td style="background:${BRAND_DARK};padding:24px 32px;text-align:center;">
             <span style="font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">
-              ⚡ EnergieClever
+              PRIME ENERGIE
             </span>
-            <p style="margin:4px 0 0;font-size:13px;color:#94a3b8;">Ihr Energie-Vergleichsportal</p>
+            <p style="margin:4px 0 0;font-size:13px;color:#94a3b8;">Persönliche Tarifberatung für Strom und Gas</p>
           </td>
         </tr>
         <!-- Body -->
@@ -36,7 +36,7 @@ function layout(content: string, previewText = ""): string {
         <tr>
           <td style="background:#f8fafc;padding:20px 32px;border-top:1px solid #e2e8f0;text-align:center;">
             <p style="margin:0;font-size:12px;color:#94a3b8;">
-              EnergieClever · Ihr unabhängiger Energievergleich<br/>
+              PRIME ENERGIE · Tarife verstehen und bewusst entscheiden<br/>
               Bei Fragen antworten Sie einfach auf diese E-Mail.
             </p>
           </td>
@@ -86,7 +86,7 @@ export function leadConfirmationTemplate(d: LeadConfirmationData): {
     <p style="margin:0 0 24px;font-size:15px;color:#475569;">
       Hallo ${d.firstName} ${d.lastName},<br/><br/>
       vielen Dank für Ihre Anfrage! Wir haben Ihre Daten erhalten und werden uns
-      so schnell wie möglich bei Ihnen melden — in der Regel innerhalb von 24 Stunden.
+      so schnell wie möglich persönlich bei Ihnen melden.
     </p>
     <table cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:8px;width:100%;margin-bottom:24px;">
       <tr><td style="padding:16px;">
@@ -101,7 +101,7 @@ export function leadConfirmationTemplate(d: LeadConfirmationData): {
     </p>
     <ol style="font-size:14px;color:#475569;padding-left:20px;margin:0 0 24px;">
       <li style="margin-bottom:6px;">Unser Team prüft Ihre Anfrage</li>
-      <li style="margin-bottom:6px;">Wir vergleichen die besten Tarife für Sie</li>
+      <li style="margin-bottom:6px;">Wir ordnen passende Tarifoptionen für Sie ein</li>
       <li style="margin-bottom:6px;">Sie erhalten Ihr persönliches Angebot per E-Mail</li>
     </ol>
     <p style="font-size:13px;color:#94a3b8;">
@@ -186,8 +186,8 @@ export function offerSentTemplate(d: OfferSentData): {
     </h2>
     <p style="margin:0 0 20px;font-size:15px;color:#475569;">
       Hallo ${d.firstName},<br/><br/>
-      Ihr persönliches ${PRODUCT_LABEL[d.productType] ?? d.productType}-Angebot ist fertig!
-      Unser Team hat die besten Tarife für Sie verglichen.
+      Ihr persönliches Angebot für ${PRODUCT_LABEL[d.productType] ?? d.productType} ist fertig.
+      Unser Team hat die verfügbaren Optionen anhand Ihrer Angaben geprüft.
     </p>
     <div style="background:${BRAND_LIGHT};border-left:4px solid ${BRAND_GREEN};border-radius:0 8px 8px 0;padding:16px 20px;margin-bottom:24px;">
       <p style="margin:0;font-size:14px;font-weight:600;color:${BRAND_DARK};">
@@ -201,7 +201,7 @@ export function offerSentTemplate(d: OfferSentData): {
       Wenn Sie Fragen haben oder Ihren Termin verschieben möchten, antworten Sie einfach auf diese E-Mail.
     </p>
     <p style="font-size:13px;color:#94a3b8;margin:0;">
-      Vielen Dank, dass Sie EnergieClever vertrauen!
+      Vielen Dank für Ihr Vertrauen in PRIME ENERGIE!
     </p>`,
     "Ihr persönliches Energieangebot ist bereit.",
   );
@@ -227,13 +227,13 @@ export function contractSentTemplate(d: ContractSentData): {
     </h2>
     <p style="margin:0 0 20px;font-size:15px;color:#475569;">
       Hallo ${d.firstName},<br/><br/>
-      Ihr ${PRODUCT_LABEL[d.productType] ?? d.productType}-Vertrag wurde vorbereitet und wartet auf
+      Ihr Vertrag für ${PRODUCT_LABEL[d.productType] ?? d.productType} wurde vorbereitet und wartet auf
       Ihre Unterzeichnung. Ihr persönlicher Berater wird sich mit den Details bei Ihnen melden.
     </p>
     <div style="background:${BRAND_LIGHT};border:1px solid #86efac;border-radius:8px;padding:16px 20px;margin-bottom:24px;">
       <p style="margin:0;font-size:14px;color:${BRAND_DARK};">
         ✅ Angebot akzeptiert<br/>
-        ✅ Bester Tarif ausgewählt<br/>
+        ✅ Gewählter Tarif festgehalten<br/>
         ⏳ Vertrag zur Unterzeichnung bereit
       </p>
     </div>
@@ -267,8 +267,8 @@ export function completedTemplate(d: CompletedData): {
       Herzlichen Glückwunsch, ${d.firstName}! 🎉
     </h2>
     <p style="margin:0 0 20px;font-size:15px;color:#475569;">
-      Ihr ${PRODUCT_LABEL[d.productType] ?? d.productType}-Wechsel wurde erfolgreich abgeschlossen.
-      Ab jetzt profitieren Sie von Ihrem neuen günstigeren Tarif.
+      Ihr Wechsel für ${PRODUCT_LABEL[d.productType] ?? d.productType} wurde erfolgreich abgeschlossen.
+      Ab jetzt gelten die Konditionen Ihres neuen Vertrags.
     </p>
     <div style="background:${BRAND_LIGHT};border:1px solid #86efac;border-radius:12px;padding:24px;text-align:center;margin-bottom:24px;">
       <p style="margin:0;font-size:40px;">⚡</p>
@@ -280,7 +280,7 @@ export function completedTemplate(d: CompletedData): {
       </p>
     </div>
     <p style="font-size:14px;color:#475569;margin:0 0 16px;">
-      Wir bedanken uns für Ihr Vertrauen in EnergieClever.
+      Wir bedanken uns für Ihr Vertrauen in PRIME ENERGIE.
       Empfehlen Sie uns gerne an Freunde und Familie weiter!
     </p>
     <p style="font-size:13px;color:#94a3b8;margin:0;">
@@ -359,7 +359,7 @@ export function rejectedTemplate(d: RejectedData): {
       Monaten erneut anfragen, wenn sich die Marktlage verändert hat.
     </p>
     <p style="font-size:13px;color:#94a3b8;margin:0;">
-      Vielen Dank für Ihr Interesse an EnergieClever.
+      Vielen Dank für Ihr Interesse an PRIME ENERGIE.
     </p>`,
     "Zu Ihrer Energie-Anfrage haben wir leider kein passendes Angebot.",
   );
@@ -408,7 +408,7 @@ export function referralCodeIssuedTemplate({
       <li style="margin-bottom:8px;">Nach 30 Tagen erhalten Sie einen 30-€-Amazon-Gutschein per E-Mail</li>
     </ol>
     <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px 20px;font-size:13px;color:#64748b;">
-      <strong>Bedingungen:</strong> Nur Neukunden (kein bestehender EnergieClever-Vertrag) zählen.
+      <strong>Bedingungen:</strong> Nur Neukunden ohne laufende Anfrage bei PRIME ENERGIE zählen.
       Ihr Code ist 90 Tage gültig. Max. 5 Prämien pro Monat.
     </div>`,
     "Ihr persönlicher Empfehlungs-Link ist bereit.",
@@ -465,7 +465,7 @@ export function referralQualifiedTemplate({
       Wir melden uns dann bei Ihnen — Sie müssen nichts weiter tun.
     </p>
     <p style="font-size:13px;color:#94a3b8;margin:0;">
-      Vielen Dank, dass Sie EnergieClever weiterempfehlen!
+      Vielen Dank, dass Sie PRIME ENERGIE weiterempfehlen!
     </p>`,
     `Sie haben eine ${rewardEur}-€-Prämie verdient!`,
   );
@@ -483,7 +483,7 @@ export function referralCodeRequestTemplate({
   referralCode: string;
   referralUrl: string;
 }): { subject: string; html: string } {
-  const subject = "Ihr EnergieClever Empfehlungs-Link";
+  const subject = "Ihr Empfehlungslink von PRIME ENERGIE";
   const html = layout(
     `<h2 style="margin:0 0 8px;font-size:22px;color:${BRAND_DARK};">
       Ihr persönlicher Empfehlungs-Link
@@ -511,7 +511,7 @@ export function referralCodeRequestTemplate({
       Ihr Freund muss das Formular über Ihren Link ausfüllen und seinen Wechsel abschließen.
       Danach erhalten Sie nach 30 Tagen Wartezeit automatisch Ihren Gutschein.
     </div>`,
-    "Ihr persönlicher EnergieClever Empfehlungs-Link.",
+    "Ihr persönlicher Empfehlungslink von PRIME ENERGIE.",
   );
   return { subject, html };
 }

@@ -27,12 +27,12 @@ export const Route = createFileRoute("/service")({
       {
         name: "description",
         content:
-          "Kontakt, Wechselservice, Dokumente, FAQ und Empfehlungsprogramm. Alles, was Sie nach dem Abschluss von uns brauchen.",
+          "Kontakt, Wechselbegleitung, Dokumente und Antworten: der persönliche Service von PRIME ENERGIE für Ihre Tariffragen.",
       },
       { property: "og:title", content: "Service | PRIME ENERGIE" },
       {
         property: "og:description",
-        content: "Persönliche Hilfe rund um Ihren Energievertrag. Schnell, freundlich, kostenlos.",
+        content: "Persönliche Hilfe rund um Tarifprüfung, Unterlagen und Anbieterwechsel.",
       },
       {
         property: "og:image",
@@ -55,7 +55,7 @@ const services = [
   {
     icon: Phone,
     title: "Persönliche Beratung",
-    desc: "Kostenlos, deutschlandweit, echte Menschen. Rufen Sie uns direkt zu unseren Servicezeiten an.",
+    desc: "Besprechen Sie Fragen zu Strom, Gas und Ihrer Anfrage direkt mit unserem Team.",
     to: "/kontakt",
     cta: "Anrufen",
   },
@@ -68,15 +68,15 @@ const services = [
   },
   {
     icon: Wrench,
-    title: "Wechsel-Service",
-    desc: "Wir übernehmen Kündigung, Anmeldung und alle Termine. Sie unterschreiben einmal.",
+    title: "Unterstützung beim Wechsel",
+    desc: "Wir erläutern den Ablauf und unterstützen bei den vereinbarten nächsten Schritten.",
     to: "/ablauf",
     cta: "So läuft's ab",
   },
   {
     icon: FileText,
     title: "Dokumente & Verträge",
-    desc: "Vertragskopien, Widerrufsformulare und Datenschutzunterlagen auf einen Klick.",
+    desc: "Widerrufsbelehrung, Datenschutz und weitere rechtliche Informationen zentral abrufen.",
     to: "/widerruf",
     cta: "Dokumente",
   },
@@ -99,18 +99,18 @@ const services = [
 const promises = [
   {
     icon: Clock,
-    title: "Antwort < 24 h",
-    desc: "Auf jede Anfrage antworten wir spätestens am nächsten Werktag.",
+    title: "Verlässliche Rückmeldung",
+    desc: "Wir bearbeiten Anfragen so zeitnah wie möglich und melden uns über den gewählten Kontaktweg.",
   },
   {
     icon: ShieldCheck,
-    title: "DSGVO & Made in Germany",
-    desc: "Daten bleiben in Deutschland. Keine Weitergabe an Dritte ohne Einwilligung.",
+    title: "Datenschutz im Blick",
+    desc: "Ihre Daten werden zweckgebunden und entsprechend unserer Datenschutzerklärung verarbeitet.",
   },
   {
     icon: Headphones,
     title: "Echte Menschen",
-    desc: "Keine Warteschleifen, keine Bots. Persönliche Ansprechpartner für Sie.",
+    desc: "Komplexe Fragen besprechen Sie persönlich mit unserem Beratungsteam.",
   },
 ];
 
@@ -119,8 +119,8 @@ function ServicePage() {
     <SiteLayout>
       <TopicHero
         kicker="Wir sind für Sie da"
-        title={<>Service, der den Namen verdient.</>}
-        lead="Vom ersten Anruf bis zum Wechsel und darüber hinaus. Wir kümmern uns. Persönlich, geduldig und kostenlos."
+        title={<>PRIME ENERGIE bleibt ansprechbar.</>}
+        lead="Von der ersten Tariffrage bis zu den nächsten Schritten: Unser Team erklärt, ordnet ein und unterstützt persönlich."
         image={heroImg}
         imageAlt="Freundlicher Kundenberater mit Headset im hellen Büro"
         Icon={Headphones}
@@ -135,7 +135,7 @@ function ServicePage() {
             Alle Services auf einen Blick
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Sechs Wege, wie wir Ihnen weiterhelfen können. Wählen Sie den passenden.
+            Wählen Sie den Kontaktweg oder die Information, die gerade zu Ihrem Anliegen passt.
           </p>
         </div>
         <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -169,22 +169,21 @@ function ServicePage() {
           <div className="grid items-center gap-10 md:grid-cols-2 md:gap-14">
             <motion.div {...fadeUp}>
               <div className="text-xs font-bold uppercase tracking-wider text-success">
-                Wechsel-Service
+                Unterstützung beim Wechsel
               </div>
               <h2 className="mt-3 text-3xl font-bold text-primary md:text-4xl">
-                Wir übernehmen die Arbeit. Sie genießen die Ersparnis.
+                Wir strukturieren den Wechsel mit Ihnen.
               </h2>
               <p className="mt-5 text-muted-foreground">
-                Kündigung beim alten Anbieter, Anmeldung beim neuen, fristgerechte Übergabe,
-                lückenlose Versorgung. Das alles erledigen wir für Sie. Sie unterschreiben genau ein
-                Dokument.
+                Laufzeiten, erforderliche Daten und Vertragsunterlagen müssen zusammenpassen. PRIME
+                ENERGIE erklärt den Ablauf und unterstützt dort, wo Sie uns beauftragen.
               </p>
               <ul className="mt-6 space-y-3">
                 {[
-                  "Kündigung fristgerecht zum nächsten Termin",
-                  "Anmeldung beim neuen Anbieter inkl. Datenübermittlung",
-                  "Schriftliche Wechselbestätigung per E-Mail",
-                  "Keine Versorgungslücke. Gesetzlich garantiert",
+                  "Bestehende Kündigungsfrist und Vertragslaufzeit beachten",
+                  "Erforderliche Angaben vollständig zusammenstellen",
+                  "Bestätigung und neue Vertragsunterlagen kontrollieren",
+                  "Fragen zum Ablauf persönlich klären",
                 ].map((b) => (
                   <li key={b} className="flex items-start gap-3 text-foreground/80">
                     <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-success" /> {b}
@@ -234,8 +233,9 @@ function ServicePage() {
               Alles griffbereit, wenn Sie es brauchen.
             </h2>
             <p className="mt-5 text-muted-foreground">
-              Wir bewahren Vertragskopien und Bestätigungen sicher für Sie auf. Eine kurze E-Mail
-              genügt. Sie bekommen das gewünschte Dokument innerhalb eines Werktags.
+              Rechtliche Informationen finden Sie jederzeit auf dieser Website. Unterlagen zu einer
+              konkreten Anfrage können Sie bei unserem Team anfordern. Wir prüfen Ihr Anliegen und
+              melden uns über den gewählten Kontaktweg.
             </p>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               {[
@@ -270,7 +270,7 @@ function ServicePage() {
         <div className="mx-auto max-w-6xl px-4 py-20 md:py-24">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-bold text-primary md:text-4xl">
-              Unser Service-Versprechen
+              Unser Serviceversprechen
             </h2>
             <p className="mt-4 text-muted-foreground">
               Drei Dinge, auf die Sie sich verlassen können.

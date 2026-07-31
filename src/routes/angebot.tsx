@@ -24,7 +24,7 @@ export const Route = createFileRoute("/angebot")({
       {
         name: "description",
         content:
-          "In 2 Minuten zum persönlichen Strom- oder Gasangebot. Unverbindlich und kostenlos.",
+          "Persönliches Angebot für Strom oder Gas anfragen. PRIME ENERGIE prüft Ihre Angaben kostenlos und unverbindlich.",
       },
       { name: "robots", content: "noindex" },
     ],
@@ -35,15 +35,15 @@ export const Route = createFileRoute("/angebot")({
 const steps = [
   {
     label: "Verbrauch angeben",
-    desc: "PLZ und Jahresverbrauch eintragen. Dauert unter 2 Minuten.",
+    desc: "Postleitzahl und Jahresverbrauch eintragen oder eine Rechnung hochladen.",
   },
   {
     label: "Angebot erhalten",
-    desc: "Wir vergleichen alle 100+ Anbieter und senden Ihnen ein persönliches Angebot.",
+    desc: "PRIME ENERGIE prüft verfügbare Optionen anhand Ihrer Angaben und Wünsche.",
   },
   {
-    label: "Wir erledigen alles",
-    desc: "Kündigung, Ummeldung und Übergabe ohne Papierkram für Sie.",
+    label: "In Ruhe entscheiden",
+    desc: "Sie prüfen das Angebot. Wenn es passt, begleiten wir die nächsten Schritte.",
   },
 ];
 
@@ -54,15 +54,15 @@ const faqs = [
   },
   {
     q: "Muss ich selbst beim alten Anbieter kündigen?",
-    a: "Nein. Wir übernehmen die gesamte Abwicklung inklusive Kündigung beim bisherigen Anbieter und die Anmeldung beim neuen.",
+    a: "Das hängt vom gewählten Angebot und Ihrer Vertragssituation ab. Auf Wunsch begleitet PRIME ENERGIE die Abstimmung mit dem bisherigen und dem neuen Anbieter.",
   },
   {
     q: "Gibt es eine Versorgungsunterbrechung beim Wechsel?",
-    a: "Ausgeschlossen. Das Energierecht garantiert einen nahtlosen Übergang. Ihre Versorgung läuft ohne eine einzige Minute Unterbrechung weiter.",
+    a: "Bei einem regulären Anbieterwechsel bleibt die Energieversorgung grundsätzlich bestehen. Die konkrete Vertragsabwicklung und mögliche Fristen erklären wir Ihnen vor der Beauftragung.",
   },
   {
     q: "Was passiert mit meinen persönlichen Daten?",
-    a: "Ihre Daten werden ausschließlich für den Tarifvergleich genutzt und DSGVO-konform in Deutschland verarbeitet. Keine Weitergabe ohne Ihre ausdrückliche Einwilligung.",
+    a: "Wir verarbeiten Ihre Angaben zweckgebunden und nach den geltenden Datenschutzvorgaben. Details zu eingesetzten Diensten und Empfängern finden Sie in unserer Datenschutzerklärung.",
   },
   {
     q: "Bin ich verpflichtet, ein Angebot anzunehmen?",
@@ -131,14 +131,13 @@ function AngebotPage() {
           </div>
 
           <h1 className="mt-5 font-display text-4xl font-extrabold leading-tight text-primary md:text-5xl">
-            Strom & Gas: Hören Sie auf, zu viel zu zahlen.
+            Ihr Tarif. Ihre Entscheidung. Persönlich begleitet.
           </h1>
 
           {/* ≤ 20 words */}
           <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-            Deutsche Haushalte zahlen im Schnitt jährlich{" "}
-            <strong className="text-primary">380 € zu viel</strong>. Prüfen Sie jetzt kostenlos
-            Ihren Tarif.
+            PRIME ENERGIE ordnet Preis, Laufzeit und Konditionen verständlich ein. Sie entscheiden,
+            welches Angebot zu Ihrem Bedarf passt.
           </p>
 
           {/* 4th hero element: lifestyle image */}
@@ -187,10 +186,10 @@ function AngebotPage() {
       <div className="border-y border-border bg-surface">
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-px bg-border/50 md:grid-cols-4">
           {[
-            { v: "100+", l: "Tarife im Vergleich" },
-            { v: "24 h", l: "für die persönliche Prüfung" },
+            { v: "Klar", l: "Preis und Konditionen" },
             { v: "1:1", l: "persönliche Beratung" },
-            { v: "0 €", l: "Kosten für Sie" },
+            { v: "Sicher", l: "begleitete nächste Schritte" },
+            { v: "0 €", l: "für Ihre Anfrage" },
           ].map((s) => (
             <div key={s.l} className="flex flex-col items-center bg-surface px-4 py-7 text-center">
               <span className="font-display text-2xl font-extrabold text-primary">{s.v}</span>
@@ -204,7 +203,7 @@ function AngebotPage() {
       <section className="bg-background">
         <div className="mx-auto max-w-6xl px-4 py-16">
           <h2 className="font-display text-2xl font-extrabold text-primary md:text-3xl">
-            So einfach funktioniert der Wechsel.
+            So funktioniert Ihre Tarifprüfung.
           </h2>
 
           <div className="mt-10 grid gap-px bg-border md:grid-cols-3">
@@ -277,7 +276,7 @@ function AngebotPage() {
             Bereit, zu wechseln?
           </h2>
           <p className="mt-3 text-primary-foreground/70">
-            Es dauert 2 Minuten. Den Rest erledigen wir kostenlos.
+            Übermitteln Sie Ihre Angaben. Wir prüfen die passenden Möglichkeiten persönlich.
           </p>
           <a
             href="#form"

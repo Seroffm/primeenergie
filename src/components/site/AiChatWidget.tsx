@@ -19,12 +19,12 @@ function parseMessage(text: string): { body: string; actions: { label: string; h
 }
 
 const WELCOME_TEXT =
-  "Hallo, ich bin der Prime Energieberater.\n\nIch unterstütze Sie bei Fragen zu Strom-, Gas- und Energietarifen. Gerne helfe ich Ihnen dabei, passende Tarife zu finden, Ihre Angaben zu verstehen oder Fragen zum Anbieterwechsel zu beantworten.\n\nWie kann ich Ihnen helfen?";
+  "Willkommen bei PRIME ENERGIE.\n\nIch beantworte kurze Fragen zu Strom, Gas, Tarifprüfung und Anbieterwechsel und führe Sie direkt zum passenden nächsten Schritt.\n\nWobei kann ich Sie unterstützen?";
 
 const QUICK_ACTIONS = [
-  "Welcher Tarif passt zu mir?",
-  "Ich suche einen Öko-Stromtarif",
-  "Lohnt sich ein Wechsel?",
+  "Tarif prüfen lassen",
+  "Strom und Gas vergleichen",
+  "Wie läuft der Wechsel ab?",
 ];
 
 const INITIAL: UIMessage[] = [
@@ -198,7 +198,9 @@ export function AiChatWidget() {
             </div>
             <div className="flex-1">
               <div className="text-sm font-semibold">Prime Assistent</div>
-              <div className="text-xs text-primary-foreground/70">Antwortet meist sofort</div>
+              <div className="text-xs text-primary-foreground/70">
+                Digitale Orientierung rund um Energie
+              </div>
             </div>
             <button
               type="button"
@@ -321,7 +323,7 @@ export function AiChatWidget() {
             </button>
           </form>
           <div className="px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] text-[10px] text-muted-foreground">
-            Automatisierte Antworten. Keine verbindliche Beratung.
+            Automatisierte Orientierung. Verbindlich sind nur konkrete Vertragsunterlagen.
           </div>
         </div>
       )}

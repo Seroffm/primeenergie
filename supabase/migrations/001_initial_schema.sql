@@ -1,5 +1,5 @@
 -- ============================================================
--- 001_initial_schema.sql — EnergieClever CRM
+-- 001_initial_schema.sql: PRIME ENERGIE CRM
 -- Ausführen in: Supabase SQL Editor (einmalig)
 -- ============================================================
 

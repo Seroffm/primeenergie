@@ -1,10 +1,10 @@
 import { ShieldCheck, Lock, BadgeCheck, Zap, HeartHandshake } from "lucide-react";
 
 const items = [
-  { icon: BadgeCheck, label: "100% kostenlos" },
+  { icon: BadgeCheck, label: "Kostenlose Anfrage" },
   { icon: Lock, label: "DSGVO-konform" },
-  { icon: ShieldCheck, label: "Geprüfte Anbieter" },
-  { icon: Zap, label: "Keine Versorgungsunterbrechung" },
+  { icon: ShieldCheck, label: "Transparente Konditionen" },
+  { icon: Zap, label: "Sicherer Anbieterwechsel" },
   { icon: HeartHandshake, label: "Persönliche Beratung" },
 ];
 

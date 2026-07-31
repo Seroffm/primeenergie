@@ -1,7 +1,6 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { BookOpen, ArrowRight, Zap, Flame, Sun, TrendingDown, FileText, Leaf } from "lucide-react";
-import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { TopicHero } from "@/components/site/TopicSections";
@@ -18,7 +17,7 @@ export const Route = createFileRoute("/wissen")({
         content:
           "Ratgeber, Erklärartikel und Marktupdates rund um Strom, Gas, Solar und Wärmepumpe. Verständlich geschrieben, sorgfältig recherchiert.",
       },
-      { property: "og:title", content: "Energie-Wissen & Ratgeber | PRIME ENERGIE" },
+      { property: "og:title", content: "Energiewissen und Ratgeber | PRIME ENERGIE" },
       {
         property: "og:description",
         content: "Verständlich erklärt: Strom, Gas, Solar, Wärmepumpe und mehr.",
@@ -91,6 +90,10 @@ function WissenPage() {
   const { location } = useRouterState();
   if (location.pathname !== "/wissen") return <Outlet />;
 
+  return <WissenIndex />;
+}
+
+function WissenIndex() {
   const { data: dbArticles, isLoading } = useQuery({
     queryKey: ["blog-articles"],
     queryFn: () => getPublishedArticles(),
@@ -105,8 +108,8 @@ function WissenPage() {
     <SiteLayout>
       <TopicHero
         kicker="Energie verstehen"
-        title={<>Wissen, das wirklich Strom spart.</>}
-        lead="Ratgeber, Marktanalysen und Erklärartikel. Verständlich geschrieben, sorgfältig recherchiert. Damit Sie wissen, was Sie unterschreiben."
+        title={<>Energie verstehen. Besser entscheiden.</>}
+        lead="PRIME ENERGIE erklärt Tarife, Vertragsdetails und aktuelle Energiethemen verständlich. Damit Sie wissen, worauf es bei Ihrer Entscheidung ankommt."
         image={heroImg}
         imageAlt="Aufgeschlagenes Buch und Lesebrille auf Holztisch"
         Icon={BookOpen}
@@ -232,10 +235,12 @@ function WissenPage() {
           <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
             <div className="max-w-xl">
               <BookOpen className="h-10 w-10 text-success" />
-              <h2 className="mt-4 text-3xl font-bold md:text-4xl">Lieber direkt sparen?</h2>
+              <h2 className="mt-4 text-3xl font-bold md:text-4xl">
+                Möchten Sie Ihren Tarif persönlich prüfen lassen?
+              </h2>
               <p className="mt-3 text-primary-foreground/80">
-                Lassen Sie Ihren Tarif in nur 2 Minuten prüfen. Möglich sind bis zu 850 € Ersparnis
-                pro Jahr.
+                Übermitteln Sie Ihre Angaben kostenlos. Das Team von PRIME ENERGIE ordnet passende
+                Angebote und Konditionen für Sie ein.
               </p>
             </div>
             <Link
@@ -245,42 +250,6 @@ function WissenPage() {
               Jetzt Tarif prüfen <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-        </div>
-      </section>
-
-      {/* Newsletter */}
-      <section className="mx-auto max-w-5xl px-4 pb-20 md:pb-24">
-        <div className="rounded-3xl border border-border bg-card p-8 shadow-soft md:p-12">
-          <div className="max-w-xl">
-            <BookOpen className="h-10 w-10 text-success" />
-            <h2 className="mt-4 text-2xl font-bold text-primary md:text-3xl">
-              Newsletter: Energie-Tipps direkt ins Postfach
-            </h2>
-            <p className="mt-3 text-muted-foreground">
-              Sie erhalten nur relevante Energietipps und Marktentwicklungen. Keine Werbung, kein
-              Spam. Monatlich und jederzeit abbestellbar.
-            </p>
-          </div>
-          <form
-            className="mt-6 flex flex-col gap-3 sm:flex-row"
-            onSubmit={(e) => {
-              e.preventDefault();
-              toast.success("Danke! Sie erhalten bald unseren Newsletter.");
-            }}
-          >
-            <input
-              type="email"
-              required
-              placeholder="Ihre E-Mail-Adresse"
-              className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-success/40"
-            />
-            <button
-              type="submit"
-              className="inline-flex items-center gap-2 rounded-xl bg-success px-6 py-3 text-sm font-bold text-success-foreground transition hover:bg-success/90"
-            >
-              Anmelden <ArrowRight className="h-4 w-4" />
-            </button>
-          </form>
         </div>
       </section>
     </SiteLayout>

@@ -69,7 +69,7 @@ function LoginPage() {
             <ShieldCheck className="h-4 w-4" /> Geschützter Bereich · DSGVO-konform
           </div>
         </motion.div>
-        <div className="text-xs text-primary-foreground/60">© 2026 PRIME ENERGIE GmbH</div>
+        <div className="text-xs text-primary-foreground/60">© 2026 PRIME ENERGIE</div>
       </div>
 
       <div className="flex items-center justify-center p-6 sm:p-12">

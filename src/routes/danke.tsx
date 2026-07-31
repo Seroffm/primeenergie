@@ -42,8 +42,8 @@ function ThanksPage() {
           Vielen Dank. Ihre Anfrage ist eingegangen.
         </h1>
         <p className="mt-4 text-muted-foreground">
-          Wir prüfen jetzt passende Strom- und Gasangebote für Sie. Ein Berater meldet sich
-          innerhalb der nächsten <strong className="text-foreground">24 Stunden</strong>.
+          Das Team von PRIME ENERGIE prüft jetzt passende Angebote für Strom und Gas anhand Ihrer
+          Angaben. Wir melden uns persönlich bei Ihnen.
         </p>
 
         <div className="mt-8 inline-block rounded-xl border bg-muted/50 px-6 py-4 text-center">

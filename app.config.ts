@@ -6,7 +6,7 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-const backendUrl = process.env.BACKEND_URL ?? "https://strom-sandy.vercel.app";
+const backendUrl = process.env.BACKEND_URL ?? "https://project-gqhfy.vercel.app";
 
 export default defineConfig({
   tanstackStart: {

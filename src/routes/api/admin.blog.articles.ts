@@ -41,7 +41,7 @@ export const Route = createFileRoute("/api/admin/blog/articles")({
             teaser,
             tag = "Allgemein",
             image = "",
-            author = "EnergieClever Redaktion",
+            author = "PRIME ENERGIE Redaktion",
             body: articleBody = [],
             seo_title = null,
             seo_description = null,

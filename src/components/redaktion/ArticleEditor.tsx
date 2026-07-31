@@ -44,21 +44,90 @@ function calcReadTime(wordCount: number): number {
 }
 
 function getBodyText(sections: BlogArticleSection[]): string {
-  return sections
-    .map((s) => s.heading + " " + s.paragraphs.join(" "))
-    .join(" ");
+  return sections.map((s) => s.heading + " " + s.paragraphs.join(" ")).join(" ");
 }
 
 // Stoppwörter für Keyword-Dichte
 const STOP_WORDS = new Set([
-  "der", "die", "das", "und", "in", "von", "zu", "den", "mit", "sich",
-  "des", "auf", "für", "ist", "im", "dem", "nicht", "ein", "eine", "als",
-  "auch", "es", "an", "werden", "aus", "er", "hat", "dass", "sie", "nach",
-  "wird", "bei", "einer", "um", "am", "sind", "noch", "wie", "einem", "über",
-  "einen", "so", "zum", "war", "haben", "nur", "oder", "aber", "vor", "zur",
-  "bis", "mehr", "durch", "man", "sein", "wurde", "sei", "in", "können",
-  "wenn", "je", "ihr", "wie", "wir", "pro", "per", "ab", "ich", "du", "wer",
-  "was", "wo", "kann", "wird", "alle", "schon", "ohne", "dabei", "sehr",
+  "der",
+  "die",
+  "das",
+  "und",
+  "in",
+  "von",
+  "zu",
+  "den",
+  "mit",
+  "sich",
+  "des",
+  "auf",
+  "für",
+  "ist",
+  "im",
+  "dem",
+  "nicht",
+  "ein",
+  "eine",
+  "als",
+  "auch",
+  "es",
+  "an",
+  "werden",
+  "aus",
+  "er",
+  "hat",
+  "dass",
+  "sie",
+  "nach",
+  "wird",
+  "bei",
+  "einer",
+  "um",
+  "am",
+  "sind",
+  "noch",
+  "wie",
+  "einem",
+  "über",
+  "einen",
+  "so",
+  "zum",
+  "war",
+  "haben",
+  "nur",
+  "oder",
+  "aber",
+  "vor",
+  "zur",
+  "bis",
+  "mehr",
+  "durch",
+  "man",
+  "sein",
+  "wurde",
+  "sei",
+  "in",
+  "können",
+  "wenn",
+  "je",
+  "ihr",
+  "wie",
+  "wir",
+  "pro",
+  "per",
+  "ab",
+  "ich",
+  "du",
+  "wer",
+  "was",
+  "wo",
+  "kann",
+  "wird",
+  "alle",
+  "schon",
+  "ohne",
+  "dabei",
+  "sehr",
 ]);
 
 function detectKeyword(title: string): string {
@@ -71,12 +140,12 @@ function detectKeyword(title: string): string {
   return candidates[0];
 }
 
-function calcKeywordDensity(
-  keyword: string,
-  fullText: string,
-): { density: number; count: number } {
+function calcKeywordDensity(keyword: string, fullText: string): { density: number; count: number } {
   if (!keyword) return { density: 0, count: 0 };
-  const words = fullText.toLowerCase().split(/\s+/).filter((w) => w.length > 0);
+  const words = fullText
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((w) => w.length > 0);
   const count = words.filter((w) => w.includes(keyword.toLowerCase())).length;
   const density = words.length > 0 ? (count / words.length) * 100 : 0;
   return { density, count };
@@ -209,9 +278,7 @@ function SeoAuditPanel({ title, teaser, slug, sections, image }: SeoAuditPanelPr
   checks.push({
     label: "Keyword-Dichte",
     status: kwStatus,
-    detail: keyword
-      ? `"${keyword}": ${density.toFixed(1)}% (${kwCount}×)`
-      : "Kein Keyword erkannt",
+    detail: keyword ? `"${keyword}": ${density.toFixed(1)}% (${kwCount}×)` : "Kein Keyword erkannt",
   });
 
   // Score berechnen
@@ -309,7 +376,7 @@ export function ArticleEditor({ initial, onSave, isSaving = false }: ArticleEdit
   const [tag, setTag] = useState(initial?.tag ?? "Strom");
   const [teaser, setTeaser] = useState(initial?.teaser ?? "");
   const [image, setImage] = useState(initial?.image ?? "");
-  const [author, setAuthor] = useState(initial?.author ?? "EnergieClever Redaktion");
+  const [author, setAuthor] = useState(initial?.author ?? "PRIME ENERGIE Redaktion");
   const [readTimeMin, setReadTimeMin] = useState(initial?.read_time_min ?? 5);
   const [seoTitle, setSeoTitle] = useState(initial?.seo_title ?? "");
   const [seoDescription, setSeoDescription] = useState(initial?.seo_description ?? "");
@@ -421,7 +488,7 @@ export function ArticleEditor({ initial, onSave, isSaving = false }: ArticleEdit
                 placeholder="strompreis-2026"
               />
               <p className="text-xs text-muted-foreground">
-                URL: energieclever.de/wissen/<span className="font-mono">{slug || "…"}</span>
+                URL: primeenergie.de/wissen/<span className="font-mono">{slug || "…"}</span>
               </p>
             </div>
 
@@ -483,7 +550,7 @@ export function ArticleEditor({ initial, onSave, isSaving = false }: ArticleEdit
                   id="article-author"
                   value={author}
                   onChange={(e) => setAuthor(e.target.value)}
-                  placeholder="EnergieClever Redaktion"
+                  placeholder="PRIME ENERGIE Redaktion"
                 />
               </div>
               <div className="space-y-1.5">
@@ -540,10 +607,7 @@ export function ArticleEditor({ initial, onSave, isSaving = false }: ArticleEdit
           </CardHeader>
           <CardContent className="space-y-4">
             {sections.map((section, idx) => (
-              <div
-                key={idx}
-                className="rounded-lg border border-border bg-muted/20 p-4 space-y-3"
-              >
+              <div key={idx} className="rounded-lg border border-border bg-muted/20 p-4 space-y-3">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-medium text-muted-foreground">
                     Abschnitt {idx + 1}
@@ -617,11 +681,7 @@ export function ArticleEditor({ initial, onSave, isSaving = false }: ArticleEdit
         <Card>
           <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-              <Switch
-                id="publish-toggle"
-                checked={isPublished}
-                onCheckedChange={setIsPublished}
-              />
+              <Switch id="publish-toggle" checked={isPublished} onCheckedChange={setIsPublished} />
               <Label htmlFor="publish-toggle" className="cursor-pointer">
                 {isPublished ? "Veröffentlichen" : "Als Entwurf speichern"}
               </Label>

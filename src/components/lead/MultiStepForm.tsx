@@ -414,8 +414,8 @@ function Step1({ data, set }: StepProps) {
   const items = [
     { k: "strom" as const, icon: Zap, t: "Strom", s: "Privathaushalt" },
     { k: "gas" as const, icon: Flame, t: "Gas", s: "Heizung & Warmwasser" },
-    { k: "beides" as const, icon: Layers, t: "Strom & Gas", s: "Im Paket sparen" },
-    { k: "gewerbe" as const, icon: Briefcase, t: "Gewerbe", s: "Unternehmenstarif" },
+    { k: "beides" as const, icon: Layers, t: "Strom & Gas", s: "Gemeinsam prüfen" },
+    { k: "gewerbe" as const, icon: Briefcase, t: "Gewerbe", s: "Tarif für Unternehmen" },
   ];
   return (
     <Field>
@@ -500,7 +500,7 @@ function Step3({ data, set }: StepProps) {
           <Label htmlFor="strasse">Straße (optional)</Label>
           <Input
             id="strasse"
-            placeholder="Hilft bei der Tarif-Auswahl"
+            placeholder="Hilft bei der Auswahl"
             value={data.strasse ?? ""}
             onChange={(e) => set("strasse", e.target.value)}
           />
@@ -850,8 +850,8 @@ function Step7({ data, set }: StepProps) {
 
       <div className="mt-5 rounded-xl border border-border bg-surface p-4 text-xs text-muted-foreground">
         <ShieldCheck className="mr-1.5 inline h-4 w-4 text-success" />
-        Ihre Daten werden DSGVO-konform in Deutschland verarbeitet und nur zur Tarifprüfung
-        verwendet.
+        Ihre Angaben werden zweckgebunden nach den geltenden Datenschutzvorgaben verarbeitet.
+        Weitere Informationen finden Sie in unserer Datenschutzerklärung.
       </div>
 
       <div className="mt-5 space-y-3">
@@ -900,8 +900,8 @@ function Step8({ invoiceFiles, invoiceError, onInvoiceChange, onInvoiceRemove }:
 
       <div className="mt-6 rounded-xl bg-primary/5 p-4 text-sm text-primary">
         <CheckCircle2 className="mr-1.5 inline h-4 w-4 text-success" />
-        Nach dem Absenden wird Ihre Anfrage persönlich geprüft. Für direkte Beratung können Sie uns
-        jederzeit zu unseren Servicezeiten anrufen.
+        Nach dem Absenden wird Ihre Anfrage persönlich geprüft. Für eine direkte Beratung erreichen
+        Sie uns unter der auf der Kontaktseite angegebenen Telefonnummer.
       </div>
     </Field>
   );

@@ -18,19 +18,23 @@ import ctaBg from "@/assets/final-cta-bg.jpg";
 export const Route = createFileRoute("/gewerbegas")({
   head: () => ({
     meta: [
-      { title: "Gewerbegas vergleichen: Festpreise sichern | PRIME ENERGIE" },
+      { title: "Gewerbegas persönlich prüfen | PRIME ENERGIE" },
       {
         name: "description",
         content:
-          "Gewerbegas-Tarife persönlich vergleichen: Festpreise bis 36 Monate, Bio-Erdgas, Lastgangoptimierung. Für Gastronomie, Bäckereien, Produktion und Filialbetriebe.",
+          "PRIME ENERGIE prüft Gewerbegastarife für Gastronomie, Handwerk, Produktion und mehrere Standorte persönlich.",
       },
       { property: "og:title", content: "Gewerbegas vergleichen | PRIME ENERGIE" },
       {
         property: "og:description",
         content:
-          "Gewerbegas: Festpreise, Preisgarantie, individuelle Beratung für Ihr Unternehmen.",
+          "Gewerbegas mit verständlicher Einordnung von Preis, Laufzeit und Verbrauchsprofil.",
       },
-      { property: "og:image", content: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=630&fit=crop&q=80" },
+      {
+        property: "og:image",
+        content:
+          "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=630&fit=crop&q=80",
+      },
     ],
   }),
   component: GewerbegasPage,
@@ -39,33 +43,33 @@ export const Route = createFileRoute("/gewerbegas")({
 const features = [
   {
     icon: TrendingDown,
-    title: "Spürbare Ersparnis",
-    desc: "Bei Gas sind 15–25 % Ersparnis gegenüber Standardtarifen normal. Besonders bei Verbräuchen ab 50.000 kWh.",
+    title: "Kostenstruktur prüfen",
+    desc: "Wir betrachten Arbeitspreis, Grundpreis und Laufzeit passend zum Verbrauch Ihres Betriebs.",
   },
   {
     icon: ShieldCheck,
     title: "Festpreisgarantie",
-    desc: "Wir verhandeln Festpreise für 12, 24 oder 36 Monate. Planbare Energiekosten ohne Überraschungen.",
+    desc: "Wir stellen verfügbare Festpreisoptionen und deren Bedingungen verständlich dar.",
   },
   {
     icon: Flame,
     title: "Auch Bio-Erdgas",
-    desc: "Auf Wunsch zertifiziertes Bio-Erdgas. Wirksam für Ihre Nachhaltigkeitsbilanz, ohne CO₂-Aufschlag.",
+    desc: "Auf Wunsch berücksichtigen wir Biogasoptionen und die im Angebot genannten Nachweise.",
   },
   {
     icon: FileText,
     title: "Mehrere Standorte",
-    desc: "Wir bündeln Verträge für mehrere Standorte oder Filialen. Ein Ansprechpartner, eine saubere Rechnung.",
+    desc: "Mehrere Standorte oder Zähler können gemeinsam erfasst und strukturiert betrachtet werden.",
   },
   {
     icon: Users,
     title: "Persönliche Beratung",
-    desc: "Sie erreichen Ihren Account-Manager direkt. Ohne Warteschleife, ohne Tariflotterie.",
+    desc: "Fragen zu Verbrauch, Laufzeit und Angeboten besprechen Sie direkt mit unserem Team.",
   },
   {
     icon: BadgeCheck,
-    title: "Wechselgarantie",
-    desc: "Wir übernehmen die Kündigung und den lückenlosen Wechsel. Ihr Gas läuft ohne Unterbrechung weiter.",
+    title: "Wechselunterstützung",
+    desc: "Nach Ihrer Entscheidung begleiten wir die vereinbarten Schritte zum neuen Vertrag.",
   },
 ];
 
@@ -76,11 +80,10 @@ function GewerbegasPage() {
         kicker="Gewerbegas"
         title={
           <>
-            Gas für Ihr Unternehmen.{" "}
-            <span className="text-success">Festgepreist statt schwankend.</span>
+            Gas für Ihr Unternehmen. <span className="text-success">Planbar und verständlich.</span>
           </>
         }
-        lead="Vom Restaurant bis zur Produktion: Wir verhandeln planbare Gewerbegas-Tarife mit echter Preisgarantie. Kostenlos und unverbindlich."
+        lead="Vom Restaurant bis zur Produktion: PRIME ENERGIE erfasst Ihren Bedarf und ordnet verfügbare Gewerbegastarife verständlich ein."
         image={heroImg}
         imageAlt="Industrielle Anlage mit Gas-Heizsystem"
         Icon={Building2}
@@ -96,35 +99,35 @@ function GewerbegasPage() {
       <ImageSplit
         eyebrow="Für wen das passt"
         title="Vom Gastronom bis zur Bäckerei"
-        body="Wir betreuen Gewerbekunden mit Gasverbräuchen ab 10.000 kWh. Branchenübergreifend. Besonders interessant für energieintensive Betriebe mit hohem Heiz- oder Prozesswärmebedarf."
+        body="Gastronomie, Immobilien und Produktion nutzen Gas auf unterschiedliche Weise. Wir berücksichtigen Jahresverbrauch, Standorte und den Zweck des Gasbezugs."
         image={splitImg}
         imageAlt="Bäckerei mit großem Backofen"
         bullets={[
           "Bäckereien, Gastronomie, Hotels, Wäschereien",
           "Hausverwaltungen mit zentraler Heizung",
           "Produzierendes Gewerbe mit Prozesswärme",
-          "Lastgangoptimierung ab 1,5 Mio. kWh möglich",
+          "Vorhandene Lastgangdaten bei größeren Verbräuchen",
         ]}
       />
 
       <ImageSplit
         reverse
         eyebrow="Sicherheit zuerst"
-        title="Bei Gas zählt jeder Cent. Und jede Stunde"
-        body="Anders als bei Strom ist die Versorgungssicherheit bei Gas besonders kritisch. Wir achten penibel auf saubere Vertragsübergänge, Preisgleitklauseln und realistische Beschaffungsprognosen."
+        title="Vertragsdetails sorgfältig betrachten"
+        body="Preisgleitklauseln, Laufzeit, Kündigungsfrist und Übergabetermin können für Gewerbekunden besonders wichtig sein. Wir machen diese Punkte sichtbar."
         image={ctaBg}
         imageAlt="Unternehmer prüft Gasrechnung am Schreibtisch"
         bullets={[
-          "Lückenlose Versorgung. Garantiert",
-          "Echte Preisgarantien statt Bonus-Marketing",
-          "Beschaffung in Tranchen möglich (ab 1 Mio. kWh)",
-          "Jährliche Marktprüfung & Anpassungsempfehlung",
+          "Bestehende Vertragslaufzeit berücksichtigen",
+          "Preisgarantie und Ausnahmen einordnen",
+          "Verfügbare Beschaffungsmodelle verständlich darstellen",
+          "Nächste Schritte gemeinsam abstimmen",
         ]}
       />
 
       <FinalCta
-        title="Wie viel könnte Ihr Betrieb sparen?"
-        body="Senden Sie uns Ihre letzte Jahresrechnung. Wir rechnen Ihnen kostenlos drei Festpreis-Angebote durch."
+        title="Gewerbegas passend zum Betrieb prüfen"
+        body="Senden Sie uns Ihre letzte Jahresrechnung. Die erste Einordnung ist kostenlos und unverbindlich."
         image={ctaBg}
       />
     </SiteLayout>

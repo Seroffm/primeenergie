@@ -74,7 +74,7 @@ export const Route = createFileRoute("/api/referral-request")({
           return ok({ data: { sent: true } });
         }
 
-        const appUrl = process.env.APP_URL ?? "https://strom-sandy.vercel.app";
+        const appUrl = process.env.APP_URL ?? "https://project-gqhfy.vercel.app";
         const referralUrl = `${appUrl}/angebot?ref=${code}`;
 
         const tpl = referralCodeRequestTemplate({
