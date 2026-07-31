@@ -4,8 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Cookie, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-
-const STORAGE_KEY = "prime-cookie-consent-v1";
+import { COOKIE_CONSENT_EVENT, COOKIE_CONSENT_STORAGE_KEY } from "@/lib/cookie-consent";
 
 type Consent = { necessary: true; analytics: boolean; marketing: boolean; date: string };
 
@@ -17,7 +16,7 @@ export function CookieConsent() {
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(COOKIE_CONSENT_STORAGE_KEY);
       if (!raw) setOpen(true);
     } catch {
       setOpen(true);
@@ -26,12 +25,15 @@ export function CookieConsent() {
 
   const save = (c: Omit<Consent, "date">) => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...c, date: new Date().toISOString() }));
+      localStorage.setItem(
+        COOKIE_CONSENT_STORAGE_KEY,
+        JSON.stringify({ ...c, date: new Date().toISOString() }),
+      );
     } catch {
       /* ignore */
     }
     setOpen(false);
-    window.dispatchEvent(new Event("cookie-consent-accepted"));
+    window.dispatchEvent(new Event(COOKIE_CONSENT_EVENT));
   };
 
   return (

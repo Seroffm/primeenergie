@@ -198,6 +198,30 @@ export async function getLeads(params?: {
   });
 }
 
+export async function getAllLeads(params?: {
+  q?: string;
+}): Promise<BackendListResponse<BackendLead>> {
+  const pageSize = 200;
+  const firstPage = await getLeads({ page: 1, pageSize, q: params?.q });
+  const totalPages = Math.ceil(firstPage.count / pageSize);
+
+  if (totalPages <= 1) return firstPage;
+
+  const remainingPages = await Promise.all(
+    Array.from({ length: totalPages - 1 }, (_, index) =>
+      getLeads({ page: index + 2, pageSize, q: params?.q }),
+    ),
+  );
+  const data = [firstPage, ...remainingPages].flatMap((page) => page.data);
+
+  return {
+    data,
+    count: firstPage.count,
+    page: 1,
+    pageSize: data.length,
+  };
+}
+
 export async function getLead(id: string): Promise<BackendLeadDetail> {
   const res = await get<BackendSingleResponse<BackendLeadDetail>>(`/api/leads/${id}`);
   return res.data;

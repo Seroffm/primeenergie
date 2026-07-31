@@ -83,6 +83,11 @@ export const Route = createFileRoute("/api/leads/$id/status")({
           return err("Zugriff verweigert", 403);
         }
 
+        const statusChanged = current.status !== status;
+        if (!statusChanged && status !== "follow_up") {
+          return ok({ data: { ok: true, unchanged: true } });
+        }
+
         let normalizedFollowUpAt: string | null = null;
         if (status === "follow_up") {
           if (followUpAt) {
@@ -108,16 +113,18 @@ export const Route = createFileRoute("/api/leads/$id/status")({
         if (updateError) return err("Statusaktualisierung fehlgeschlagen", 500);
 
         // Status-History eintragen
-        await supabase.from("lead_status_history").insert({
-          lead_id: params.id,
-          old_status: current.status,
-          new_status: status,
-          changed_by: auth.user.userId,
-          reason: reason ?? null,
-        });
+        if (statusChanged) {
+          await supabase.from("lead_status_history").insert({
+            lead_id: params.id,
+            old_status: current.status,
+            new_status: status,
+            changed_by: auth.user.userId,
+            reason: reason ?? null,
+          });
+        }
 
         // E-Mail an Kunden asynchron versenden
-        if (CUSTOMER_EMAIL_TRIGGERS.has(status) && current.email) {
+        if (statusChanged && CUSTOMER_EMAIL_TRIGGERS.has(status) && current.email) {
           const firstName = current.first_name as string;
           const leadNumber = current.lead_number as string;
           const productType = current.product_type as string;
@@ -157,7 +164,7 @@ export const Route = createFileRoute("/api/leads/$id/status")({
         }
 
         // Referral-Logik bei "completed"
-        if (status === "completed") {
+        if (statusChanged && status === "completed") {
           const appUrl = process.env.APP_URL ?? "https://project-gqhfy.vercel.app";
           const leadEmail = current.email as string;
           const leadFirstName = current.first_name as string;

@@ -87,6 +87,10 @@ function GewerbegasPage() {
         image={heroImg}
         imageAlt="Industrielle Anlage mit Gas-Heizsystem"
         Icon={Building2}
+        primaryCta={{
+          to: "/angebot?start=gas&kunde=gewerbe",
+          label: "Gewerbegas prüfen",
+        }}
         secondaryCta={{ to: "/kontakt", label: "Persönliches Angebot anfordern" }}
       />
 
@@ -129,6 +133,7 @@ function GewerbegasPage() {
         title="Gewerbegas passend zum Betrieb prüfen"
         body="Senden Sie uns Ihre letzte Jahresrechnung. Die erste Einordnung ist kostenlos und unverbindlich."
         image={ctaBg}
+        primaryCta="/angebot?start=gas&kunde=gewerbe"
       />
     </SiteLayout>
   );

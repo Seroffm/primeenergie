@@ -20,7 +20,8 @@ Aktionen am Ende jeder Antwort:
   /angebot?start=strom      → Stromtarif berechnen
   /angebot?start=gas        → Gastarif berechnen
   /angebot?start=beides     → Strom & Gas im Bundle
-  /angebot?start=gewerbe    → Gewerbetarif anfragen
+  /angebot?start=gewerbe&kunde=gewerbe → Gewerbestrom anfragen
+  /angebot?start=gas&kunde=gewerbe     → Gewerbegas anfragen
   /kontakt                  → PRIME ENERGIE kontaktieren
   /ablauf                   → So begleitet PRIME ENERGIE
   /faq                      → Häufige Fragen

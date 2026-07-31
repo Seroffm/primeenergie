@@ -88,6 +88,10 @@ function GewerbestromPage() {
         image={heroImg}
         imageAlt="Modernes Bürogebäude mit beleuchteten Fenstern"
         Icon={Building2}
+        primaryCta={{
+          to: "/angebot?start=gewerbe&kunde=gewerbe",
+          label: "Gewerbestrom prüfen",
+        }}
         secondaryCta={{ to: "/kontakt", label: "Persönliches Angebot anfordern" }}
       />
 
@@ -129,6 +133,7 @@ function GewerbestromPage() {
         title="Gewerbestrom passend zum Betrieb prüfen"
         body="Senden Sie uns Ihre letzte Jahresrechnung. Die erste Einordnung ist kostenlos und unverbindlich."
         image={ctaBg}
+        primaryCta="/angebot?start=gewerbe&kunde=gewerbe"
       />
     </SiteLayout>
   );

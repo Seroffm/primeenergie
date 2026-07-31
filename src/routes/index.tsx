@@ -50,10 +50,12 @@ import comparisonHero from "@/assets/comparison-hero.jpg";
 import { setPendingInvoice, validateInvoice } from "@/lib/pending-invoice";
 
 import { z } from "zod";
+import { getOfferStartForQuickCalculator } from "@/lib/offer-selection";
 
 const homeSearchSchema = z
   .object({
     start: z.enum(["strom", "gas", "beides", "gewerbe"]).optional(),
+    kunde: z.enum(["privat", "gewerbe"]).optional(),
     plz: z.coerce.string().optional(),
     kwh: z.coerce.number().int().positive().optional(),
   })
@@ -225,10 +227,10 @@ function Hero() {
 function QuickCalculator() {
   const navigate = useNavigate();
   const search = Route.useSearch() as
-    | { start?: Energy | "gewerbe"; plz?: string; kwh?: number }
+    | { start?: Energy | "gewerbe"; kunde?: Audience; plz?: string; kwh?: number }
     | undefined;
   const [audience, setAudience] = useState<Audience>(
-    search?.start === "gewerbe" ? "gewerbe" : "privat",
+    search?.kunde === "gewerbe" || search?.start === "gewerbe" ? "gewerbe" : "privat",
   );
   const [energy, setEnergy] = useState<Energy>(
     search?.start === "gas" || search?.start === "beides" ? search.start : "strom",
@@ -276,7 +278,8 @@ function QuickCalculator() {
     navigate({
       to: "/angebot",
       search: {
-        start: audience === "gewerbe" ? "gewerbe" : energy,
+        start: getOfferStartForQuickCalculator(audience, energy),
+        kunde: audience,
         plz,
         kwh: audience === "privat" && !invoiceName ? kwh || undefined : undefined,
       } as never,
@@ -1713,7 +1716,7 @@ function FinalCta() {
 function WechselCta() {
   const [plz, setPlz] = useState("");
   const navigate = useNavigate();
-  const valid = plz.length >= 4;
+  const valid = /^\d{5}$/.test(plz);
   return (
     <section className="bg-background py-14 md:py-28">
       <div className="mx-auto max-w-6xl px-4">

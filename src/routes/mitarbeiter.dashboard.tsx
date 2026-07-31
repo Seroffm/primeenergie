@@ -21,8 +21,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { AdminShell } from "@/components/mitarbeiter/AdminShell";
+import { QueryErrorState } from "@/components/mitarbeiter/QueryErrorState";
 import { statusColor, statusLabel, typeLabel } from "@/lib/mock-leads";
-import { getLeads } from "@/lib/api-client";
+import { getAllLeads } from "@/lib/api-client";
 import { mapLeadStatus, mapLeadType } from "@/lib/api-types";
 import type { BackendLead } from "@/lib/api-types";
 import { getOpenLeadTasks } from "@/lib/lead-tasks";
@@ -53,9 +54,9 @@ function adaptLead(l: BackendLead) {
 function Dashboard() {
   const navigate = useNavigate();
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["leads"],
-    queryFn: () => getLeads({ pageSize: 200 }),
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ["leads", "all"],
+    queryFn: () => getAllLeads(),
   });
 
   const leads = useMemo(() => (data?.data ?? []).map(adaptLead), [data]);
@@ -167,6 +168,17 @@ function Dashboard() {
     a.download = `leads_${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  if (isError) {
+    return (
+      <AdminShell title="Dashboard" subtitle="Übersicht: Leads, Abschlüsse und Teamleistung">
+        <QueryErrorState
+          message="Die Dashboard Daten konnten nicht geladen werden."
+          onRetry={() => void refetch()}
+        />
+      </AdminShell>
+    );
   }
 
   return (

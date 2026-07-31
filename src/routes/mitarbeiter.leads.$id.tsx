@@ -81,7 +81,7 @@ import { DEFAULT_WIEDERVORLAGE_TIME } from "@/lib/mock-tasks";
 import { getNextOpenLead, isOpenLeadTask } from "@/lib/lead-tasks";
 import {
   getLead as getBackendLead,
-  getLeads,
+  getAllLeads,
   getNotes,
   postNote,
   getDocuments,
@@ -358,10 +358,10 @@ function LeadDetail() {
     queryFn: getTeam,
   });
 
-  // Alle Leads für "Nächste Aufgabe öffnen" — teilt Cache mit dem Dashboard-Query
+  // Alle Leads für "Nächste Aufgabe öffnen" und die Dashboard Auswertungen.
   const allLeadsQuery = useQuery({
-    queryKey: ["leads"],
-    queryFn: () => getLeads({ pageSize: 200 }),
+    queryKey: ["leads", "all"],
+    queryFn: () => getAllLeads(),
     staleTime: 30_000,
   });
 

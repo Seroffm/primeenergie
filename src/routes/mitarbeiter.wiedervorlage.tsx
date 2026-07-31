@@ -6,9 +6,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AdminShell } from "@/components/mitarbeiter/AdminShell";
+import { QueryErrorState } from "@/components/mitarbeiter/QueryErrorState";
 import { statusColor, statusLabel } from "@/lib/mock-leads";
 import { useAuth } from "@/lib/auth-context";
-import { getLeads } from "@/lib/api-client";
+import { getAllLeads } from "@/lib/api-client";
 import { mapLeadStatus, mapLeadType } from "@/lib/api-types";
 import type { BackendLead } from "@/lib/api-types";
 
@@ -86,9 +87,9 @@ function WiedervorlagePage() {
   const { user: authUser, hasRole } = useAuth();
   const user = authUser ?? { name: "Mitarbeiter", role: "mitarbeiter" as const };
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["leads"],
-    queryFn: () => getLeads({ pageSize: 200 }),
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ["leads", "all"],
+    queryFn: () => getAllLeads(),
   });
 
   const leads = useMemo(() => (data?.data ?? []).map(adaptLead), [data]);
@@ -124,12 +125,18 @@ function WiedervorlagePage() {
         ) : undefined
       }
     >
+      {isError && (
+        <QueryErrorState
+          message="Die Wiedervorlagen konnten nicht geladen werden."
+          onRetry={() => void refetch()}
+        />
+      )}
       {isLoading && (
         <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
           Wiedervorlagen werden geladen…
         </div>
       )}
-      {!isLoading && (
+      {!isLoading && !isError && (
         <div className="grid gap-6">
           {Object.entries(grouped).map(([day, items]) => (
             <div key={day}>

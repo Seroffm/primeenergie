@@ -5,7 +5,8 @@ import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { AdminShell } from "@/components/mitarbeiter/AdminShell";
-import { getLeads, getTeam } from "@/lib/api-client";
+import { QueryErrorState } from "@/components/mitarbeiter/QueryErrorState";
+import { getAllLeads, getTeam } from "@/lib/api-client";
 import { mapLeadStatus } from "@/lib/api-types";
 import type { BackendLead } from "@/lib/api-types";
 
@@ -27,11 +28,16 @@ function adaptLead(l: BackendLead) {
 }
 
 function StatistikenPage() {
-  const { data, isLoading } = useQuery({
-    queryKey: ["leads"],
-    queryFn: () => getLeads({ pageSize: 500 }),
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ["leads", "all"],
+    queryFn: () => getAllLeads(),
   });
-  const { data: team = [], isLoading: isTeamLoading } = useQuery({
+  const {
+    data: team = [],
+    isLoading: isTeamLoading,
+    isError: isTeamError,
+    refetch: refetchTeam,
+  } = useQuery({
     queryKey: ["team"],
     queryFn: getTeam,
   });
@@ -122,6 +128,20 @@ function StatistikenPage() {
     ],
     [leads],
   );
+
+  if (isError || isTeamError) {
+    return (
+      <AdminShell title="Statistiken" subtitle="KPIs, Funnel, Quellen und Teamleistung">
+        <QueryErrorState
+          message="Die Statistiken konnten nicht vollständig geladen werden."
+          onRetry={() => {
+            void refetch();
+            void refetchTeam();
+          }}
+        />
+      </AdminShell>
+    );
+  }
 
   return (
     <AdminShell title="Statistiken" subtitle="KPIs, Funnel, Quellen & Teamleistung">

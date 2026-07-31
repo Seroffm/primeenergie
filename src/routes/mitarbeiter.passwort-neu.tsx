@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { Lock } from "lucide-react";
 import { toast } from "sonner";
@@ -20,21 +20,32 @@ export const Route = createFileRoute("/mitarbeiter/passwort-neu")({
 function PasswortNeu() {
   const navigate = useNavigate();
   const [sessionReady, setSessionReady] = useState(false);
+  const [sessionInvalid, setSessionInvalid] = useState(false);
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const timeout = window.setTimeout(() => setSessionInvalid(true), 5000);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
+        window.clearTimeout(timeout);
         setSessionReady(true);
       }
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setSessionReady(true);
+      if (session) {
+        window.clearTimeout(timeout);
+        setSessionReady(true);
+      }
     });
-    return () => subscription.unsubscribe();
+    return () => {
+      window.clearTimeout(timeout);
+      subscription.unsubscribe();
+    };
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -64,6 +75,21 @@ function PasswortNeu() {
   }
 
   if (!sessionReady) {
+    if (sessionInvalid) {
+      return (
+        <div className="flex min-h-screen items-center justify-center p-6">
+          <div className="w-full max-w-sm rounded-xl border bg-background p-6 text-center shadow-sm">
+            <h1 className="text-xl font-semibold">Link nicht mehr gültig</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Fordern Sie einen neuen Link zum Zurücksetzen Ihres Passworts an.
+            </p>
+            <Button asChild className="mt-5">
+              <Link to="/mitarbeiter/passwort-vergessen">Neuen Link anfordern</Link>
+            </Button>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-sm text-muted-foreground">Sitzung wird geladen…</div>

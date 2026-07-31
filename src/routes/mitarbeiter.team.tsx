@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Plus, Mail, Phone } from "lucide-react";
+import { Plus, Mail, Phone, Copy, CheckCircle2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
@@ -68,8 +68,16 @@ function TeamPage() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteName, setInviteName] = useState("");
   const [inviteRole, setInviteRole] = useState<"employee" | "manager" | "admin">("employee");
+  const [inviteResult, setInviteResult] = useState<{
+    email: string;
+    password: string;
+  } | null>(null);
 
-  const { data: members = [], isLoading, isError } = useQuery({
+  const {
+    data: members = [],
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["team"],
     queryFn: getTeam,
   });
@@ -85,11 +93,11 @@ function TeamPage() {
       }),
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["team"] });
-      setInviteOpen(false);
+      setInviteResult({ email: result.email, password: result.temp_password });
       setInviteEmail("");
       setInviteName("");
       setInviteRole("employee");
-      toast.success("Eingeladen! Temp-Passwort: " + result.temp_password);
+      toast.success("Mitarbeiter wurde angelegt");
     },
     onError: () => toast.error("Einladung fehlgeschlagen"),
   });
@@ -124,9 +132,7 @@ function TeamPage() {
     <AdminShell
       title="Team"
       subtitle={
-        isLoading
-          ? "Laden…"
-          : `${activeCount} aktive Mitarbeiter · ${members.length} insgesamt`
+        isLoading ? "Laden…" : `${activeCount} aktive Mitarbeiter · ${members.length} insgesamt`
       }
       actions={
         isAdmin ? (
@@ -166,9 +172,7 @@ function TeamPage() {
                       <div>
                         <div className="font-semibold">{m.full_name ?? "—"}</div>
                         <div className="mt-1 flex items-center gap-1.5">
-                          <Badge
-                            className={`${roleColor[m.role] ?? roleColor.employee} border-0`}
-                          >
+                          <Badge className={`${roleColor[m.role] ?? roleColor.employee} border-0`}>
                             {roleLabelMap[m.role] ?? m.role}
                           </Badge>
                           {isInactive && (
@@ -198,9 +202,8 @@ function TeamPage() {
                     <div className="mt-4 space-y-2 border-t pt-3">
                       <Select
                         value={m.role}
-                        onValueChange={(role) =>
-                          roleMutation.mutate({ profileId: m.id, role })
-                        }
+                        disabled={isOwnAccount || roleMutation.isPending}
+                        onValueChange={(role) => roleMutation.mutate({ profileId: m.id, role })}
                       >
                         <SelectTrigger className="h-8 text-xs">
                           <SelectValue />
@@ -239,64 +242,120 @@ function TeamPage() {
         </div>
       )}
 
-      <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+      <Dialog
+        open={inviteOpen}
+        onOpenChange={(open) => {
+          setInviteOpen(open);
+          if (!open) setInviteResult(null);
+        }}
+      >
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Mitarbeiter einladen</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleInviteSubmit} className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="invite-email">E-Mail *</Label>
-              <Input
-                id="invite-email"
-                type="email"
-                required
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-                placeholder="mitarbeiter@example.com"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="invite-name">Name</Label>
-              <Input
-                id="invite-name"
-                type="text"
-                value={inviteName}
-                onChange={(e) => setInviteName(e.target.value)}
-                placeholder="Max Mustermann"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="invite-role">Rolle</Label>
-              <Select
-                value={inviteRole}
-                onValueChange={(v) =>
-                  setInviteRole(v as "employee" | "manager" | "admin")
-                }
-              >
-                <SelectTrigger id="invite-role">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="employee">Mitarbeiter</SelectItem>
-                  <SelectItem value="manager">Manager</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setInviteOpen(false)}
-              >
-                Abbrechen
-              </Button>
-              <Button type="submit" disabled={inviteMutation.isPending}>
-                {inviteMutation.isPending ? "Einladen…" : "Einladen"}
-              </Button>
-            </DialogFooter>
-          </form>
+          {inviteResult ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>Zugang wurde erstellt</DialogTitle>
+              </DialogHeader>
+              <div className="rounded-xl border border-success/30 bg-success/5 p-4">
+                <CheckCircle2 className="h-6 w-6 text-success" />
+                <p className="mt-3 text-sm text-muted-foreground">
+                  Geben Sie diese Zugangsdaten sicher an den Mitarbeiter weiter. Das Passwort wird
+                  nach dem Schließen nicht erneut angezeigt.
+                </p>
+                <dl className="mt-4 space-y-3 text-sm">
+                  <div>
+                    <dt className="text-xs text-muted-foreground">E Mail</dt>
+                    <dd className="font-medium">{inviteResult.email}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Temporäres Passwort</dt>
+                    <dd className="mt-1 rounded-md border bg-background px-3 py-2 font-mono text-sm">
+                      {inviteResult.password}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(
+                        `E Mail: ${inviteResult.email}\nPasswort: ${inviteResult.password}`,
+                      );
+                      toast.success("Zugangsdaten kopiert");
+                    } catch {
+                      toast.error("Kopieren nicht möglich");
+                    }
+                  }}
+                >
+                  <Copy className="mr-2 h-4 w-4" /> Zugangsdaten kopieren
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setInviteOpen(false);
+                    setInviteResult(null);
+                  }}
+                >
+                  Schließen
+                </Button>
+              </DialogFooter>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>Mitarbeiter einladen</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleInviteSubmit} className="space-y-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="invite-email">E-Mail *</Label>
+                  <Input
+                    id="invite-email"
+                    type="email"
+                    required
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    placeholder="mitarbeiter@example.com"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="invite-name">Name</Label>
+                  <Input
+                    id="invite-name"
+                    type="text"
+                    value={inviteName}
+                    onChange={(e) => setInviteName(e.target.value)}
+                    placeholder="Max Mustermann"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="invite-role">Rolle</Label>
+                  <Select
+                    value={inviteRole}
+                    onValueChange={(v) => setInviteRole(v as "employee" | "manager" | "admin")}
+                  >
+                    <SelectTrigger id="invite-role">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="employee">Mitarbeiter</SelectItem>
+                      <SelectItem value="manager">Manager</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => setInviteOpen(false)}>
+                    Abbrechen
+                  </Button>
+                  <Button type="submit" disabled={inviteMutation.isPending}>
+                    {inviteMutation.isPending ? "Einladen…" : "Einladen"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </AdminShell>

@@ -175,7 +175,17 @@ export function ImageSplit({
   );
 }
 
-export function FinalCta({ title, body, image }: { title: string; body: string; image: string }) {
+export function FinalCta({
+  title,
+  body,
+  image,
+  primaryCta = "/angebot",
+}: {
+  title: string;
+  body: string;
+  image: string;
+  primaryCta?: string;
+}) {
   return (
     <section className="relative isolate overflow-hidden">
       <img
@@ -210,7 +220,7 @@ export function FinalCta({ title, body, image }: { title: string; body: string; 
             size="lg"
             className="bg-success text-success-foreground hover:bg-success/90"
           >
-            <Link to="/angebot">
+            <Link to={primaryCta}>
               Jetzt Tarif prüfen <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>

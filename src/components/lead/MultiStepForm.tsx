@@ -62,33 +62,43 @@ declare global {
 }
 
 const STORAGE_KEY = "lead-draft-v1";
+const STEP_STORAGE_KEY = "lead-draft-step-v1";
 const TOTAL_STEPS = 8;
-let handledOfferReloadRedirect = false;
 
 const initial: Draft = { ziele: [] };
 
+function getStoredStep(): number {
+  if (typeof window === "undefined") return 1;
+  try {
+    const storedStep = Number.parseInt(sessionStorage.getItem(STEP_STORAGE_KEY) ?? "1", 10);
+    return Number.isInteger(storedStep) && storedStep >= 1 && storedStep <= TOTAL_STEPS
+      ? storedStep
+      : 1;
+  } catch {
+    return 1;
+  }
+}
+
 export function MultiStepForm({
   initialEnergy,
+  initialCustomerType,
   initialPlz,
   initialKwh,
   referralCode,
 }: {
   initialEnergy?: LeadInput["energyType"];
+  initialCustomerType?: LeadInput["customerType"];
   initialPlz?: string;
   initialKwh?: number;
   referralCode?: string;
 }) {
   const navigate = useNavigate();
+  // Start with the server-safe defaults and restore the browser draft after hydration.
+  // Reading sessionStorage in the state initializer is unreliable with SSR hydration,
+  // because React can retain the server state instead of running the client initializer.
   const [step, setStep] = useState(1);
-  const [data, setData] = useState<Draft>(() => {
-    if (typeof window === "undefined") return initial;
-    try {
-      const raw = sessionStorage.getItem(STORAGE_KEY);
-      return raw ? { ...initial, ...JSON.parse(raw) } : initial;
-    } catch {
-      return initial;
-    }
-  });
+  const [data, setData] = useState<Draft>(initial);
+  const [draftRestored, setDraftRestored] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [invoiceFiles, setInvoiceFiles] = useState<File[]>(() =>
@@ -100,50 +110,53 @@ export function MultiStepForm({
   const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined;
 
   useEffect(() => {
-    // Nur wenn die Angebotsseite selbst neu geladen wurde, zurück zur Startseite.
-    // Nach einem Reload auf der Startseite bleibt `navigation.type` ebenfalls "reload";
-    // deshalb prüfen wir zusätzlich die ursprünglich geladene Dokument-URL.
+    let storedDraft: Draft = initial;
     try {
-      const nav = performance.getEntriesByType("navigation")[0] as
-        | PerformanceNavigationTiming
-        | undefined;
-      const initialPath = nav?.name ? new URL(nav.name).pathname : window.location.pathname;
-      if (!handledOfferReloadRedirect && nav?.type === "reload" && initialPath === "/angebot") {
-        handledOfferReloadRedirect = true;
-        sessionStorage.removeItem(STORAGE_KEY);
-        navigate({ to: "/", search: {} as never });
-        return;
-      }
-    } catch (_) {
-      /* sessionStorage not available */
+      const raw = sessionStorage.getItem(STORAGE_KEY);
+      if (raw) storedDraft = { ...initial, ...JSON.parse(raw) } as Draft;
+    } catch {
+      storedDraft = initial;
     }
 
     const validPlz = initialPlz && /^\d{5}$/.test(initialPlz) ? initialPlz : undefined;
-    setData((d) => ({
-      ...d,
-      energyType: initialEnergy ?? d.energyType,
-      plz: validPlz ?? d.plz,
+    setData({
+      ...storedDraft,
+      energyType: initialEnergy ?? storedDraft.energyType,
+      customerType: initialCustomerType ?? storedDraft.customerType,
+      plz: validPlz ?? storedDraft.plz,
       stromVerbrauchKwh:
         initialKwh &&
         (initialEnergy === "strom" || initialEnergy === "beides" || initialEnergy === "gewerbe")
           ? initialKwh
-          : d.stromVerbrauchKwh,
+          : storedDraft.stromVerbrauchKwh,
       gasVerbrauchKwh:
         initialKwh && (initialEnergy === "gas" || initialEnergy === "beides")
           ? initialKwh
-          : d.gasVerbrauchKwh,
-    }));
+          : storedDraft.gasVerbrauchKwh,
+    });
+    setStep(getStoredStep());
+    setDraftRestored(true);
     track("form_started");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
+    if (!draftRestored) return;
     try {
       sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (_) {
       /* sessionStorage not available */
     }
-  }, [data]);
+  }, [data, draftRestored]);
+
+  useEffect(() => {
+    if (!draftRestored) return;
+    try {
+      sessionStorage.setItem(STEP_STORAGE_KEY, String(step));
+    } catch (_) {
+      /* sessionStorage not available */
+    }
+  }, [step, draftRestored]);
 
   useEffect(() => {
     const invoiceFile = invoiceFiles[0];
@@ -181,6 +194,12 @@ export function MultiStepForm({
         to: "/",
         search: {
           start: data.energyType,
+          kunde:
+            data.customerType === "gewerbe" ||
+            data.customerType === "hausverwaltung" ||
+            data.customerType === "mehrere_standorte"
+              ? "gewerbe"
+              : "privat",
           plz: data.plz,
           kwh: kwh,
         } as never,
@@ -202,6 +221,7 @@ export function MultiStepForm({
       track("lead_submitted", { leadId: res.leadId });
       if (invoiceFile && res.invoiceUploaded) track("invoice_uploaded");
       sessionStorage.removeItem(STORAGE_KEY);
+      sessionStorage.removeItem(STEP_STORAGE_KEY);
       clearPendingInvoice();
       const rawNr = res.leadNumber;
       if (!rawNr || !isValidLeadNumber(rawNr)) {

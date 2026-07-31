@@ -4,19 +4,8 @@ import { DefaultChatTransport, type UIMessage } from "ai";
 import { useNavigate } from "@tanstack/react-router";
 import { MessageCircle, X, Send, Sparkles, ArrowRight, Star, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const ACTION_RE = /\[\[ACTION:([^|\]]+)\|([^\]]+)\]\]/g;
-
-function parseMessage(text: string): { body: string; actions: { label: string; href: string }[] } {
-  const actions: { label: string; href: string }[] = [];
-  const body = text
-    .replace(ACTION_RE, (_m, label: string, href: string) => {
-      actions.push({ label: label.trim(), href: href.trim() });
-      return "";
-    })
-    .trim();
-  return { body, actions };
-}
+import { COOKIE_CONSENT_EVENT, COOKIE_CONSENT_STORAGE_KEY } from "@/lib/cookie-consent";
+import { parseChatMessage } from "@/lib/chat-actions";
 
 const WELCOME_TEXT =
   "Willkommen bei PRIME ENERGIE.\n\nIch beantworte kurze Fragen zu Strom, Gas, Tarifprüfung und Anbieterwechsel und führe Sie direkt zum passenden nächsten Schritt.\n\nWobei kann ich Sie unterstützen?";
@@ -35,11 +24,9 @@ const INITIAL: UIMessage[] = [
   } as UIMessage,
 ];
 
-const COOKIE_KEY = "ec-cookie-consent-v1";
-
 function hasCookieConsent(): boolean {
   try {
-    return !!localStorage.getItem(COOKIE_KEY);
+    return !!localStorage.getItem(COOKIE_CONSENT_STORAGE_KEY);
   } catch {
     return false;
   }
@@ -61,8 +48,8 @@ export function AiChatWidget() {
   useEffect(() => {
     setCookiesAccepted(hasCookieConsent());
     const handler = () => setCookiesAccepted(true);
-    window.addEventListener("cookie-consent-accepted", handler);
-    return () => window.removeEventListener("cookie-consent-accepted", handler);
+    window.addEventListener(COOKIE_CONSENT_EVENT, handler);
+    return () => window.removeEventListener(COOKIE_CONSENT_EVENT, handler);
   }, []);
 
   const { messages, sendMessage, regenerate, status, error, setMessages, clearError, stop } =
@@ -235,7 +222,7 @@ export function AiChatWidget() {
               const isUser = m.role === "user";
               const { body, actions } = isUser
                 ? { body: text, actions: [] as { label: string; href: string }[] }
-                : parseMessage(text);
+                : parseChatMessage(text);
               return (
                 <div
                   key={m.id}

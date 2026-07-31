@@ -6,10 +6,12 @@ import { useState } from "react";
 import { MultiStepForm } from "@/components/lead/MultiStepForm";
 import { energyTypes } from "@/lib/lead-schema";
 import { BrandLogo } from "@/components/site/BrandLogo";
+import { resolveOfferSelection } from "@/lib/offer-selection";
 
 const search = z
   .object({
     start: z.enum(energyTypes).optional(),
+    kunde: z.enum(["privat", "gewerbe"]).optional(),
     plz: z.coerce.string().optional(),
     kwh: z.coerce.number().int().positive().optional(),
     ref: z.string().max(20).optional(),
@@ -73,6 +75,10 @@ const faqs = [
 function AngebotPage() {
   const search = Route.useSearch();
   const start = search?.start;
+  const { energyType: initialEnergy, customerType: initialCustomerType } = resolveOfferSelection(
+    start,
+    search?.kunde,
+  );
   const plz = search?.plz;
   const kwh = search?.kwh;
   const referralCode = search?.ref;
@@ -168,7 +174,8 @@ function AngebotPage() {
               </div>
             )}
             <MultiStepForm
-              initialEnergy={start}
+              initialEnergy={initialEnergy}
+              initialCustomerType={initialCustomerType}
               initialPlz={plz}
               initialKwh={kwh}
               referralCode={referralCode}

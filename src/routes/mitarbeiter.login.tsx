@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Lock, Mail, ArrowRight, ShieldCheck, AlertCircle } from "lucide-react";
@@ -6,10 +6,16 @@ import { BrandLogo } from "@/components/site/BrandLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/lib/auth-context";
+import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/mitarbeiter/login")({
+  beforeLoad: async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (session) throw redirect({ to: "/mitarbeiter/dashboard" });
+  },
   head: () => ({
     meta: [
       { title: "Login – PRIME ENERGIE Mitarbeiter" },
@@ -132,9 +138,9 @@ function LoginPage() {
                 />
               </div>
             </div>
-            <label className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Checkbox defaultChecked /> Angemeldet bleiben
-            </label>
+            <p className="text-xs text-muted-foreground">
+              Die Anmeldung bleibt auf diesem Gerät gespeichert, bis Sie sich abmelden.
+            </p>
           </div>
 
           <Button type="submit" className="w-full" disabled={loading}>

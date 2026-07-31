@@ -20,14 +20,20 @@ function PasswortVergessen() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setError(null);
     setLoading(true);
-    await supabase.auth.resetPasswordForEmail(email.trim(), {
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
       redirectTo: window.location.origin + "/mitarbeiter/passwort-neu",
     });
     setLoading(false);
+    if (resetError) {
+      setError("Die Anfrage konnte nicht gesendet werden. Bitte versuchen Sie es erneut.");
+      return;
+    }
     setSent(true);
   }
 
@@ -57,6 +63,11 @@ function PasswortVergessen() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                {error}
+              </div>
+            )}
             <div className="space-y-1.5">
               <Label htmlFor="email">E-Mail</Label>
               <div className="relative">

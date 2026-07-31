@@ -5,19 +5,20 @@ import { createServiceClient } from "@/lib/supabase.server";
 export const Route = createFileRoute("/api/leads/$id/assign")({
   server: {
     handlers: {
-      PATCH: async ({
-        request,
-        params,
-      }: {
-        request: Request;
-        params: { id: string };
-      }) => {
+      PATCH: async ({ request, params }: { request: Request; params: { id: string } }) => {
         const auth = await requireAuth(request);
         if (!auth.ok) return auth.response;
         if (auth.user.role === "employee") return err("Nur Manager/Admins dürfen zuweisen", 403);
 
-        let body: { assigned_to: string | null };
-        try { body = await request.json(); } catch { return err("Ungültiger Body", 400); }
+        let body: { assigned_to?: unknown };
+        try {
+          body = await request.json();
+        } catch {
+          return err("Ungültiger Body", 400);
+        }
+        if (body.assigned_to !== null && typeof body.assigned_to !== "string") {
+          return err("Ungültige Zuweisung", 400);
+        }
 
         const supabase = createServiceClient();
 
@@ -28,15 +29,19 @@ export const Route = createFileRoute("/api/leads/$id/assign")({
             .select("id, auth_user_id, is_active")
             .eq("auth_user_id", body.assigned_to)
             .single();
-          if (!profile || !profile.is_active) return err("Mitarbeiter nicht gefunden oder inaktiv", 404);
+          if (!profile || !profile.is_active)
+            return err("Mitarbeiter nicht gefunden oder inaktiv", 404);
         }
 
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from("leads")
           .update({ assigned_to: body.assigned_to })
-          .eq("id", params.id);
+          .eq("id", params.id)
+          .select("id")
+          .maybeSingle();
 
         if (error) return err("Zuweisung fehlgeschlagen", 500);
+        if (!data) return err("Lead nicht gefunden", 404);
         return ok({ data: { ok: true } });
       },
     },

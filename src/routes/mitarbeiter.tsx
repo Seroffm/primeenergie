@@ -3,7 +3,12 @@ import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/mitarbeiter")({
   beforeLoad: async ({ location }) => {
-    if (location.pathname === "/mitarbeiter/login") return;
+    const publicAuthPaths = new Set([
+      "/mitarbeiter/login",
+      "/mitarbeiter/passwort-vergessen",
+      "/mitarbeiter/passwort-neu",
+    ]);
+    if (publicAuthPaths.has(location.pathname)) return;
     const {
       data: { session },
     } = await supabase.auth.getSession();
