@@ -103,11 +103,11 @@ export function AdminShell({
     <div className="min-h-screen bg-muted/30">
       <Toaster position="top-right" richColors closeButton />
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r bg-background lg:flex">
-        <div className="flex h-20 items-center border-b px-5">
-          <div>
-            <BrandLogo priority className="w-[12.65rem]" />
-            <div className="text-xs text-muted-foreground">Mitarbeiter-CRM</div>
-          </div>
+        <div className="flex h-24 items-center border-b px-5">
+          <Link to="/mitarbeiter/dashboard" className="block min-w-0" aria-label="Zum Dashboard">
+            <BrandLogo priority className="w-full max-w-[12rem]" />
+            <div className="mt-1 text-xs font-medium text-muted-foreground">Mitarbeiter CRM</div>
+          </Link>
         </div>
         <nav className="flex-1 space-y-1 overflow-y-auto p-3">
           {visibleMain.map((item) => (
@@ -136,6 +136,13 @@ export function AdminShell({
 
       <div className="lg:pl-64">
         <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur lg:px-8">
+          <Link
+            to="/mitarbeiter/dashboard"
+            aria-label="Zum Dashboard"
+            className="flex min-w-0 items-center lg:hidden"
+          >
+            <BrandLogo priority className="w-[9.5rem] sm:w-[10.5rem]" />
+          </Link>
           <form
             className="relative hidden flex-1 max-w-md md:block"
             role="search"

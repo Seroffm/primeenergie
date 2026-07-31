@@ -32,7 +32,8 @@ export class ApiError extends Error {
   }
 }
 
-async function authHeaders(): Promise<Record<string, string>> {
+async function authHeaders(accessToken?: string): Promise<Record<string, string>> {
+  if (accessToken) return { Authorization: `Bearer ${accessToken}` };
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -40,12 +41,16 @@ async function authHeaders(): Promise<Record<string, string>> {
   return { Authorization: `Bearer ${session.access_token}` };
 }
 
-async function get<T>(path: string, params?: Record<string, string | number>): Promise<T> {
+async function get<T>(
+  path: string,
+  params?: Record<string, string | number>,
+  accessToken?: string,
+): Promise<T> {
   const qs = params
     ? "?" + new URLSearchParams(Object.entries(params).map(([k, v]) => [k, String(v)])).toString()
     : "";
   const res = await fetch(`${API_BASE}${path}${qs}`, {
-    headers: { "Content-Type": "application/json", ...(await authHeaders()) },
+    headers: { "Content-Type": "application/json", ...(await authHeaders(accessToken)) },
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
@@ -86,6 +91,11 @@ async function patch<T>(path: string, body: unknown): Promise<T> {
 
 export async function getMe(): Promise<BackendProfile> {
   const res = await get<BackendSingleResponse<BackendProfile>>("/api/me");
+  return res.data;
+}
+
+export async function getMeWithAccessToken(accessToken: string): Promise<BackendProfile> {
+  const res = await get<BackendSingleResponse<BackendProfile>>("/api/me", undefined, accessToken);
   return res.data;
 }
 
