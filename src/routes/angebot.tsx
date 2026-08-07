@@ -85,7 +85,7 @@ function AngebotPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen min-w-0 overflow-x-clip bg-background">
       {/* ─── HEADER ─── */}
       <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-sm">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
@@ -165,9 +165,9 @@ function AngebotPage() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-          className="md:sticky md:top-20 md:self-start"
+          className="min-w-0 md:sticky md:top-20 md:self-start"
         >
-          <div className="rounded-2xl border border-border bg-background p-6 shadow-card md:p-8">
+          <div className="min-w-0 rounded-2xl border border-border bg-background p-4 shadow-card sm:p-6 md:p-8">
             {referralCode && (
               <div className="mb-4 rounded-lg border border-success/20 bg-success/10 p-3 text-sm text-success">
                 🎁 <strong>Empfehlung aktiv:</strong> Sie wurden von einem Kunden empfohlen!
@@ -182,7 +182,7 @@ function AngebotPage() {
             />
           </div>
           {/* DSGVO below the form — trust info at the point of data entry */}
-          <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+          <p className="mt-3 flex flex-wrap items-center justify-center gap-1.5 px-2 text-center text-xs leading-relaxed text-muted-foreground">
             <Lock className="h-3.5 w-3.5 text-success" />
             SSL-verschlüsselt · DSGVO-konform · Kostenlos & unverbindlich
           </p>

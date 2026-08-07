@@ -292,9 +292,9 @@ function QuickCalculator() {
   }
 
   return (
-    <div className="form-contrast rounded-2xl border border-border bg-card p-1.5 shadow-hero">
-      <div className="rounded-xl bg-card p-5 md:p-7">
-        <div className="flex items-center justify-between">
+    <div className="form-contrast w-full min-w-0 overflow-hidden rounded-2xl border border-border bg-card p-1.5 shadow-hero">
+      <div className="min-w-0 rounded-xl bg-card p-4 sm:p-5 md:p-7">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <div className="font-display text-lg font-bold text-primary">Tarifrechner</div>
             <div className="text-xs text-muted-foreground">Anfrage in wenigen Schritten</div>
@@ -317,7 +317,7 @@ function QuickCalculator() {
                 setInvoiceError(null);
               }}
               className={cn(
-                "flex items-center justify-center gap-2 rounded-md px-3 py-2.5 text-sm font-semibold transition",
+                "min-w-0 flex items-center justify-center gap-1.5 rounded-md px-2 py-2.5 text-sm font-semibold transition sm:gap-2 sm:px-3",
                 audience === option.value
                   ? "bg-background text-primary shadow-soft"
                   : "text-muted-foreground hover:text-primary",
@@ -339,7 +339,7 @@ function QuickCalculator() {
                     key={t.k}
                     type="button"
                     onClick={() => setEnergy(t.k)}
-                    className="relative flex items-center justify-center gap-1.5 rounded-md px-2 py-2 text-sm font-medium"
+                    className="relative flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-md px-1 py-2 text-xs font-medium sm:flex-row sm:gap-1.5 sm:px-2 sm:text-sm"
                   >
                     {active && (
                       <motion.div
@@ -420,12 +420,12 @@ function QuickCalculator() {
             </div>
           )}
 
-          <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-success/50 bg-success/5 p-3 transition hover:bg-success/10">
+          <label className="flex min-w-0 cursor-pointer items-center gap-3 overflow-hidden rounded-xl border border-dashed border-success/50 bg-success/5 p-3 transition hover:bg-success/10">
             <span className="grid h-9 w-9 flex-none place-items-center rounded-lg bg-success/10 text-success">
               {invoiceName ? <FileText className="h-4 w-4" /> : <Upload className="h-4 w-4" />}
             </span>
-            <span className="min-w-0">
-              <span className="block text-sm font-semibold text-primary">
+            <span className="min-w-0 flex-1">
+              <span className="block break-words text-sm font-semibold text-primary [overflow-wrap:anywhere]">
                 {invoiceName
                   ? invoiceName
                   : audience === "gewerbe"
@@ -448,7 +448,7 @@ function QuickCalculator() {
           <Button
             type="submit"
             size="lg"
-            className="h-12 w-full bg-success text-base font-semibold text-success-foreground shadow-soft hover:bg-success/90"
+            className="min-h-12 h-auto w-full px-4 py-2.5 text-sm font-semibold text-success-foreground shadow-soft hover:bg-success/90 sm:text-base"
           >
             {audience === "gewerbe" ? "Rechnung manuell prüfen lassen" : "Tarife vergleichen"}{" "}
             <ArrowRight className="ml-1 h-4 w-4" />
@@ -457,18 +457,6 @@ function QuickCalculator() {
             <span className="text-success">*</span> Pflichtfeld
           </p>
         </form>
-
-        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1">
-            <ShieldCheck className="h-3.5 w-3.5 text-success" /> SSL-verschlüsselt
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <BadgeCheck className="h-3.5 w-3.5 text-success" /> DSGVO-konform
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <Award className="h-3.5 w-3.5 text-success" /> Transparente Konditionen
-          </span>
-        </div>
       </div>
     </div>
   );
@@ -486,9 +474,9 @@ function TrustStrip() {
   ];
   return (
     <section className="border-y border-border bg-surface">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-4 py-5 text-sm text-muted-foreground">
+      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-3 px-4 py-4 text-xs text-muted-foreground sm:flex sm:flex-wrap sm:items-center sm:justify-center sm:gap-x-8 sm:gap-y-3 sm:py-5 sm:text-sm">
         {items.map((i) => (
-          <div key={i.label} className="flex items-center gap-2">
+          <div key={i.label} className="flex min-w-0 items-center gap-2">
             <i.icon className="h-4 w-4 text-success" />
             <span className="font-medium">{i.label}</span>
           </div>

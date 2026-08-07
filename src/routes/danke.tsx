@@ -55,6 +55,12 @@ function ThanksPage() {
           </p>
         </div>
 
+        <div className="mx-auto mt-6 max-w-xl rounded-xl border border-success/20 bg-success/5 px-4 py-3 text-sm leading-relaxed text-muted-foreground sm:px-5">
+          Sie erhalten in wenigen Minuten eine Bestätigungs-E-Mail mit Ihrer Vorgangsnummer und
+          einer Zusammenfassung Ihrer Anfrage. Bitte prüfen Sie gegebenenfalls auch Ihren
+          Spam-Ordner.
+        </div>
+
         {rechnung === "nachreichen" && (
           <div className="mx-auto mt-6 flex max-w-xl items-start gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-left text-sm text-amber-950">
             <FileWarning className="mt-0.5 h-5 w-5 flex-none" />
@@ -67,7 +73,7 @@ function ThanksPage() {
         )}
 
         <div className="mt-10">
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" className="w-full sm:w-auto">
             <Link to="/">
               Zurück zur Startseite <ArrowRight className="ml-1 h-4 w-4" />
             </Link>

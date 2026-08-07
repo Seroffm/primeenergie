@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Mail, Phone, ChevronUp } from "lucide-react";
+import { Phone, ChevronUp } from "lucide-react";
 import { BrandLogo } from "./BrandLogo";
 
 type Col = { title: string; links: { to: string; label: string }[] };
@@ -53,9 +53,9 @@ export function Footer() {
           <Link
             to="/"
             aria-label="PRIME ENERGIE Startseite"
-            className="inline-flex w-fit rounded-lg transition-opacity hover:opacity-80"
+            className="inline-flex w-full max-w-[18.4rem] rounded-lg transition-opacity hover:opacity-80 sm:max-w-[20.7rem]"
           >
-            <BrandLogo className="w-[18.4rem] sm:w-[20.7rem]" />
+            <BrandLogo className="w-full" />
           </Link>
           <button
             type="button"
@@ -86,8 +86,8 @@ export function Footer() {
           ))}
         </div>
 
-        {/* Contact + social */}
-        <div className="mt-14 grid gap-8 border-t border-border pt-10 md:grid-cols-2">
+        {/* Contact */}
+        <div className="mt-14 border-t border-border pt-10">
           <div>
             <div className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Persönliche Beratung
@@ -104,18 +104,6 @@ export function Footer() {
             <div className="mt-2 text-sm text-muted-foreground">
               Direkter Kontakt zum Team von PRIME ENERGIE
             </div>
-          </div>
-
-          <div className="md:text-right">
-            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Schriftlich Kontakt aufnehmen
-            </div>
-            <Link
-              to="/kontakt"
-              className="mt-3 inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold text-primary transition hover:border-success hover:text-success"
-            >
-              <Mail className="h-4 w-4" /> Kontaktformular öffnen
-            </Link>
           </div>
         </div>
       </div>

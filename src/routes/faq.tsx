@@ -119,7 +119,7 @@ const categories: { icon: typeof Zap; title: string; faqs: { q: string; a: strin
       },
       {
         q: "Kann ich meine Daten löschen lassen?",
-        a: "Jederzeit. Senden Sie Ihren Löschwunsch über das Kontaktformular. Wir bearbeiten ihn umgehend.",
+        a: "Jederzeit. Senden Sie uns Ihren Löschwunsch per E-Mail an info@primeenergie.de. Wir bearbeiten ihn umgehend.",
       },
     ],
   },

@@ -254,12 +254,12 @@ function ServicePage() {
               ))}
             </div>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link
-                to="/kontakt"
-                className="inline-flex items-center gap-2 text-sm font-bold text-success hover:underline"
+              <a
+                href="mailto:info@primeenergie.de"
+                className="inline-flex max-w-full items-center gap-2 break-words text-sm font-bold text-success hover:underline"
               >
-                <Mail className="h-4 w-4" /> Dokument über das Kontaktformular anfragen
-              </Link>
+                <Mail className="h-4 w-4 shrink-0" /> Dokument per E-Mail anfragen
+              </a>
             </div>
           </motion.div>
         </div>
@@ -313,16 +313,16 @@ function ServicePage() {
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link
               to="/kontakt"
-              className="inline-flex items-center gap-2 rounded-full bg-success px-6 py-3 text-sm font-bold text-success-foreground transition hover:bg-success/90"
+              className="inline-flex max-w-full items-center justify-center gap-2 whitespace-normal rounded-full bg-success px-6 py-3 text-center text-sm font-bold text-success-foreground transition hover:bg-success/90"
             >
               <Phone className="h-4 w-4" /> Anrufen
             </Link>
-            <Link
-              to="/kontakt"
-              className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-transparent px-6 py-3 text-sm font-bold text-primary-foreground transition hover:bg-white/10"
+            <a
+              href="mailto:info@primeenergie.de"
+              className="inline-flex max-w-full items-center justify-center gap-2 whitespace-normal rounded-full border border-white/30 bg-transparent px-6 py-3 text-center text-sm font-bold text-primary-foreground transition hover:bg-white/10"
             >
-              Kontaktformular <ArrowRight className="h-4 w-4" />
-            </Link>
+              E-Mail schreiben <ArrowRight className="h-4 w-4" />
+            </a>
           </div>
         </div>
       </section>

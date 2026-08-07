@@ -17,7 +17,6 @@ import {
   Download,
   Eye,
   ExternalLink,
-  Trash2,
   Clock,
   AlertCircle,
   Inbox,
@@ -49,16 +48,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -92,7 +81,6 @@ import {
   patchLeadStatus,
   assignLead,
   uploadDocument,
-  deleteDocument,
   getTeam,
 } from "@/lib/api-client";
 import type { TeamMember } from "@/lib/api-client";
@@ -511,7 +499,6 @@ function LeadDetail() {
     mimeType: string;
     url: string;
   } | null>(null);
-  const [documentToDelete, setDocumentToDelete] = useState<BackendDocument | null>(null);
 
   useEffect(
     () => () => {
@@ -519,17 +506,6 @@ function LeadDetail() {
     },
     [previewDocument],
   );
-
-  const deleteDocumentMutation = useMutation({
-    mutationFn: (docId: string) => deleteDocument(id, docId),
-    onSuccess: (_data, docId) => {
-      queryClient.invalidateQueries({ queryKey: ["lead-documents", id] });
-      if (previewDocument?.documentId === docId) setPreviewDocument(null);
-      setDocumentToDelete(null);
-      toast.success("Dokument gelöscht");
-    },
-    onError: () => toast.error("Dokument konnte nicht gelöscht werden"),
-  });
 
   async function handleDocumentPreview(document: BackendDocument) {
     setPreviewingDocId(document.id);
@@ -915,17 +891,6 @@ function LeadDetail() {
                             <Download className="h-4 w-4" />
                           )}
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                          aria-label={`${d.file_name} löschen`}
-                          title={`${d.file_name} löschen`}
-                          disabled={deleteDocumentMutation.isPending}
-                          onClick={() => setDocumentToDelete(d)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
                       </div>
                     </div>
                   ))}
@@ -1274,44 +1239,6 @@ function LeadDetail() {
           </div>
         </DialogContent>
       </Dialog>
-
-      <AlertDialog
-        open={!!documentToDelete}
-        onOpenChange={(isOpen) => {
-          if (!isOpen && !deleteDocumentMutation.isPending) setDocumentToDelete(null);
-        }}
-      >
-        <AlertDialogContent className="w-[calc(100vw-2rem)] rounded-lg">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Dokument wirklich löschen?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Die Datei{" "}
-              <span className="break-all font-semibold text-foreground">
-                {documentToDelete?.file_name}
-              </span>{" "}
-              wird dauerhaft aus diesem Lead entfernt.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteDocumentMutation.isPending}>
-              Abbrechen
-            </AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              disabled={!documentToDelete || deleteDocumentMutation.isPending}
-              onClick={(event) => {
-                event.preventDefault();
-                if (documentToDelete) deleteDocumentMutation.mutate(documentToDelete.id);
-              }}
-            >
-              {deleteDocumentMutation.isPending && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              Löschen
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       <Dialog
         open={nextTaskOpen}

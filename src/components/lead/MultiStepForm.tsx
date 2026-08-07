@@ -51,6 +51,7 @@ declare global {
         element: HTMLElement,
         options: {
           sitekey: string;
+          size?: "normal" | "compact" | "flexible";
           callback: (token: string) => void;
           "expired-callback": () => void;
           "error-callback": () => void;
@@ -245,7 +246,7 @@ export function MultiStepForm({
   }
 
   return (
-    <div className="form-contrast w-full">
+    <div className="form-contrast w-full min-w-0 overflow-x-clip">
       <div
         className="pointer-events-none absolute -left-[10000px] h-px w-px overflow-hidden"
         aria-hidden="true"
@@ -276,6 +277,7 @@ export function MultiStepForm({
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -24 }}
           transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+          className="min-w-0"
         >
           <StepRenderer
             step={step}
@@ -320,8 +322,14 @@ export function MultiStepForm({
         </div>
       )}
 
-      <div className="mt-8 flex items-center justify-between gap-3">
-        <Button type="button" variant="outline" onClick={back} disabled={submitting}>
+      <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={back}
+          disabled={submitting}
+          className="w-full sm:w-auto"
+        >
           <ArrowLeft className="mr-1 h-4 w-4" /> Zurück
         </Button>
         {step < TOTAL_STEPS ? (
@@ -329,7 +337,7 @@ export function MultiStepForm({
             type="button"
             onClick={next}
             disabled={!canContinue}
-            className="bg-success text-success-foreground hover:bg-success/90"
+            className="w-full bg-success text-success-foreground hover:bg-success/90 sm:w-auto"
           >
             Weiter <ArrowRight className="ml-1 h-4 w-4" />
           </Button>
@@ -338,7 +346,7 @@ export function MultiStepForm({
             type="button"
             onClick={handleSubmit}
             disabled={!canContinue || submitting || Boolean(turnstileSiteKey && !turnstileToken)}
-            className="bg-success text-success-foreground hover:bg-success/90"
+            className="w-full bg-success text-success-foreground hover:bg-success/90 sm:w-auto"
           >
             {submitting ? (
               <>
@@ -378,6 +386,7 @@ function TurnstileWidget({
       if (cancelled || !containerRef.current || !window.turnstile || widgetId) return;
       widgetId = window.turnstile.render(containerRef.current, {
         sitekey: siteKey,
+        size: "flexible",
         callback: onToken,
         "expired-callback": () => onToken(""),
         "error-callback": () => onToken(""),
@@ -407,7 +416,12 @@ function TurnstileWidget({
     };
   }, [onToken, siteKey]);
 
-  return <div ref={containerRef} className="mt-6 flex min-h-[65px] justify-center" />;
+  return (
+    <div
+      ref={containerRef}
+      className="mt-6 flex min-h-[65px] w-full min-w-0 justify-center overflow-hidden"
+    />
+  );
 }
 
 /* ----------------------------- Steps ----------------------------- */
@@ -471,8 +485,8 @@ function StepRenderer({
 
 function StepHead({ title, sub }: { title: string; sub?: string }) {
   return (
-    <div className="mb-6">
-      <h2 className="text-2xl font-bold text-primary md:text-3xl">{title}</h2>
+    <div className="mb-6 min-w-0">
+      <h2 className="break-words text-2xl font-bold text-primary md:text-3xl">{title}</h2>
       {sub && <p className="mt-1 text-sm text-muted-foreground">{sub}</p>}
     </div>
   );
@@ -496,7 +510,7 @@ function ChoiceCard({
       type="button"
       onClick={onClick}
       className={cn(
-        "group flex items-start gap-3 rounded-xl border bg-card p-4 text-left transition",
+        "group flex w-full min-w-0 items-start gap-3 rounded-xl border bg-card p-4 text-left transition",
         active
           ? "border-success bg-success/5 ring-2 ring-success/30"
           : "border-border hover:border-primary/40 hover:bg-surface",
@@ -510,8 +524,8 @@ function ChoiceCard({
       >
         <Icon className="h-5 w-5" />
       </div>
-      <div>
-        <div className="font-semibold text-primary">{title}</div>
+      <div className="min-w-0">
+        <div className="break-words font-semibold text-primary">{title}</div>
         {sub && <div className="text-xs text-muted-foreground">{sub}</div>}
       </div>
     </button>
@@ -1031,22 +1045,22 @@ function InvoiceUpload({
   const uploadDisabled = files.length >= 2;
 
   return (
-    <div>
+    <div className="min-w-0">
       <label
         className={cn(
-          "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed bg-surface p-8 text-center transition hover:border-success hover:bg-success/5",
+          "flex max-w-full cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl border-2 border-dashed bg-surface p-4 text-center transition hover:border-success hover:bg-success/5 sm:p-8",
           error ? "border-destructive" : files.length ? "border-success/60" : "border-border",
           uploadDisabled &&
             "cursor-not-allowed opacity-60 hover:border-success/60 hover:bg-surface",
         )}
       >
         <Upload className="h-6 w-6 text-success" />
-        <div className="max-w-full truncate text-sm font-medium text-primary">
+        <div className="max-w-full break-words text-sm font-medium text-primary [overflow-wrap:anywhere]">
           {uploadDisabled
             ? "Maximal 2 Dateien möglich."
             : "Rechnung fotografieren oder Datei auswählen"}
         </div>
-        <div className="text-xs text-muted-foreground">
+        <div className="max-w-full break-words text-xs text-muted-foreground">
           PDF, JPG oder PNG · maximal 10 MB{required ? " · erforderlich" : " · optional"}
         </div>
         <input
@@ -1063,14 +1077,14 @@ function InvoiceUpload({
         />
       </label>
       {files.length > 0 && (
-        <ul className="mt-3 space-y-2">
+        <ul className="mt-3 max-w-full space-y-2">
           {files.map((file, index) => (
             <li
               key={`${file.name}-${file.size}-${file.lastModified}`}
-              className="flex items-center gap-3 rounded-xl border border-success/30 bg-success/5 px-4 py-3"
+              className="flex min-w-0 max-w-full items-center gap-3 overflow-hidden rounded-xl border border-success/30 bg-success/5 px-3 py-3 sm:px-4"
             >
               <CheckCircle2 className="h-5 w-5 shrink-0 text-success" />
-              <span className="min-w-0 flex-1 truncate text-sm font-medium text-primary">
+              <span className="min-w-0 flex-1 break-words text-sm font-medium text-primary [overflow-wrap:anywhere]">
                 {file.name}
               </span>
               <button
@@ -1091,7 +1105,7 @@ function InvoiceUpload({
 }
 
 function Field({ children }: { children: ReactNode }) {
-  return <div>{children}</div>;
+  return <div className="min-w-0">{children}</div>;
 }
 
 type StepProps = { data: Draft; set: <K extends keyof Draft>(k: K, v: Draft[K]) => void };
