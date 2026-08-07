@@ -294,8 +294,9 @@ function LeadDetail() {
   const [wvTime, setWvTime] = useState("");
   const [wvComment, setWvComment] = useState("");
 
-  const [nextTaskOpen, setNextTaskOpen] = useState(false);
+  const [taskStatusOpen, setTaskStatusOpen] = useState(false);
   const [taskDecision, setTaskDecision] = useState<TaskDecision | undefined>();
+  const [nextTaskOpen, setNextTaskOpen] = useState(false);
   const [nextWvDate, setNextWvDate] = useState("");
   const [nextWvTime, setNextWvTime] = useState("");
   const [nextWvComment, setNextWvComment] = useState("");
@@ -402,45 +403,51 @@ function LeadDetail() {
     onError: () => toast.error("Wiedervorlage konnte nicht gespeichert werden"),
   });
 
-  const taskFlowMutation = useMutation({
-    mutationFn: async ({
-      decision,
-      followUp,
-    }: {
-      decision?: TaskDecision;
-      followUp?: LeadWiedervorlage;
-    }) => {
-      if (followUp) {
-        await patchLeadStatus(id, "follow_up", {
-          reason:
-            decision === "done"
-              ? "Aufgabe erledigt und Wiedervorlage gesetzt"
-              : "Aufgabe offen gelassen und Wiedervorlage gesetzt",
-          followUpAt: followUp.date,
-          followUpNote: followUp.comment ?? null,
-        });
-      } else if (decision === "done") {
+  const completeTaskMutation = useMutation({
+    mutationFn: async (decision: TaskDecision) => {
+      if (decision === "done") {
         await patchLeadStatus(id, "in_review", { reason: "Aufgabe erledigt" });
       }
     },
-    onSuccess: (_data, { decision, followUp }) => {
+    onSuccess: (_data, decision) => {
+      if (decision === "done") {
+        setWiedervorlage(undefined);
+        setStatus("in_pruefung");
+        setCurrentStatus("in_pruefung");
+        queryClient.invalidateQueries({ queryKey: ["lead-status-history", id] });
+        queryClient.invalidateQueries({ queryKey: ["leads"] });
+        toast.success("Aufgabe geschlossen");
+      } else {
+        toast.success("Aufgabe bleibt offen");
+      }
+      setTaskStatusOpen(false);
+    },
+    onError: () => toast.error("Aufgabenentscheidung konnte nicht gespeichert werden"),
+  });
+
+  const nextTaskMutation = useMutation({
+    mutationFn: async (followUp?: LeadWiedervorlage) => {
+      if (followUp) {
+        await patchLeadStatus(id, "follow_up", {
+          reason: "Wiedervorlage vor Aufgabenwechsel gesetzt",
+          followUpAt: followUp.date,
+          followUpNote: followUp.comment ?? null,
+        });
+      }
+    },
+    onSuccess: (_data, followUp) => {
       if (followUp) {
         setWiedervorlage(followUp);
         setStatus("wiedervorlage");
         setCurrentStatus("wiedervorlage");
-      } else if (decision === "done") {
-        setWiedervorlage(undefined);
-        setStatus("in_pruefung");
-        setCurrentStatus("in_pruefung");
+        queryClient.invalidateQueries({ queryKey: ["lead-status-history", id] });
+        queryClient.invalidateQueries({ queryKey: ["leads"] });
+        toast.success("Wiedervorlage gespeichert");
       }
-      queryClient.invalidateQueries({ queryKey: ["lead-status-history", id] });
-      queryClient.invalidateQueries({ queryKey: ["leads"] });
       setNextTaskOpen(false);
-      if (decision === "done") toast.success("Aufgabe geschlossen");
-      else if (decision === "keep_open") toast.success("Aufgabe bleibt offen");
-      openNextCandidate(decision === "keep_open" && !followUp);
+      openNextCandidate(hasOpenTask && !followUp);
     },
-    onError: () => toast.error("Aufgabenentscheidung konnte nicht gespeichert werden"),
+    onError: () => toast.error("Nächste Aufgabe konnte nicht geöffnet werden"),
   });
 
   const assignMutation = useMutation({
@@ -571,12 +578,24 @@ function LeadDetail() {
     saveFollowUpMutation.mutate(buildFollowUp(wvDate, wvTime, wvComment, user.name));
   }
 
+  function handleOpenTaskStatus() {
+    setTaskDecision(undefined);
+    setTaskStatusOpen(true);
+  }
+
+  function handleSaveTaskStatus() {
+    if (!taskDecision) {
+      toast.error("Bitte wählen Sie Ja oder Nein aus.");
+      return;
+    }
+    completeTaskMutation.mutate(taskDecision);
+  }
+
   function handleOpenNextTask() {
     if (allLeadsQuery.isLoading) {
       toast.info("Leads werden geladen…");
       return;
     }
-    setTaskDecision(undefined);
     setNextWvDate("");
     setNextWvTime("");
     setNextWvComment("");
@@ -595,16 +614,11 @@ function LeadDetail() {
     }
   }
 
-  function handleSaveTaskAndOpenNext() {
-    if (hasOpenTask && !taskDecision) {
-      toast.error("Bitte wählen Sie aus, ob die Aufgabe erledigt ist.");
-      return;
-    }
-
+  function handleSaveFollowUpAndOpenNext() {
     const followUp = nextWvDate
       ? buildFollowUp(nextWvDate, nextWvTime, nextWvComment, user.name)
       : undefined;
-    taskFlowMutation.mutate({ decision: taskDecision, followUp });
+    nextTaskMutation.mutate(followUp);
   }
 
   function handleFilesSelected(e: React.ChangeEvent<HTMLInputElement>) {
@@ -1042,7 +1056,21 @@ function LeadDetail() {
                   Keine offene Aufgabe für diesen Lead.
                 </p>
               )}
-              <Button className="w-full" size="sm" onClick={handleOpenNextTask}>
+              <Button
+                className="w-full"
+                size="sm"
+                onClick={handleOpenTaskStatus}
+                disabled={!hasOpenTask}
+              >
+                <CheckCircle2 className="mr-2 h-4 w-4" />
+                Aufgabe erledigt
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full text-primary"
+                size="sm"
+                onClick={handleOpenNextTask}
+              >
                 <ArrowRight className="mr-2 h-4 w-4" />
                 Nächste Aufgabe öffnen
               </Button>
@@ -1241,94 +1269,120 @@ function LeadDetail() {
       </Dialog>
 
       <Dialog
-        open={nextTaskOpen}
+        open={taskStatusOpen}
         onOpenChange={(isOpen) => {
-          if (!taskFlowMutation.isPending) setNextTaskOpen(isOpen);
+          if (!completeTaskMutation.isPending) setTaskStatusOpen(isOpen);
         }}
       >
-        <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
+        <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Nächste Aufgabe öffnen</DialogTitle>
+            <DialogTitle>Ist diese Aufgabe erledigt?</DialogTitle>
           </DialogHeader>
-          <div className="space-y-6">
-            {hasOpenTask ? (
-              <div className="space-y-3">
-                <div>
-                  <div className="font-medium">Ist die aktuelle Aufgabe erledigt?</div>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Aktuelle Aufgabe: {statusLabel[currentStatus]}
-                  </p>
-                </div>
-                <RadioGroup
-                  value={taskDecision}
-                  onValueChange={(value) => setTaskDecision(value as TaskDecision)}
-                  className="grid gap-3"
-                >
-                  <Label
-                    htmlFor="task-done"
-                    className="flex cursor-pointer items-start gap-3 rounded-lg border p-3"
-                  >
-                    <RadioGroupItem id="task-done" value="done" className="mt-0.5" />
-                    <span>
-                      <span className="block font-medium">Ja, Aufgabe erledigt</span>
-                      <span className="block text-xs font-normal text-muted-foreground">
-                        Die aktuelle Aufgabe wird geschlossen.
-                      </span>
-                    </span>
-                  </Label>
-                  <Label
-                    htmlFor="task-keep-open"
-                    className="flex cursor-pointer items-start gap-3 rounded-lg border p-3"
-                  >
-                    <RadioGroupItem id="task-keep-open" value="keep_open" className="mt-0.5" />
-                    <span>
-                      <span className="block font-medium">Nein, Aufgabe offen lassen</span>
-                      <span className="block text-xs font-normal text-muted-foreground">
-                        Die Aufgabe bleibt erhalten und wird für diese Bearbeitung übersprungen.
-                      </span>
-                    </span>
-                  </Label>
-                </RadioGroup>
-              </div>
-            ) : (
-              <div className="rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground">
-                Für diesen Lead gibt es keine offene Aufgabe. Sie können trotzdem eine Wiedervorlage
-                setzen oder zur nächsten offenen Aufgabe wechseln.
-              </div>
-            )}
-
-            <div className="border-t pt-5">
-              <h3 className="mb-3 font-medium">Wiedervorlage</h3>
-              <FollowUpFields
-                idPrefix="next-task-follow-up"
-                date={nextWvDate}
-                time={nextWvTime}
-                note={nextWvComment}
-                onDateChange={setNextWvDate}
-                onTimeChange={setNextWvTime}
-                onNoteChange={setNextWvComment}
-                dateOptional
-              />
-            </div>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Aktuelle Aufgabe: {statusLabel[currentStatus]}
+            </p>
+            <RadioGroup
+              value={taskDecision}
+              onValueChange={(value) => setTaskDecision(value as TaskDecision)}
+              className="grid gap-3"
+            >
+              <Label
+                htmlFor="task-status-done"
+                className="flex cursor-pointer items-start gap-3 rounded-lg border p-3"
+              >
+                <RadioGroupItem id="task-status-done" value="done" className="mt-0.5" />
+                <span>
+                  <span className="block font-medium">Ja</span>
+                  <span className="block text-xs font-normal text-muted-foreground">
+                    Die aktuelle Aufgabe wird geschlossen.
+                  </span>
+                </span>
+              </Label>
+              <Label
+                htmlFor="task-status-keep-open"
+                className="flex cursor-pointer items-start gap-3 rounded-lg border p-3"
+              >
+                <RadioGroupItem id="task-status-keep-open" value="keep_open" className="mt-0.5" />
+                <span>
+                  <span className="block font-medium">Nein</span>
+                  <span className="block text-xs font-normal text-muted-foreground">
+                    Die aktuelle Aufgabe bleibt offen.
+                  </span>
+                </span>
+              </Label>
+            </RadioGroup>
           </div>
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setNextTaskOpen(false)}
-              disabled={taskFlowMutation.isPending}
+              className="w-full sm:w-auto"
+              onClick={() => setTaskStatusOpen(false)}
+              disabled={completeTaskMutation.isPending}
             >
               Abbrechen
             </Button>
             <Button
-              onClick={handleSaveTaskAndOpenNext}
-              disabled={(hasOpenTask && !taskDecision) || taskFlowMutation.isPending}
+              className="w-full sm:w-auto"
+              onClick={handleSaveTaskStatus}
+              disabled={!taskDecision || completeTaskMutation.isPending}
             >
-              {taskFlowMutation.isPending ? (
+              {completeTaskMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Speichern
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={nextTaskOpen}
+        onOpenChange={(isOpen) => {
+          if (!nextTaskMutation.isPending) setNextTaskOpen(isOpen);
+        }}
+      >
+        <DialogContent className="max-h-[90dvh] w-[calc(100vw-2rem)] overflow-y-auto sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Nächste Aufgabe öffnen</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <h3 className="font-medium">Wiedervorlage (optional)</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Sie können für den aktuellen Lead eine Wiedervorlage setzen oder direkt zur nächsten
+                offenen Aufgabe wechseln.
+              </p>
+            </div>
+            <FollowUpFields
+              idPrefix="next-task-follow-up"
+              date={nextWvDate}
+              time={nextWvTime}
+              note={nextWvComment}
+              onDateChange={setNextWvDate}
+              onTimeChange={setNextWvTime}
+              onNoteChange={setNextWvComment}
+              dateOptional
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              className="w-full sm:w-auto"
+              onClick={() => setNextTaskOpen(false)}
+              disabled={nextTaskMutation.isPending}
+            >
+              Abbrechen
+            </Button>
+            <Button
+              className="w-full sm:w-auto"
+              onClick={handleSaveFollowUpAndOpenNext}
+              disabled={nextTaskMutation.isPending}
+            >
+              {nextTaskMutation.isPending ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <ArrowRight className="mr-2 h-4 w-4" />
               )}
-              Speichern und nächste Aufgabe öffnen
+              Nächste Aufgabe öffnen
             </Button>
           </DialogFooter>
         </DialogContent>
