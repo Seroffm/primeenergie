@@ -495,9 +495,9 @@ function HowItWorks() {
       icon: FileSearch,
       t: "Bedarf angeben",
       k: "wenige Minuten",
-      d: "Sie übermitteln Postleitzahl, Verbrauch und Ihre Wünsche über das Formular oder telefonisch.",
+      d: "Sie übermitteln Postleitzahl, Verbrauch und Ihre Wünsche über das Formular. Gerne sind wir bei Fragen auch telefonisch für Sie erreichbar.",
       bullets: [
-        "Online oder telefonisch",
+        "Online über das Formular",
         "Rechnung optional hochladen",
         "Verschlüsselte Übertragung",
       ],
