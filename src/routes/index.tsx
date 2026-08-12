@@ -26,6 +26,7 @@ import {
   ChevronRight,
   Upload,
   FileText,
+  X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -48,7 +49,7 @@ import solutionSolar from "@/assets/solution-solar.jpg";
 import heroBg from "@/assets/hero-bg.jpg";
 import finalCtaBg from "@/assets/final-cta-bg.jpg";
 import comparisonHero from "@/assets/comparison-hero.jpg";
-import { setPendingInvoice, validateInvoice } from "@/lib/pending-invoice";
+import { getPendingInvoice, setPendingInvoice, validateInvoice } from "@/lib/pending-invoice";
 
 import { z } from "zod";
 import { getOfferStartForQuickCalculator } from "@/lib/offer-selection";
@@ -243,7 +244,9 @@ function QuickCalculator() {
   const [plz, setPlz] = useState((search?.plz ?? "").replace(/\D/g, "").slice(0, 5));
   const [kwh, setKwh] = useState<number>(search?.kwh ?? 2500);
   const [plzError, setPlzError] = useState<string | null>(null);
-  const [invoiceName, setInvoiceName] = useState<string | null>(null);
+  const [invoiceFiles, setInvoiceFiles] = useState<File[]>(() =>
+    typeof window === "undefined" ? [] : getPendingInvoice(),
+  );
   const [invoiceError, setInvoiceError] = useState<string | null>(null);
 
   const tabs: { k: Energy; label: string; icon: typeof Zap }[] = [
@@ -255,17 +258,31 @@ function QuickCalculator() {
   const kwhPresets =
     energy === "gas" ? [5000, 12000, 18000, 25000, 35000] : [1500, 2500, 3500, 4500, 5500];
 
-  function selectInvoice(file?: File) {
-    if (!file) return;
-    const validationError = validateInvoice(file);
-    if (validationError) {
-      setInvoiceError(validationError);
-      setInvoiceName(null);
-      setPendingInvoice([]);
+  function selectInvoices(files: File[]) {
+    if (files.length === 0) return;
+    const availableSlots = 2 - invoiceFiles.length;
+    if (availableSlots <= 0) {
+      setInvoiceError("Maximal 2 Dateien möglich.");
       return;
     }
-    setPendingInvoice([file]);
-    setInvoiceName(file.name);
+
+    const selectedFiles = files.slice(0, availableSlots);
+    const validationError = selectedFiles.map(validateInvoice).find(Boolean);
+    if (validationError) {
+      setInvoiceError(validationError);
+      return;
+    }
+
+    const updatedFiles = [...invoiceFiles, ...selectedFiles];
+    setInvoiceFiles(updatedFiles);
+    setPendingInvoice(updatedFiles);
+    setInvoiceError(files.length > availableSlots ? "Maximal 2 Dateien möglich." : null);
+  }
+
+  function removeInvoice(index: number) {
+    const updatedFiles = invoiceFiles.filter((_, fileIndex) => fileIndex !== index);
+    setInvoiceFiles(updatedFiles);
+    setPendingInvoice(updatedFiles);
     setInvoiceError(null);
   }
 
@@ -275,7 +292,7 @@ function QuickCalculator() {
       setPlzError("Bitte geben Sie Ihre 5-stellige Postleitzahl ein.");
       return;
     }
-    if (audience === "gewerbe" && !invoiceName) {
+    if (audience === "gewerbe" && invoiceFiles.length === 0) {
       setInvoiceError("Bitte laden Sie Ihre letzte Jahresabrechnung hoch.");
       return;
     }
@@ -286,7 +303,7 @@ function QuickCalculator() {
         start: getOfferStartForQuickCalculator(audience, energy),
         kunde: audience,
         plz,
-        kwh: audience === "privat" && !invoiceName ? kwh || undefined : undefined,
+        kwh: audience === "privat" && invoiceFiles.length === 0 ? kwh || undefined : undefined,
       } as never,
     });
   }
@@ -394,7 +411,7 @@ function QuickCalculator() {
             {plzError && <p className="mt-1.5 text-xs font-medium text-destructive">{plzError}</p>}
           </div>
 
-          {audience === "privat" && !invoiceName && (
+          {audience === "privat" && invoiceFiles.length === 0 && (
             <div>
               <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Jahresverbrauch · {kwh.toLocaleString("de-DE")} kWh
@@ -420,35 +437,76 @@ function QuickCalculator() {
             </div>
           )}
 
-          <label className="flex min-w-0 cursor-pointer items-center gap-3 overflow-hidden rounded-xl border border-dashed border-success/50 bg-success/5 p-3 transition hover:bg-success/10">
+          <label
+            className={cn(
+              "flex min-w-0 items-center gap-3 overflow-hidden rounded-xl border border-dashed border-success/50 bg-success/5 p-3 transition",
+              invoiceFiles.length >= 2
+                ? "cursor-not-allowed opacity-60"
+                : "cursor-pointer hover:bg-success/10",
+            )}
+          >
             <span className="grid h-9 w-9 flex-none place-items-center rounded-lg bg-success/10 text-success">
-              {invoiceName ? <FileText className="h-4 w-4" /> : <Upload className="h-4 w-4" />}
+              {invoiceFiles.length ? (
+                <FileText className="h-4 w-4" />
+              ) : (
+                <Upload className="h-4 w-4" />
+              )}
             </span>
             <span className="min-w-0 flex-1">
               <span className="block break-words text-sm font-semibold text-primary [overflow-wrap:anywhere]">
-                {invoiceName
-                  ? invoiceName
-                  : audience === "gewerbe"
-                    ? "Letzte Jahresabrechnung hochladen"
-                    : "Verbrauch unbekannt? Rechnung hochladen"}
+                {invoiceFiles.length >= 2
+                  ? "Maximal 2 Dateien möglich."
+                  : invoiceFiles.length === 1
+                    ? "Weitere Rechnung oder Datei auswählen"
+                    : audience === "gewerbe"
+                      ? "Letzte Jahresabrechnung hochladen"
+                      : "Verbrauch unbekannt? Rechnung hochladen"}
               </span>
               <span className="block text-xs text-muted-foreground">
-                PDF, JPG oder PNG · maximal 10 MB
+                PDF, JPG oder PNG · maximal 10 MB je Datei
               </span>
             </span>
             <input
               type="file"
+              multiple
+              disabled={invoiceFiles.length >= 2}
               accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
               className="hidden"
-              onChange={(event) => selectInvoice(event.target.files?.[0])}
+              onChange={(event) => {
+                selectInvoices(Array.from(event.target.files ?? []));
+                event.target.value = "";
+              }}
             />
           </label>
+          {invoiceFiles.length > 0 && (
+            <ul className="space-y-2">
+              {invoiceFiles.map((file, index) => (
+                <li
+                  key={`${file.name}-${file.size}-${file.lastModified}`}
+                  className="flex min-w-0 items-center gap-3 rounded-xl border border-success/30 bg-success/5 px-3 py-2.5"
+                >
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />
+                  <span className="min-w-0 flex-1 break-words text-sm font-medium text-primary [overflow-wrap:anywhere]">
+                    {file.name}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeInvoice(index)}
+                    aria-label={`${file.name} entfernen`}
+                    className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-destructive transition hover:bg-destructive/10"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
           {invoiceError && <p className="text-xs font-medium text-destructive">{invoiceError}</p>}
 
           <Button
             type="submit"
             size="lg"
-            className="min-h-12 h-auto w-full px-4 py-2.5 text-sm font-semibold text-success-foreground shadow-soft hover:bg-success/90 sm:text-base"
+            className="min-h-12 h-auto w-full bg-success px-4 py-2.5 text-sm font-semibold text-success-foreground shadow-soft hover:bg-success/90 active:bg-success/80 disabled:bg-success/60 disabled:text-success-foreground sm:text-base"
           >
             {audience === "gewerbe" ? "Rechnung manuell prüfen lassen" : "Tarife vergleichen"}{" "}
             <ArrowRight className="ml-1 h-4 w-4" />
@@ -826,8 +884,8 @@ function SavingsCalculator() {
       </div>
 
       {/* Saving callout */}
-      <div className="relative mt-7 flex items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-success/15 via-success/10 to-transparent p-5">
-        <div>
+      <div className="relative mt-7 flex flex-col items-stretch gap-4 rounded-2xl bg-gradient-to-r from-success/15 via-success/10 to-transparent p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+        <div className="min-w-0">
           <div className="text-xs font-semibold uppercase tracking-wider text-success">
             Rechnerischer Unterschied
           </div>
@@ -839,9 +897,9 @@ function SavingsCalculator() {
         <Button
           asChild
           size="lg"
-          className="bg-success text-success-foreground hover:bg-success/90"
+          className="w-full shrink-0 bg-success text-success-foreground hover:bg-success/90 active:bg-success/80 sm:w-auto"
         >
-          <Link to="/angebot">
+          <Link to="/angebot" className="justify-center">
             Tarif prüfen <ArrowRight className="ml-1 h-4 w-4" />
           </Link>
         </Button>
@@ -1437,15 +1495,10 @@ function FaqSection() {
           </h2>
         </motion.div>
 
-        <div className="mt-14 grid gap-x-12 md:grid-cols-2">
+        <div className="mt-14 grid gap-2 md:grid-cols-2 md:gap-x-12">
           {[faqs.slice(0, Math.ceil(faqs.length / 2)), faqs.slice(Math.ceil(faqs.length / 2))].map(
             (col, ci) => (
-              <Accordion
-                key={ci}
-                type="single"
-                collapsible
-                className="divide-y divide-border border-t border-border"
-              >
+              <Accordion key={ci} type="single" collapsible className="space-y-2">
                 {col.map((f, i) => (
                   <AccordionItem key={i} value={`c${ci}-${i}`} className="border-b-0">
                     <AccordionTrigger className="py-5 text-left text-base font-semibold text-primary hover:text-success hover:no-underline [&[data-state=open]]:text-success">

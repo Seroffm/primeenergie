@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import {
   MapPin,
   Clock,
-  MessageCircle,
   ArrowRight,
   ShieldCheck,
   Send,
@@ -41,13 +40,6 @@ const fadeUp = {
 };
 
 const channels = [
-  {
-    icon: MessageCircle,
-    label: "Telefonische Beratung",
-    value: "0231 39989390",
-    href: "tel:+4923139989390",
-    note: "Direkter Kontakt zum Team von PRIME ENERGIE",
-  },
   {
     icon: FileText,
     label: "Tarifprüfung",
@@ -113,7 +105,7 @@ function KontaktPage() {
 
       {/* CHANNELS */}
       <section className="mx-auto max-w-6xl px-4 py-16 md:py-20">
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
           {channels.map((c, i) => (
             <motion.a
               key={c.label}

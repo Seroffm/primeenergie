@@ -337,7 +337,7 @@ export function MultiStepForm({
             type="button"
             onClick={next}
             disabled={!canContinue}
-            className="w-full bg-success text-success-foreground hover:bg-success/90 sm:w-auto"
+            className="w-full bg-success text-success-foreground hover:bg-success/90 active:bg-success/80 disabled:bg-success/60 disabled:text-success-foreground sm:w-auto"
           >
             Weiter <ArrowRight className="ml-1 h-4 w-4" />
           </Button>
@@ -346,7 +346,7 @@ export function MultiStepForm({
             type="button"
             onClick={handleSubmit}
             disabled={!canContinue || submitting || Boolean(turnstileSiteKey && !turnstileToken)}
-            className="w-full bg-success text-success-foreground hover:bg-success/90 sm:w-auto"
+            className="w-full bg-success text-success-foreground hover:bg-success/90 active:bg-success/80 disabled:bg-success/60 disabled:text-success-foreground sm:w-auto"
           >
             {submitting ? (
               <>
@@ -825,7 +825,10 @@ function Step5({ data, set }: StepProps) {
             max="2100-12-31"
             value={data.vertragsende ?? ""}
             onChange={handleDateChange}
-            className={cn(!dateValid && "border-destructive focus-visible:ring-destructive")}
+            className={cn(
+              "block h-11 min-h-11 max-h-11 appearance-none py-0 leading-none",
+              !dateValid && "border-destructive focus-visible:ring-destructive",
+            )}
           />
           {!dateValid && (
             <p className="mt-1 text-xs text-destructive">

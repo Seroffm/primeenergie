@@ -44,7 +44,7 @@ export function CookieConsent() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed inset-x-4 bottom-4 z-50 mx-auto max-w-3xl rounded-2xl border border-border bg-background p-5 shadow-2xl md:p-6"
+          className="fixed inset-x-2 bottom-2 z-50 mx-auto max-h-[calc(100dvh-1rem)] max-w-3xl overflow-y-auto rounded-2xl border border-border bg-background p-4 shadow-2xl sm:inset-x-4 sm:bottom-4 sm:p-5 md:p-6"
           role="dialog"
           aria-label="Cookie-Einstellungen"
         >
@@ -52,7 +52,7 @@ export function CookieConsent() {
             <div className="hidden h-10 w-10 flex-none place-items-center rounded-full bg-success/10 text-success sm:grid">
               <Cookie className="h-5 w-5" />
             </div>
-            <div className="flex-1">
+            <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between gap-3">
                 <h2 className="font-display text-lg font-bold text-primary">
                   Cookies & Datenschutz
@@ -60,7 +60,7 @@ export function CookieConsent() {
                 <button
                   onClick={() => save({ necessary: true, analytics: false, marketing: false })}
                   aria-label="Schließen"
-                  className="text-muted-foreground hover:text-primary"
+                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-primary"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -76,7 +76,7 @@ export function CookieConsent() {
               </p>
 
               {settings && (
-                <div className="mt-4 space-y-3 rounded-lg border bg-muted/30 p-4">
+                <div className="mt-4 space-y-4 rounded-lg border bg-muted/30 p-3 sm:p-4">
                   <Row
                     title="Notwendig"
                     desc="Für Grundfunktionen erforderlich. Nicht abwählbar."
@@ -98,21 +98,27 @@ export function CookieConsent() {
                 </div>
               )}
 
-              <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
                 <Button
                   variant="ghost"
                   size="sm"
+                  className="w-full sm:w-auto"
                   onClick={() => save({ necessary: true, analytics: false, marketing: false })}
                 >
                   Nur erforderliche
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => setSettings((s) => !s)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full sm:w-auto"
+                  onClick={() => setSettings((s) => !s)}
+                >
                   {settings ? "Schließen" : "Einstellungen"}
                 </Button>
                 {settings ? (
                   <Button
                     size="sm"
-                    className="bg-success text-success-foreground hover:bg-success/90"
+                    className="w-full bg-success text-success-foreground hover:bg-success/90 sm:w-auto"
                     onClick={() => save({ necessary: true, analytics, marketing })}
                   >
                     Auswahl speichern
@@ -120,7 +126,7 @@ export function CookieConsent() {
                 ) : (
                   <Button
                     size="sm"
-                    className="bg-success text-success-foreground hover:bg-success/90"
+                    className="w-full bg-success text-success-foreground hover:bg-success/90 sm:w-auto"
                     onClick={() => save({ necessary: true, analytics: true, marketing: true })}
                   >
                     Alle akzeptieren
