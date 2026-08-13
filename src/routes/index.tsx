@@ -199,8 +199,11 @@ function Hero() {
             <span className="inline-flex items-center gap-2 rounded-full border border-success/30 bg-success/10 px-3 py-1 text-xs font-semibold text-success">
               <BadgeCheck className="h-3.5 w-3.5" /> Persönliche Tarifprüfung
             </span>
-            <h1 className="mt-4 font-display text-4xl font-extrabold leading-[1.05] text-primary md:mt-5 md:text-6xl">
-              Energie neu denken. <span className="text-success">Persönlich entscheiden.</span>
+            <h1 className="mt-4 font-display text-4xl font-extrabold leading-[1.12] text-primary md:mt-5 md:text-6xl md:leading-[1.05]">
+              <span className="block sm:inline">Energie neu denken.</span>{" "}
+              <span className="mt-2 block text-success sm:mt-0 sm:inline">
+                Persönlich entscheiden.
+              </span>
             </h1>
             <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground md:mt-5 md:text-lg">
               PRIME ENERGIE prüft Ihre Angaben und erklärt passende Tarife verständlich.
