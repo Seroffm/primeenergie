@@ -209,12 +209,12 @@ function Hero() {
               PRIME ENERGIE prüft Ihre Angaben und erklärt passende Tarife verständlich.
             </p>
 
-            <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-muted-foreground md:mt-6">
+            <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-[15px] font-semibold text-muted-foreground md:mt-6">
               <span className="inline-flex items-center gap-1.5">
-                <ShieldCheck className="h-4 w-4 text-success" /> Kostenlos und unverbindlich
+                <ShieldCheck className="h-5 w-5 text-success" /> Kostenlos und unverbindlich
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <PhoneCall className="h-4 w-4 text-success" /> Persönlich beraten
+                <PhoneCall className="h-5 w-5 text-success" /> Persönlich beraten
               </span>
             </div>
           </motion.div>
