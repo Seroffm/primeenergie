@@ -179,7 +179,7 @@ function Hero() {
     <section
       className="relative isolate overflow-hidden"
       style={{
-        backgroundImage: `linear-gradient(rgba(10,31,68,0.05), rgba(10,31,68,0.05)), linear-gradient(to right, rgba(255,255,255,0.82) 0%, rgba(255,255,255,0.58) 38%, rgba(255,255,255,0.2) 70%, rgba(255,255,255,0.04) 100%), linear-gradient(to bottom, rgba(255,255,255,0) 64%, rgba(255,255,255,0.86) 100%), url(${heroBg})`,
+        backgroundImage: `linear-gradient(rgba(10,31,68,0.02), rgba(10,31,68,0.02)), linear-gradient(to right, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.74) 38%, rgba(255,255,255,0.34) 70%, rgba(255,255,255,0.1) 100%), linear-gradient(to bottom, rgba(255,255,255,0) 64%, rgba(255,255,255,0.94) 100%), url(${heroBg})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
@@ -199,7 +199,7 @@ function Hero() {
             <span className="inline-flex items-center gap-2 rounded-full border border-success/50 bg-white/70 px-3.5 py-1.5 text-sm font-extrabold text-success shadow-sm">
               <BadgeCheck className="h-3.5 w-3.5" /> Persönliche Tarifprüfung
             </span>
-            <h1 className="mt-4 font-display text-4xl font-black leading-[1.12] text-primary md:mt-5 md:text-6xl md:leading-[1.05]">
+            <h1 className="mt-4 font-display text-4xl font-black leading-[1.12] text-primary md:mt-5 md:text-6xl md:leading-[1.05] lg:text-7xl lg:leading-[1.02]">
               <span className="block sm:inline">Energie neu denken.</span>{" "}
               <span className="mt-2 block text-success sm:mt-0 sm:inline">
                 Persönlich entscheiden.
