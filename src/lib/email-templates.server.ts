@@ -4,6 +4,15 @@ const BRAND_GREEN = "#16a34a";
 const BRAND_DARK = "#0f172a";
 const BRAND_LIGHT = "#f0fdf4";
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 function layout(content: string, previewText = ""): string {
   return `<!DOCTYPE html>
 <html lang="de">
@@ -54,8 +63,8 @@ function button(text: string, href: string): string {
 
 function infoBox(label: string, value: string): string {
   return `<tr>
-    <td style="padding:8px 0;font-size:14px;color:#64748b;width:160px;">${label}</td>
-    <td style="padding:8px 0;font-size:14px;font-weight:600;color:#0f172a;">${value}</td>
+    <td style="padding:8px 0;font-size:14px;color:#64748b;width:160px;">${escapeHtml(label)}</td>
+    <td style="padding:8px 0;font-size:14px;font-weight:600;color:#0f172a;">${escapeHtml(value)}</td>
   </tr>`;
 }
 
@@ -84,7 +93,7 @@ export function leadConfirmationTemplate(d: LeadConfirmationData): {
       Ihre Anfrage ist eingegangen 🎉
     </h2>
     <p style="margin:0 0 24px;font-size:15px;color:#475569;">
-      Hallo ${d.firstName} ${d.lastName},<br/><br/>
+      Hallo ${escapeHtml(d.firstName)} ${escapeHtml(d.lastName)},<br/><br/>
       vielen Dank für Ihre Anfrage! Wir haben Ihre Daten erhalten und werden uns
       so schnell wie möglich persönlich bei Ihnen melden.
     </p>
@@ -126,6 +135,7 @@ export interface NewLeadInternalData {
   scoreLabel: "cold" | "warm" | "hot";
   leadId: string;
   appUrl: string;
+  details: Array<{ label: string; value: string }>;
 }
 
 const SCORE_BADGE: Record<string, string> = {
@@ -155,6 +165,7 @@ export function newLeadInternalTemplate(d: NewLeadInternalData): {
           ${infoBox("Telefon:", d.phone ?? "–")}
           ${infoBox("Produkt:", PRODUCT_LABEL[d.productType] ?? d.productType)}
           ${infoBox("Score:", `${SCORE_BADGE[d.scoreLabel] ?? d.scoreLabel} (${d.score} Punkte)`)}
+          ${d.details.map((detail) => infoBox(detail.label, detail.value)).join("")}
         </table>
       </td></tr>
     </table>

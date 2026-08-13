@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { verifyTurnstile, consumeRateLimit, computeScore, ok, err } from "@/lib/api/helpers.server";
 import { createServiceClient } from "@/lib/supabase.server";
-import { publicLeadPayloadSchema } from "@/lib/api/public-lead-schema";
+import {
+  publicLeadPayloadSchema,
+  type ValidPublicLeadPayload,
+} from "@/lib/api/public-lead-schema";
 import { hasValidFileSignature } from "@/lib/api/upload-validation.server";
 import { sendEmail } from "@/lib/email.server";
 import { leadConfirmationTemplate, newLeadInternalTemplate } from "@/lib/email-templates.server";
@@ -12,6 +15,101 @@ const MAX_INVOICE_SIZE = 10 * 1024 * 1024;
 const MAX_INVOICE_FILES = 2;
 const ALLOWED_INVOICE_TYPES = new Set(["application/pdf", "image/jpeg", "image/png"]);
 const MAX_LEAD_NUMBER_ATTEMPTS = 5;
+
+function formatKwh(value: number | null | undefined): string {
+  return value == null ? "Nicht angegeben" : `${value.toLocaleString("de-DE")} kWh`;
+}
+
+function formatEuro(value: number | null | undefined): string {
+  return value == null
+    ? "Nicht angegeben"
+    : `${value.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Euro`;
+}
+
+function yesNo(value: boolean | null | undefined): string {
+  return value == null ? "Nicht angegeben" : value ? "Ja" : "Nein";
+}
+
+function buildInternalLeadDetails(
+  payload: ValidPublicLeadPayload,
+  uploadedInvoiceCount: number,
+): Array<{ label: string; value: string }> {
+  const details: Array<{ label: string; value: string }> = [
+    {
+      label: "Kundentyp:",
+      value:
+        {
+          private: "Privat",
+          business: "Gewerbe",
+          property_management: "Hausverwaltung",
+          multi_location_company: "Unternehmen mit mehreren Standorten",
+        }[payload.customer_type] ?? payload.customer_type,
+    },
+    {
+      label: "Adresse:",
+      value: [payload.address.street, payload.address.postal_code, payload.address.city]
+        .filter(Boolean)
+        .join(", "),
+    },
+  ];
+
+  if (payload.electricity) {
+    details.push(
+      { label: "Stromverbrauch:", value: formatKwh(payload.electricity.annual_consumption_kwh) },
+      { label: "Stromverbrauch bekannt:", value: yesNo(payload.electricity.consumption_known) },
+      {
+        label: "Aktueller Stromanbieter:",
+        value: payload.electricity.current_provider || "Nicht angegeben",
+      },
+      { label: "Monatlicher Stromabschlag:", value: formatEuro(payload.electricity.monthly_payment) },
+      {
+        label: "Vertragsende Strom:",
+        value: payload.electricity.contract_end_date || "Nicht angegeben",
+      },
+      { label: "Preisgarantie Strom:", value: yesNo(payload.electricity.price_guarantee) },
+    );
+  }
+
+  if (payload.gas) {
+    details.push(
+      { label: "Gasverbrauch:", value: formatKwh(payload.gas.annual_consumption_kwh) },
+      { label: "Gasverbrauch bekannt:", value: yesNo(payload.gas.consumption_known) },
+      { label: "Warmwasser mit Gas:", value: yesNo(payload.gas.hot_water_with_gas) },
+      { label: "Heizart:", value: payload.gas.heating_type || "Nicht angegeben" },
+      {
+        label: "Haushaltsgröße:",
+        value: payload.gas.household_size?.toString() || "Nicht angegeben",
+      },
+      {
+        label: "Aktueller Gasanbieter:",
+        value: payload.gas.current_provider || "Nicht angegeben",
+      },
+      { label: "Monatlicher Gasabschlag:", value: formatEuro(payload.gas.monthly_payment) },
+      {
+        label: "Vertragsende Gas:",
+        value: payload.gas.contract_end_date || "Nicht angegeben",
+      },
+      { label: "Preisgarantie Gas:", value: yesNo(payload.gas.price_guarantee) },
+    );
+  }
+
+  details.push(
+    { label: "Ziele:", value: payload.ziele?.join(", ") || "Nicht angegeben" },
+    { label: "Erreichbarkeit:", value: payload.erreichbarkeit || "Nicht angegeben" },
+    {
+      label: "Rechnung:",
+      value: payload.rechnung_dateiname
+        ? `${payload.rechnung_dateiname} (${uploadedInvoiceCount} Datei(en) gespeichert)`
+        : "Keine Rechnung hochgeladen",
+    },
+  );
+
+  if (payload.referral_code) {
+    details.push({ label: "Empfehlungscode:", value: payload.referral_code });
+  }
+
+  return details;
+}
 
 async function insertLeadWithNumber(
   supabase: ReturnType<typeof createServiceClient>,
@@ -286,7 +384,8 @@ export const Route = createFileRoute("/api/public/leads")({
           }
         }
 
-        // E-Mails asynchron versenden (blockiert die Response nicht)
+        // E-Mails vor Abschluss der Serverless-Anfrage versenden, damit der Prozess
+        // nicht beendet wird, bevor Resend die Nachrichten angenommen hat.
         const appUrl = process.env.APP_URL ?? "https://project-gqhfy.vercel.app";
         const notificationEmail = process.env.NOTIFICATION_EMAIL;
 
@@ -297,11 +396,22 @@ export const Route = createFileRoute("/api/public/leads")({
           leadNumber: lead.lead_number as string,
           productType: payload.product_type as "electricity" | "gas" | "both",
         });
-        sendEmail({
-          to: payload.email.trim().toLowerCase(),
-          subject: confirmTpl.subject,
-          html: confirmTpl.html,
-        }).catch(console.error);
+        const emailDeliveries: Array<{
+          label: string;
+          recipient: string;
+          direction: "outbound" | "internal";
+          subject: string;
+          html: string;
+          replyTo?: string;
+        }> = [
+          {
+            label: "Kundenbestätigung",
+            recipient: payload.email.trim().toLowerCase(),
+            direction: "outbound",
+            subject: confirmTpl.subject,
+            html: confirmTpl.html,
+          },
+        ];
 
         // 2. Interne Benachrichtigung
         if (notificationEmail) {
@@ -317,12 +427,56 @@ export const Route = createFileRoute("/api/public/leads")({
             scoreLabel,
             leadId,
             appUrl,
+            details: buildInternalLeadDetails(payload, uploadedInvoiceCount),
           });
-          sendEmail({
-            to: notificationEmail,
+          emailDeliveries.push({
+            label: "Interne Lead-Benachrichtigung",
+            recipient: notificationEmail,
+            direction: "internal",
             subject: internalTpl.subject,
             html: internalTpl.html,
-          }).catch(console.error);
+            replyTo: payload.email.trim().toLowerCase(),
+          });
+        }
+
+        const deliveryResults = await Promise.allSettled(
+          emailDeliveries.map((delivery) =>
+            sendEmail({
+              to: delivery.recipient,
+              subject: delivery.subject,
+              html: delivery.html,
+              replyTo: delivery.replyTo,
+            }),
+          ),
+        );
+
+        const communicationRows = deliveryResults.map((result, index) => {
+          const delivery = emailDeliveries[index]!;
+          const success = result.status === "fulfilled" && !result.value.skipped;
+          if (!success) {
+            const reason =
+              result.status === "rejected"
+                ? result.reason
+                : new Error("E-Mail-Versand wurde übersprungen");
+            console.error(`[EMAIL] ${delivery.label} fehlgeschlagen:`, reason);
+          }
+          return {
+            lead_id: leadId,
+            created_by: null,
+            communication_type: "email",
+            direction: delivery.direction,
+            subject: delivery.subject,
+            content_summary: `${delivery.label} an ${delivery.recipient}`,
+            status: success ? "success" : "failed",
+            external_id: result.status === "fulfilled" ? result.value.id : null,
+          };
+        });
+
+        const { error: communicationError } = await supabase
+          .from("lead_communications")
+          .insert(communicationRows);
+        if (communicationError) {
+          console.error("E-Mail-Protokollierung fehlgeschlagen:", communicationError);
         }
 
         return ok(

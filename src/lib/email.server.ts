@@ -7,20 +7,25 @@ export interface EmailPayload {
   replyTo?: string;
 }
 
-export async function sendEmail(payload: EmailPayload): Promise<void> {
+export interface EmailResult {
+  id: string | null;
+  skipped: boolean;
+}
+
+export async function sendEmail(payload: EmailPayload): Promise<EmailResult> {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM ?? "PRIME ENERGIE <info@primeenergie.de>";
 
   if (!apiKey) {
     console.log(`[EMAIL DEV] An: ${payload.to} | Betreff: ${payload.subject}`);
-    return;
+    return { id: null, skipped: true };
   }
 
   // Dynamischer Import damit Resend nicht ins Client-Bundle gelangt
   const { Resend } = await import("resend");
   const resend = new Resend(apiKey);
 
-  const { error } = await resend.emails.send({
+  const { data, error } = await resend.emails.send({
     from,
     to: payload.to,
     subject: payload.subject,
@@ -29,6 +34,8 @@ export async function sendEmail(payload: EmailPayload): Promise<void> {
   });
 
   if (error) {
-    console.error("[EMAIL] Fehler beim Senden:", error);
+    throw new Error(`[EMAIL] Fehler beim Senden: ${error.message}`);
   }
+
+  return { id: data?.id ?? null, skipped: false };
 }
