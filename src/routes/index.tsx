@@ -179,7 +179,7 @@ function Hero() {
     <section
       className="relative isolate overflow-hidden"
       style={{
-        backgroundImage: `linear-gradient(rgba(10,31,68,0.06), rgba(10,31,68,0.06)), linear-gradient(to right, rgba(255,255,255,0.68) 0%, rgba(255,255,255,0.48) 38%, rgba(255,255,255,0.16) 70%, rgba(255,255,255,0.03) 100%), linear-gradient(to bottom, rgba(255,255,255,0) 64%, rgba(255,255,255,0.72) 100%), url(${heroBg})`,
+        backgroundImage: `linear-gradient(rgba(10,31,68,0.05), rgba(10,31,68,0.05)), linear-gradient(to right, rgba(255,255,255,0.82) 0%, rgba(255,255,255,0.58) 38%, rgba(255,255,255,0.2) 70%, rgba(255,255,255,0.04) 100%), linear-gradient(to bottom, rgba(255,255,255,0) 64%, rgba(255,255,255,0.86) 100%), url(${heroBg})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
