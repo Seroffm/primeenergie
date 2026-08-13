@@ -6,13 +6,20 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { COOKIE_CONSENT_EVENT, COOKIE_CONSENT_STORAGE_KEY } from "@/lib/cookie-consent";
 
-type Consent = { necessary: true; analytics: boolean; marketing: boolean; date: string };
+type Consent = {
+  necessary: true;
+  analytics: boolean;
+  marketing: boolean;
+  aiAssistant: boolean;
+  date: string;
+};
 
 export function CookieConsent() {
   const [open, setOpen] = useState(false);
   const [settings, setSettings] = useState(false);
   const [analytics, setAnalytics] = useState(false);
   const [marketing, setMarketing] = useState(false);
+  const [aiAssistant, setAiAssistant] = useState(false);
 
   useEffect(() => {
     try {
@@ -58,7 +65,9 @@ export function CookieConsent() {
                   Cookies & Datenschutz
                 </h2>
                 <button
-                  onClick={() => save({ necessary: true, analytics: false, marketing: false })}
+                  onClick={() =>
+                    save({ necessary: true, analytics: false, marketing: false, aiAssistant: false })
+                  }
                   aria-label="Schließen"
                   className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-primary"
                 >
@@ -95,6 +104,12 @@ export function CookieConsent() {
                     checked={marketing}
                     onCheck={setMarketing}
                   />
+                  <Row
+                    title="KI Assistent"
+                    desc="Übermittelt Ihre Chatnachrichten erst nach Ihrer ausdrücklichen Zustimmung an OpenAI."
+                    checked={aiAssistant}
+                    onCheck={setAiAssistant}
+                  />
                 </div>
               )}
 
@@ -103,7 +118,9 @@ export function CookieConsent() {
                   variant="ghost"
                   size="sm"
                   className="w-full sm:w-auto"
-                  onClick={() => save({ necessary: true, analytics: false, marketing: false })}
+                  onClick={() =>
+                    save({ necessary: true, analytics: false, marketing: false, aiAssistant: false })
+                  }
                 >
                   Nur erforderliche
                 </Button>
@@ -119,7 +136,7 @@ export function CookieConsent() {
                   <Button
                     size="sm"
                     className="w-full bg-success text-success-foreground hover:bg-success/90 sm:w-auto"
-                    onClick={() => save({ necessary: true, analytics, marketing })}
+                    onClick={() => save({ necessary: true, analytics, marketing, aiAssistant })}
                   >
                     Auswahl speichern
                   </Button>
@@ -127,7 +144,9 @@ export function CookieConsent() {
                   <Button
                     size="sm"
                     className="w-full bg-success text-success-foreground hover:bg-success/90 sm:w-auto"
-                    onClick={() => save({ necessary: true, analytics: true, marketing: true })}
+                    onClick={() =>
+                      save({ necessary: true, analytics: true, marketing: true, aiAssistant: true })
+                    }
                   >
                     Alle akzeptieren
                   </Button>

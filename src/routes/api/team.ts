@@ -12,11 +12,13 @@ export const Route = createFileRoute("/api/team")({
         if (auth.user.role === "employee") return err("Zugriff verweigert", 403);
 
         const supabase = createServiceClient();
+        const fields =
+          auth.user.role === "admin"
+            ? "id, auth_user_id, full_name, email, role, is_active, phone, avatar_url, created_at"
+            : "id, auth_user_id, full_name, role, is_active";
         const { data, error } = await supabase
           .from("profiles")
-          .select(
-            "id, auth_user_id, full_name, email, role, is_active, phone, avatar_url, created_at",
-          )
+          .select(fields)
           .order("created_at", { ascending: true });
 
         if (error) return err("Datenbankfehler", 500);
@@ -68,7 +70,7 @@ export const Route = createFileRoute("/api/team")({
         // Profil-Rolle + Name setzen (Trigger hat Profil angelegt)
         const { error: profileUpdateError } = await supabase
           .from("profiles")
-          .update({ role, full_name: normalizedName })
+          .update({ role, full_name: normalizedName, is_active: true })
           .eq("auth_user_id", newUser.user.id);
 
         if (profileUpdateError) {

@@ -11,7 +11,9 @@ import { leadConfirmationTemplate, newLeadInternalTemplate } from "@/lib/email-t
 import process from "node:process";
 import { generateLeadNumber } from "@/lib/lead-number";
 
-const MAX_INVOICE_SIZE = 10 * 1024 * 1024;
+// Vercel Functions reject request bodies above 4.5 MB before this route runs.
+// Two files plus the JSON payload therefore need a smaller per-file limit.
+const MAX_INVOICE_SIZE = 2 * 1024 * 1024;
 const MAX_INVOICE_FILES = 2;
 const ALLOWED_INVOICE_TYPES = new Set(["application/pdf", "image/jpeg", "image/png"]);
 const MAX_LEAD_NUMBER_ATTEMPTS = 5;
@@ -134,10 +136,20 @@ export const Route = createFileRoute("/api/public/leads")({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
+        const contentType = request.headers.get("content-type") ?? "";
+        const isMultipart = contentType.includes("multipart/form-data");
+        const isJson = contentType.split(";", 1)[0]?.trim() === "application/json";
+        if (!isMultipart && !isJson) return err("Ungültiger Inhaltstyp", 415);
+
+        const declaredLength = Number(request.headers.get("content-length") ?? 0);
+        if (Number.isFinite(declaredLength) && declaredLength > 4_400_000) {
+          return err("Anfrage ist zu groß", 413);
+        }
+
         let rawPayload: unknown;
         let invoiceFiles: File[] = [];
         try {
-          if (request.headers.get("content-type")?.includes("multipart/form-data")) {
+          if (isMultipart) {
             const formData = await request.formData();
             const rawPayloadEntry = formData.get("payload");
             if (typeof rawPayloadEntry !== "string") throw new Error("payload fehlt");
@@ -157,14 +169,7 @@ export const Route = createFileRoute("/api/public/leads")({
         const payload = validation.data;
 
         const withinIpLimit = await consumeRateLimit(request, "public_lead_ip", 5, 900);
-        const withinEmailLimit = await consumeRateLimit(
-          request,
-          "public_lead_email",
-          3,
-          86_400,
-          payload.email,
-        );
-        if (!withinIpLimit || !withinEmailLimit) {
+        if (!withinIpLimit) {
           return err("Zu viele Anfragen. Bitte versuchen Sie es später erneut.", 429);
         }
         if (invoiceFiles.length > MAX_INVOICE_FILES) {
@@ -173,7 +178,7 @@ export const Route = createFileRoute("/api/public/leads")({
         const invoiceBuffers = new Map<File, ArrayBuffer>();
         for (const invoiceFile of invoiceFiles) {
           if (invoiceFile.size > MAX_INVOICE_SIZE) {
-            return err("Rechnungsdatei ist zu groß (maximal 10 MB)", 413);
+            return err("Rechnungsdatei ist zu groß (maximal 2 MB je Datei)", 413);
           }
           if (!ALLOWED_INVOICE_TYPES.has(invoiceFile.type)) {
             return err("Dateityp nicht erlaubt (PDF, JPG oder PNG)", 415);
@@ -193,6 +198,19 @@ export const Route = createFileRoute("/api/public/leads")({
           }
         }
 
+        // Die E-Mail-Quote wird erst nach vollständiger Datei- und Bot-Prüfung
+        // verbraucht. Ungültige Requests können dadurch keine fremde Adresse sperren.
+        const withinEmailLimit = await consumeRateLimit(
+          request,
+          "public_lead_email",
+          3,
+          86_400,
+          payload.email,
+        );
+        if (!withinEmailLimit) {
+          return err("Zu viele Anfragen. Bitte versuchen Sie es später erneut.", 429);
+        }
+
         const supabase = createServiceClient();
 
         // Score berechnen
@@ -200,7 +218,7 @@ export const Route = createFileRoute("/api/public/leads")({
           annualKwhElectricity: payload.electricity?.annual_consumption_kwh,
           annualKwhGas: payload.gas?.annual_consumption_kwh,
           hasPhone: Boolean(payload.phone),
-          hasInvoiceRef: Boolean(payload.rechnung_dateiname),
+          hasInvoiceRef: invoiceFiles.length > 0,
           consumptionKnown:
             payload.electricity?.consumption_known ?? payload.gas?.consumption_known,
         });
@@ -226,6 +244,8 @@ export const Route = createFileRoute("/api/public/leads")({
 
         const leadId = lead.id as string;
         let uploadedInvoiceCount = 0;
+        const uploadedStoragePaths: string[] = [];
+        let persistenceError: unknown = null;
 
         for (const invoiceFile of invoiceFiles) {
           const safeName = invoiceFile.name.replace(/[^a-zA-Z0-9._-]/g, "_");
@@ -254,22 +274,27 @@ export const Route = createFileRoute("/api/public/leads")({
               await supabase.storage.from("lead-documents").remove([storagePath]);
             } else {
               uploadedInvoiceCount += 1;
+              uploadedStoragePaths.push(storagePath);
             }
           } else {
             console.error("Public invoice upload error:", uploadError);
           }
         }
-        const invoiceUploaded = uploadedInvoiceCount === invoiceFiles.length;
+        const invoiceUploaded = invoiceFiles.length > 0 && uploadedInvoiceCount === invoiceFiles.length;
+        if (invoiceFiles.length > 0 && !invoiceUploaded) {
+          persistenceError = new Error("Rechnungsupload unvollständig");
+        }
 
         // Adresse speichern
         if (payload.address) {
-          await supabase.from("lead_addresses").insert({
+          const { error: addressError } = await supabase.from("lead_addresses").insert({
             lead_id: leadId,
             address_type: "delivery",
             street: payload.address.street ?? null,
             postal_code: payload.address.postal_code ?? null,
             city: payload.address.city ?? null,
           });
+          persistenceError ??= addressError;
         }
 
         // Energie-Bedarf Strom speichern
@@ -279,7 +304,7 @@ export const Route = createFileRoute("/api/public/leads")({
           payload.product_type === "both"
         ) {
           const el = payload.electricity;
-          await supabase.from("energy_demands").insert({
+          const { error: electricityError } = await supabase.from("energy_demands").insert({
             lead_id: leadId,
             energy_type: "electricity",
             annual_consumption_kwh: el?.annual_consumption_kwh ?? null,
@@ -288,12 +313,13 @@ export const Route = createFileRoute("/api/public/leads")({
             monthly_payment: el?.monthly_payment ?? null,
             contract_end_date: el?.contract_end_date ?? null,
           });
+          persistenceError ??= electricityError;
         }
 
         // Energie-Bedarf Gas speichern
         if (payload.gas || payload.product_type === "gas" || payload.product_type === "both") {
           const g = payload.gas;
-          await supabase.from("energy_demands").insert({
+          const { error: gasError } = await supabase.from("energy_demands").insert({
             lead_id: leadId,
             energy_type: "gas",
             annual_consumption_kwh: g?.annual_consumption_kwh ?? null,
@@ -305,6 +331,7 @@ export const Route = createFileRoute("/api/public/leads")({
             monthly_payment: g?.monthly_payment ?? null,
             contract_end_date: g?.contract_end_date ?? null,
           });
+          persistenceError ??= gasError;
         }
 
         // Initiale Notiz mit Zusatzinfos (Ziele, Erreichbarkeit, Rechnungsreferenz)
@@ -322,11 +349,12 @@ export const Route = createFileRoute("/api/public/leads")({
           );
         }
         if (noteLines.length > 0) {
-          await supabase.from("lead_notes").insert({
+          const { error: noteError } = await supabase.from("lead_notes").insert({
             lead_id: leadId,
             created_by: null,
             note: noteLines.join("\n"),
           });
+          persistenceError ??= noteError;
         }
 
         // Referral verarbeiten (wenn referral_code übergeben wurde)
@@ -372,7 +400,7 @@ export const Route = createFileRoute("/api/public/leads")({
               (monthlyQualified ?? 0) < 5;
 
             if (isValid) {
-              await supabase.from("referrals").insert({
+              const { error: referralError } = await supabase.from("referrals").insert({
                 referrer_lead_id: referrerLead!.id,
                 referred_lead_id: leadId,
                 code_used: code,
@@ -380,8 +408,22 @@ export const Route = createFileRoute("/api/public/leads")({
                 reward_amount_cents: 3000,
                 reward_type: "amazon_voucher",
               });
+              persistenceError ??= referralError;
             }
           }
+        }
+
+        if (persistenceError) {
+          console.error("Lead child data could not be stored:", persistenceError);
+          if (uploadedStoragePaths.length > 0) {
+            const { error: cleanupStorageError } = await supabase.storage
+              .from("lead-documents")
+              .remove(uploadedStoragePaths);
+            if (cleanupStorageError) console.error("Storage cleanup failed:", cleanupStorageError);
+          }
+          const { error: cleanupLeadError } = await supabase.from("leads").delete().eq("id", leadId);
+          if (cleanupLeadError) console.error("Lead cleanup failed:", cleanupLeadError);
+          return err("Anfrage konnte nicht vollständig gespeichert werden", 500);
         }
 
         // E-Mails vor Abschluss der Serverless-Anfrage versenden, damit der Prozess

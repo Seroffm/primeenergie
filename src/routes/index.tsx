@@ -466,7 +466,7 @@ function QuickCalculator() {
                       : "Verbrauch unbekannt? Rechnung hochladen"}
               </span>
               <span className="block text-xs text-muted-foreground">
-                PDF, JPG oder PNG · maximal 10 MB je Datei
+                PDF, JPG oder PNG · maximal 2 MB je Datei
               </span>
             </span>
             <input

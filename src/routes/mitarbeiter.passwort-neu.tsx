@@ -36,12 +36,6 @@ function PasswortNeu() {
         setSessionReady(true);
       }
     });
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        window.clearTimeout(timeout);
-        setSessionReady(true);
-      }
-    });
     return () => {
       window.clearTimeout(timeout);
       subscription.unsubscribe();
@@ -52,8 +46,12 @@ function PasswortNeu() {
     e.preventDefault();
     setError(null);
 
-    if (password.length < 8) {
-      setError("Das Passwort muss mindestens 8 Zeichen lang sein.");
+    if (password.length < 12) {
+      setError("Das Passwort muss mindestens 12 Zeichen lang sein.");
+      return;
+    }
+    if (!/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/\d/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
+      setError("Das Passwort braucht Groß- und Kleinbuchstaben, eine Zahl und ein Sonderzeichen.");
       return;
     }
     if (password !== confirm) {
@@ -69,6 +67,8 @@ function PasswortNeu() {
       setError(updateError.message);
       return;
     }
+
+    await supabase.auth.signOut({ scope: "others" });
 
     toast.success("Passwort erfolgreich geändert");
     navigate({ to: "/mitarbeiter/dashboard" });
@@ -103,7 +103,8 @@ function PasswortNeu() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Neues Passwort setzen</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Wähle ein sicheres Passwort mit mindestens 8 Zeichen.
+            Wähle ein sicheres Passwort mit mindestens 12 Zeichen, Groß- und Kleinbuchstaben,
+            einer Zahl und einem Sonderzeichen.
           </p>
         </div>
 

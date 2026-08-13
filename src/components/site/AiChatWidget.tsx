@@ -24,9 +24,12 @@ const INITIAL: UIMessage[] = [
   } as UIMessage,
 ];
 
-function hasCookieConsent(): boolean {
+function hasAiConsent(): boolean {
   try {
-    return !!localStorage.getItem(COOKIE_CONSENT_STORAGE_KEY);
+    const raw = localStorage.getItem(COOKIE_CONSENT_STORAGE_KEY);
+    if (!raw) return false;
+    const consent = JSON.parse(raw) as { aiAssistant?: unknown };
+    return consent.aiAssistant === true;
   } catch {
     return false;
   }
@@ -46,8 +49,9 @@ export function AiChatWidget() {
   const transport = useRef(new DefaultChatTransport({ api: "/api/chat" })).current;
 
   useEffect(() => {
-    setCookiesAccepted(hasCookieConsent());
-    const handler = () => setCookiesAccepted(true);
+    const updateConsent = () => setCookiesAccepted(hasAiConsent());
+    updateConsent();
+    const handler = () => updateConsent();
     window.addEventListener(COOKIE_CONSENT_EVENT, handler);
     return () => window.removeEventListener(COOKIE_CONSENT_EVENT, handler);
   }, []);

@@ -3,7 +3,7 @@ import { requireAuth, requireLeadAccess, ok, err } from "@/lib/api/helpers.serve
 import { createServiceClient } from "@/lib/supabase.server";
 import { hasValidFileSignature } from "@/lib/api/upload-validation.server";
 
-const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+const MAX_SIZE = 4 * 1024 * 1024; // unter dem 4,5-MB-Limit von Vercel Functions
 const ALLOWED_TYPES = new Set([
   "application/pdf",
   "image/jpeg",
@@ -29,7 +29,7 @@ export const Route = createFileRoute("/api/leads/$id/documents/upload")({
         const file = formData.get("file") as File | null;
         if (!file || typeof file === "string") return err("Kein file-Feld gefunden", 400);
 
-        if (file.size > MAX_SIZE) return err("Datei zu groß (max. 10 MB)", 413);
+        if (file.size > MAX_SIZE) return err("Datei zu groß (max. 4 MB)", 413);
         if (!ALLOWED_TYPES.has(file.type))
           return err("Dateityp nicht erlaubt (PDF, JPG, PNG, WebP)", 415);
 

@@ -19,8 +19,8 @@ export function validateInvoice(file: File): string | null {
   if (!allowedTypes.has(file.type) && !allowedExtension) {
     return "Bitte laden Sie eine PDF-, JPG- oder PNG-Datei hoch.";
   }
-  if (file.size > 10 * 1024 * 1024) {
-    return "Die Datei darf maximal 10 MB groß sein.";
+  if (file.size > 2 * 1024 * 1024) {
+    return "Die Datei darf maximal 2 MB groß sein.";
   }
   return null;
 }

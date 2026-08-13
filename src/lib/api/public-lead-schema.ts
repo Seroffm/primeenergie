@@ -2,13 +2,19 @@ import { z } from "zod";
 
 const optionalShortText = z.string().trim().max(200).optional();
 const optionalPositiveNumber = z.number().finite().nonnegative().max(10_000_000).optional();
+const optionalIsoDate = z
+  .string()
+  .trim()
+  .regex(/^\d{4}-\d{2}-\d{2}$/)
+  .refine((value) => !Number.isNaN(Date.parse(`${value}T00:00:00Z`)), "Ungültiges Datum")
+  .optional();
 
 const energyPayloadSchema = z.object({
   annual_consumption_kwh: z.number().finite().nonnegative().max(10_000_000).nullable(),
   consumption_known: z.boolean().nullable(),
   current_provider: optionalShortText,
   monthly_payment: optionalPositiveNumber,
-  contract_end_date: z.string().trim().max(20).optional(),
+  contract_end_date: optionalIsoDate,
   price_guarantee: z.boolean().optional(),
 });
 

@@ -9,6 +9,13 @@ export const Route = createFileRoute("/api/referral-request")({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
+        const contentType = request.headers.get("content-type")?.split(";", 1)[0]?.trim();
+        const declaredLength = Number(request.headers.get("content-length") ?? 0);
+        if (contentType !== "application/json") return err("Ungültiger Inhaltstyp", 415);
+        if (Number.isFinite(declaredLength) && declaredLength > 10_000) {
+          return err("Anfrage ist zu groß", 413);
+        }
+
         if (!(await consumeRateLimit(request, "referral_request_ip", 5, 3600))) {
           return ok({ data: { sent: true } });
         }
@@ -72,6 +79,22 @@ export const Route = createFileRoute("/api/referral-request")({
               code = candidate;
               break;
             }
+
+            // A concurrent request may have created the active code first.
+            // Read that winner instead of creating a second code or losing the mail.
+            if (insertError.code === "23505") {
+              const { data: concurrentCode } = await supabase
+                .from("referral_codes")
+                .select("code")
+                .eq("lead_id", leadId)
+                .eq("is_active", true)
+                .gt("expires_at", new Date().toISOString())
+                .maybeSingle();
+              if (concurrentCode?.code) {
+                code = concurrentCode.code as string;
+                break;
+              }
+            }
           }
         }
 
@@ -89,11 +112,16 @@ export const Route = createFileRoute("/api/referral-request")({
           referralUrl,
         });
 
-        sendEmail({
-          to: email,
-          subject: tpl.subject,
-          html: tpl.html,
-        }).catch(console.error);
+        try {
+          await sendEmail({
+            to: email,
+            subject: tpl.subject,
+            html: tpl.html,
+          });
+        } catch (emailError) {
+          console.error("Referral email failed:", emailError);
+          // Einheitliche Antwort beibehalten, damit keine E-Mail-Adressen enumeriert werden.
+        }
 
         return ok({ data: { sent: true } });
       },

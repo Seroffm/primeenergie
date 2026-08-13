@@ -8,14 +8,22 @@ import { createServiceClient } from "../supabase.server";
 export function ok<T>(data: T, status = 200): Response {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "private, no-store",
+      Vary: "Authorization",
+    },
   });
 }
 
 export function err(message: string, status: number): Response {
   return new Response(JSON.stringify({ error: message }), {
     status,
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "private, no-store",
+      Vary: "Authorization",
+    },
   });
 }
 
@@ -188,11 +196,8 @@ export async function consumeRateLimit(
 export function generateReferralCode(): string {
   // 8 Zeichen, keine verwechselbaren Zeichen (kein O, 0, I, 1)
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let code = "";
-  for (let i = 0; i < 8; i++) {
-    code += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return code;
+  const random = crypto.getRandomValues(new Uint8Array(8));
+  return Array.from(random, (value) => chars[value % chars.length]).join("");
 }
 
 // ---------------------------------------------------------------------------

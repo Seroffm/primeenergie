@@ -20,7 +20,7 @@ function layout(content: string, previewText = ""): string {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PRIME ENERGIE</title>
-  ${previewText ? `<div style="display:none;max-height:0;overflow:hidden;">${previewText}&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌</div>` : ""}
+  ${previewText ? `<div style="display:none;max-height:0;overflow:hidden;">${escapeHtml(previewText)}&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌</div>` : ""}
 </head>
 <body style="margin:0;padding:0;background:#f8fafc;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#1e293b;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;padding:32px 16px;">
@@ -58,7 +58,7 @@ function layout(content: string, previewText = ""): string {
 }
 
 function button(text: string, href: string): string {
-  return `<a href="${href}" style="display:inline-block;background:${BRAND_GREEN};color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;padding:12px 28px;border-radius:8px;margin-top:8px;">${text}</a>`;
+  return `<a href="${escapeHtml(href)}" style="display:inline-block;background:${BRAND_GREEN};color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;padding:12px 28px;border-radius:8px;margin-top:8px;">${escapeHtml(text)}</a>`;
 }
 
 function infoBox(label: string, value: string): string {
@@ -148,7 +148,10 @@ export function newLeadInternalTemplate(d: NewLeadInternalData): {
   subject: string;
   html: string;
 } {
-  const subject = `🆕 Neuer Lead: ${d.firstName} ${d.lastName} (${d.leadNumber})`;
+  const subject = `🆕 Neuer Lead: ${d.firstName} ${d.lastName} (${d.leadNumber})`.replace(
+    /[\r\n]+/g,
+    " ",
+  );
   const html = layout(
     `<h2 style="margin:0 0 8px;font-size:20px;color:${BRAND_DARK};">
       Neuer Lead eingegangen
@@ -196,16 +199,16 @@ export function offerSentTemplate(d: OfferSentData): {
       Ihr Angebot ist fertig ✨
     </h2>
     <p style="margin:0 0 20px;font-size:15px;color:#475569;">
-      Hallo ${d.firstName},<br/><br/>
-      Ihr persönliches Angebot für ${PRODUCT_LABEL[d.productType] ?? d.productType} ist fertig.
+      Hallo ${escapeHtml(d.firstName)},<br/><br/>
+      Ihr persönliches Angebot für ${escapeHtml(PRODUCT_LABEL[d.productType] ?? d.productType)} ist fertig.
       Unser Team hat die verfügbaren Optionen anhand Ihrer Angaben geprüft.
     </p>
     <div style="background:${BRAND_LIGHT};border-left:4px solid ${BRAND_GREEN};border-radius:0 8px 8px 0;padding:16px 20px;margin-bottom:24px;">
       <p style="margin:0;font-size:14px;font-weight:600;color:${BRAND_DARK};">
-        Vorgangs-Nr.: ${d.leadNumber}
+        Vorgangs-Nr.: ${escapeHtml(d.leadNumber)}
       </p>
       <p style="margin:4px 0 0;font-size:13px;color:#475569;">
-        Ihr persönlicher Berater ${d.employeeName ? `(${d.employeeName})` : ""} wird sich in Kürze bei Ihnen melden.
+        Ihr persönlicher Berater ${d.employeeName ? `(${escapeHtml(d.employeeName)})` : ""} wird sich in Kürze bei Ihnen melden.
       </p>
     </div>
     <p style="font-size:14px;color:#475569;margin:0 0 24px;">
@@ -237,8 +240,8 @@ export function contractSentTemplate(d: ContractSentData): {
       Ihr Vertrag ist bereit 📄
     </h2>
     <p style="margin:0 0 20px;font-size:15px;color:#475569;">
-      Hallo ${d.firstName},<br/><br/>
-      Ihr Vertrag für ${PRODUCT_LABEL[d.productType] ?? d.productType} wurde vorbereitet und wartet auf
+      Hallo ${escapeHtml(d.firstName)},<br/><br/>
+      Ihr Vertrag für ${escapeHtml(PRODUCT_LABEL[d.productType] ?? d.productType)} wurde vorbereitet und wartet auf
       Ihre Unterzeichnung. Ihr persönlicher Berater wird sich mit den Details bei Ihnen melden.
     </p>
     <div style="background:${BRAND_LIGHT};border:1px solid #86efac;border-radius:8px;padding:16px 20px;margin-bottom:24px;">
@@ -249,7 +252,7 @@ export function contractSentTemplate(d: ContractSentData): {
       </p>
     </div>
     <p style="font-size:14px;color:#475569;margin:0 0 8px;">
-      Vorgangs-Nr.: <strong>${d.leadNumber}</strong>
+      Vorgangs-Nr.: <strong>${escapeHtml(d.leadNumber)}</strong>
     </p>
     <p style="font-size:13px;color:#94a3b8;margin:0;">
       Antworten Sie auf diese E-Mail, wenn Sie Fragen haben.
@@ -275,10 +278,10 @@ export function completedTemplate(d: CompletedData): {
   const subject = `Ihr Energiewechsel ist abgeschlossen! 🎉 – ${d.leadNumber}`;
   const html = layout(
     `<h2 style="margin:0 0 8px;font-size:22px;color:${BRAND_DARK};">
-      Herzlichen Glückwunsch, ${d.firstName}! 🎉
+      Herzlichen Glückwunsch, ${escapeHtml(d.firstName)}! 🎉
     </h2>
     <p style="margin:0 0 20px;font-size:15px;color:#475569;">
-      Ihr Wechsel für ${PRODUCT_LABEL[d.productType] ?? d.productType} wurde erfolgreich abgeschlossen.
+      Ihr Wechsel für ${escapeHtml(PRODUCT_LABEL[d.productType] ?? d.productType)} wurde erfolgreich abgeschlossen.
       Ab jetzt gelten die Konditionen Ihres neuen Vertrags.
     </p>
     <div style="background:${BRAND_LIGHT};border:1px solid #86efac;border-radius:12px;padding:24px;text-align:center;margin-bottom:24px;">
@@ -287,7 +290,7 @@ export function completedTemplate(d: CompletedData): {
         Wechsel erfolgreich!
       </p>
       <p style="margin:4px 0 0;font-size:13px;color:#475569;">
-        Vorgangs-Nr. ${d.leadNumber}
+        Vorgangs-Nr. ${escapeHtml(d.leadNumber)}
       </p>
     </div>
     <p style="font-size:14px;color:#475569;margin:0 0 16px;">
@@ -321,19 +324,19 @@ export function questionTemplate(d: QuestionData): {
       Wir haben eine kurze Rückfrage
     </h2>
     <p style="margin:0 0 20px;font-size:15px;color:#475569;">
-      Hallo ${d.firstName},<br/><br/>
-      für Ihre Anfrage (${d.leadNumber}) benötigen wir noch eine kurze Rückmeldung von Ihnen,
+      Hallo ${escapeHtml(d.firstName)},<br/><br/>
+      für Ihre Anfrage (${escapeHtml(d.leadNumber)}) benötigen wir noch eine kurze Rückmeldung von Ihnen,
       damit wir das beste Angebot für Sie zusammenstellen können.
     </p>
     ${
       d.questionText
         ? `<div style="background:#fefce8;border:1px solid #fde047;border-radius:8px;padding:16px 20px;margin-bottom:24px;font-size:14px;color:#713f12;">
-        ❓ ${d.questionText}
+        ❓ ${escapeHtml(d.questionText)}
       </div>`
         : ""
     }
     <p style="font-size:14px;color:#475569;margin:0 0 8px;">
-      Antworten Sie einfach auf diese E-Mail${d.employeeName ? ` oder sprechen Sie direkt mit ${d.employeeName}` : ""}.
+      Antworten Sie einfach auf diese E-Mail${d.employeeName ? ` oder sprechen Sie direkt mit ${escapeHtml(d.employeeName)}` : ""}.
     </p>
     <p style="font-size:13px;color:#94a3b8;margin:0;">
       Vielen Dank für Ihre Mitarbeit!
@@ -360,8 +363,8 @@ export function rejectedTemplate(d: RejectedData): {
       Leider kein passendes Angebot
     </h2>
     <p style="margin:0 0 20px;font-size:15px;color:#475569;">
-      Hallo ${d.firstName},<br/><br/>
-      wir haben Ihre Anfrage (${d.leadNumber}) geprüft, konnten aber leider kein
+      Hallo ${escapeHtml(d.firstName)},<br/><br/>
+      wir haben Ihre Anfrage (${escapeHtml(d.leadNumber)}) geprüft, konnten aber leider kein
       für Sie wirtschaftlich sinnvolles Angebot finden.
     </p>
     <p style="font-size:14px;color:#475569;margin:0 0 16px;">
@@ -394,7 +397,7 @@ export function referralCodeIssuedTemplate({
       Glückwunsch zu Ihrem Energiewechsel! 🎉
     </h2>
     <p style="margin:0 0 20px;font-size:15px;color:#475569;">
-      Hallo ${firstName},<br/><br/>
+      Hallo ${escapeHtml(firstName)},<br/><br/>
       Ihr Energiewechsel wurde erfolgreich abgeschlossen. Als Dankeschön haben Sie
       nun Ihren persönlichen Empfehlungs-Link. Teilen Sie ihn mit Freunden und Familie —
       und verdienen Sie für jeden abgeschlossenen Wechsel <strong>30 € als Amazon-Gutschein</strong>.
@@ -404,10 +407,10 @@ export function referralCodeIssuedTemplate({
         Ihr persönlicher Code
       </p>
       <p style="margin:0 0 12px;font-size:32px;font-weight:700;color:${BRAND_DARK};letter-spacing:0.15em;font-family:monospace;">
-        ${referralCode}
+        ${escapeHtml(referralCode)}
       </p>
       <p style="margin:0;font-size:12px;color:#64748b;word-break:break-all;">
-        ${referralUrl}
+        ${escapeHtml(referralUrl)}
       </p>
     </div>
     <p style="font-size:14px;color:#475569;margin:0 0 16px;">
@@ -452,8 +455,8 @@ export function referralQualifiedTemplate({
       🎉 Prämie verdient!
     </h2>
     <p style="margin:0 0 20px;font-size:15px;color:#475569;">
-      Hallo ${firstName},<br/><br/>
-      großartige Neuigkeit! <strong>${referredFirstName}</strong> hat seinen Energiewechsel
+      Hallo ${escapeHtml(firstName)},<br/><br/>
+      großartige Neuigkeit! <strong>${escapeHtml(referredFirstName)}</strong> hat seinen Energiewechsel
       über Ihren persönlichen Empfehlungs-Link erfolgreich abgeschlossen.
     </p>
     <div style="background:${BRAND_LIGHT};border:2px solid ${BRAND_GREEN};border-radius:12px;padding:24px;text-align:center;margin-bottom:24px;">
@@ -500,7 +503,7 @@ export function referralCodeRequestTemplate({
       Ihr persönlicher Empfehlungs-Link
     </h2>
     <p style="margin:0 0 20px;font-size:15px;color:#475569;">
-      Hallo ${firstName},<br/><br/>
+      Hallo ${escapeHtml(firstName)},<br/><br/>
       hier ist Ihr persönlicher Empfehlungs-Link. Teilen Sie ihn mit Freunden und Familie —
       und verdienen Sie für jeden abgeschlossenen Wechsel <strong>30 € als Amazon-Gutschein</strong>.
     </p>
@@ -509,10 +512,10 @@ export function referralCodeRequestTemplate({
         Ihr persönlicher Code
       </p>
       <p style="margin:0 0 12px;font-size:32px;font-weight:700;color:${BRAND_DARK};letter-spacing:0.15em;font-family:monospace;">
-        ${referralCode}
+        ${escapeHtml(referralCode)}
       </p>
       <p style="margin:0;font-size:12px;color:#64748b;word-break:break-all;">
-        ${referralUrl}
+        ${escapeHtml(referralUrl)}
       </p>
     </div>
     <p style="font-size:14px;color:#475569;margin:0 0 16px;">

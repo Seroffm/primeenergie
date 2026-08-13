@@ -1254,6 +1254,7 @@ function LeadDetail() {
                 <img
                   src={previewDocument.url}
                   alt={previewDocument.fileName}
+                  referrerPolicy="no-referrer"
                   className="max-h-full max-w-full rounded object-contain shadow-sm"
                 />
               </div>
@@ -1261,6 +1262,8 @@ function LeadDetail() {
               <iframe
                 src={previewDocument.url}
                 title={`Vorschau von ${previewDocument.fileName}`}
+                sandbox=""
+                referrerPolicy="no-referrer"
                 className="h-full w-full border-0 bg-white"
               />
             ) : null}

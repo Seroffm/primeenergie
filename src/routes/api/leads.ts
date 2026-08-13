@@ -47,7 +47,14 @@ export const Route = createFileRoute("/api/leads")({
 
         return new Response(
           JSON.stringify({ data: data ?? [], count: count ?? 0, page, pageSize }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
+          {
+            status: 200,
+            headers: {
+              "Content-Type": "application/json",
+              "Cache-Control": "private, no-store",
+              Vary: "Authorization",
+            },
+          },
         );
       },
     },

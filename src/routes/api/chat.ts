@@ -2,6 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { createOpenAIProvider } from "@/lib/ai-gateway.server";
 import { consumeRateLimit } from "@/lib/api/helpers.server";
+import { chatRequestSchema } from "@/lib/api/chat-schema";
+
+function chatError(message: string, status: number): Response {
+  return new Response(message, {
+    status,
+    headers: { "Cache-Control": "no-store", "Content-Type": "text/plain; charset=utf-8" },
+  });
+}
 
 const SYSTEM_PROMPT = `Du bist der "Prime Assistent", die digitale Orientierungshilfe von PRIME ENERGIE.
 
@@ -37,33 +45,46 @@ export const Route = createFileRoute("/api/chat")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const allowed = await consumeRateLimit(request, "public_chat_ip", 20, 900);
-        if (!allowed) return new Response("Zu viele Anfragen", { status: 429 });
+        const contentType = request.headers.get("content-type")?.split(";", 1)[0]?.trim();
+        const declaredLength = Number(request.headers.get("content-length") ?? 0);
+        if (contentType !== "application/json") return chatError("Ungültiger Inhaltstyp", 415);
+        if (Number.isFinite(declaredLength) && declaredLength > 30_000) {
+          return chatError("Anfrage ist zu groß", 413);
+        }
 
-        let body: { messages?: UIMessage[] };
+        const allowed = await consumeRateLimit(request, "public_chat_ip", 20, 900);
+        if (!allowed) return chatError("Zu viele Anfragen", 429);
+
+        let rawBody: unknown;
         try {
-          body = (await request.json()) as { messages?: UIMessage[] };
+          rawBody = await request.json();
         } catch {
-          return new Response("Ungültige Anfrage", { status: 400 });
+          return chatError("Ungültige Anfrage", 400);
         }
-        const { messages } = body;
-        if (!Array.isArray(messages) || messages.length === 0 || messages.length > 20) {
-          return new Response("Messages are required", { status: 400 });
-        }
-        if (JSON.stringify(messages).length > 20_000) {
-          return new Response("Anfrage ist zu groß", { status: 413 });
-        }
+        const validation = chatRequestSchema.safeParse(rawBody);
+        if (!validation.success) return chatError("Ungültige Chatnachricht", 400);
+
+        // Das Runtime-Schema erlaubt ausschließlich kurze Textteile. Dadurch können
+        // keine fremden URLs, Dateien, Tool-Aufrufe oder Systemnachrichten an die
+        // AI-SDK gelangen und dort serverseitige Downloads auslösen.
+        const messages = validation.data.messages as UIMessage[];
         const key = process.env.OPENAI_API_KEY;
-        if (!key) return new Response("Missing OPENAI_API_KEY", { status: 500 });
+        if (!key) return chatError("Chat ist vorübergehend nicht verfügbar", 503);
 
         const openai = createOpenAIProvider(key);
         const result = streamText({
           model: openai("gpt-5.6-sol"),
           system: SYSTEM_PROMPT,
           messages: await convertToModelMessages(messages),
+          maxOutputTokens: 350,
+          abortSignal: AbortSignal.timeout(20_000),
+          providerOptions: { openai: { store: false } },
         });
 
-        return result.toUIMessageStreamResponse({ originalMessages: messages });
+        return result.toUIMessageStreamResponse({
+          originalMessages: messages,
+          headers: { "Cache-Control": "no-store" },
+        });
       },
     },
   },

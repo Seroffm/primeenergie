@@ -11,7 +11,9 @@ export const Route = createFileRoute("/api/blog/articles/$slug")({
 
           const { data, error } = await supabase
             .from("blog_articles")
-            .select("*")
+            .select(
+              "id, slug, title, teaser, tag, image, author, body, seo_title, seo_description, read_time_min, published_at, created_at, updated_at",
+            )
             .eq("slug", params.slug)
             .eq("is_published", true)
             .single();

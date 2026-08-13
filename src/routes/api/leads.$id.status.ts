@@ -155,7 +155,7 @@ export const Route = createFileRoute("/api/leads/$id/status")({
           }
 
           if (tpl) {
-            sendEmail({
+            await sendEmail({
               to: current.email as string,
               subject: tpl.subject,
               html: tpl.html,
@@ -210,7 +210,7 @@ export const Route = createFileRoute("/api/leads/$id/status")({
                   rewardAmount: 3000,
                   payoutAfter,
                 });
-                sendEmail({
+                await sendEmail({
                   to: referrerLead.email as string,
                   subject: qualifiedTpl.subject,
                   html: qualifiedTpl.html,
@@ -240,6 +240,20 @@ export const Route = createFileRoute("/api/leads/$id/status")({
                 newCode = candidate;
                 break;
               }
+
+              if (insertError.code === "23505") {
+                const { data: concurrentCode } = await supabase
+                  .from("referral_codes")
+                  .select("code")
+                  .eq("lead_id", params.id)
+                  .eq("is_active", true)
+                  .gt("expires_at", new Date().toISOString())
+                  .maybeSingle();
+                if (concurrentCode?.code) {
+                  newCode = concurrentCode.code as string;
+                  break;
+                }
+              }
             }
 
             if (newCode && leadEmail) {
@@ -249,7 +263,7 @@ export const Route = createFileRoute("/api/leads/$id/status")({
                 referralCode: newCode,
                 referralUrl,
               });
-              sendEmail({
+              await sendEmail({
                 to: leadEmail,
                 subject: codeTpl.subject,
                 html: codeTpl.html,

@@ -43,4 +43,17 @@ describe("publicLeadPayloadSchema", () => {
       }).success,
     ).toBe(false);
   });
+
+  it("rejects invalid contract dates before database persistence", () => {
+    expect(
+      publicLeadPayloadSchema.safeParse({
+        ...validLead,
+        electricity: {
+          annual_consumption_kwh: 2500,
+          consumption_known: true,
+          contract_end_date: "not-a-date",
+        },
+      }).success,
+    ).toBe(false);
+  });
 });

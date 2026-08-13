@@ -6,6 +6,13 @@ export const Route = createFileRoute("/api/referral-validate")({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
+        const contentType = request.headers.get("content-type")?.split(";", 1)[0]?.trim();
+        const declaredLength = Number(request.headers.get("content-length") ?? 0);
+        if (contentType !== "application/json") return err("Ungültiger Inhaltstyp", 415);
+        if (Number.isFinite(declaredLength) && declaredLength > 10_000) {
+          return err("Anfrage ist zu groß", 413);
+        }
+
         if (!(await consumeRateLimit(request, "referral_validate_ip", 30, 900))) {
           return err("Zu viele Anfragen", 429);
         }

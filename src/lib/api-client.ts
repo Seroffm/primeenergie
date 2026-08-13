@@ -346,12 +346,12 @@ export interface TeamMember {
   id: string;
   auth_user_id: string;
   full_name: string | null;
-  email: string | null;
+  email?: string | null;
   role: "employee" | "manager" | "admin";
   is_active: boolean;
-  phone: string | null;
-  avatar_url: string | null;
-  created_at: string;
+  phone?: string | null;
+  avatar_url?: string | null;
+  created_at?: string;
 }
 
 export async function getTeam(): Promise<TeamMember[]> {
