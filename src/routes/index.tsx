@@ -179,7 +179,7 @@ function Hero() {
     <section
       className="relative isolate overflow-hidden"
       style={{
-        backgroundImage: `linear-gradient(rgba(10,31,68,0.22), rgba(10,31,68,0.22)), linear-gradient(to right, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.14) 38%, rgba(255,255,255,0.02) 70%, rgba(255,255,255,0) 100%), linear-gradient(to bottom, rgba(255,255,255,0) 64%, rgba(255,255,255,0.35) 100%), url(${heroBg})`,
+        backgroundImage: `linear-gradient(rgba(10,31,68,0.1), rgba(10,31,68,0.1)), linear-gradient(to right, rgba(255,255,255,0.58) 0%, rgba(255,255,255,0.38) 38%, rgba(255,255,255,0.1) 70%, rgba(255,255,255,0.01) 100%), linear-gradient(to bottom, rgba(255,255,255,0) 64%, rgba(255,255,255,0.62) 100%), url(${heroBg})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
@@ -196,20 +196,20 @@ function Hero() {
             animate={{ opacity: bgReady ? 1 : 0 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
           >
-            <span className="inline-flex items-center gap-2 rounded-full border border-success/30 bg-success/10 px-3 py-1 text-xs font-semibold text-success">
+            <span className="inline-flex items-center gap-2 rounded-full border border-success/50 bg-white/70 px-3.5 py-1.5 text-sm font-extrabold text-success shadow-sm">
               <BadgeCheck className="h-3.5 w-3.5" /> Persönliche Tarifprüfung
             </span>
-            <h1 className="mt-4 font-display text-4xl font-extrabold leading-[1.12] text-primary md:mt-5 md:text-6xl md:leading-[1.05]">
+            <h1 className="mt-4 font-display text-4xl font-black leading-[1.12] text-primary md:mt-5 md:text-6xl md:leading-[1.05]">
               <span className="block sm:inline">Energie neu denken.</span>{" "}
               <span className="mt-2 block text-success sm:mt-0 sm:inline">
                 Persönlich entscheiden.
               </span>
             </h1>
-            <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground md:mt-5 md:text-lg">
+            <p className="mt-4 max-w-xl text-base font-semibold leading-relaxed text-muted-foreground md:mt-5 md:text-lg">
               PRIME ENERGIE prüft Ihre Angaben und erklärt passende Tarife verständlich.
             </p>
 
-            <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs font-medium text-muted-foreground md:mt-6">
+            <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-muted-foreground md:mt-6">
               <span className="inline-flex items-center gap-1.5">
                 <ShieldCheck className="h-4 w-4 text-success" /> Kostenlos und unverbindlich
               </span>
