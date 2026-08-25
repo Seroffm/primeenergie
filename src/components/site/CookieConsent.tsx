@@ -4,7 +4,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Cookie, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { COOKIE_CONSENT_EVENT, COOKIE_CONSENT_STORAGE_KEY } from "@/lib/cookie-consent";
+import {
+  COOKIE_CONSENT_EVENT,
+  COOKIE_CONSENT_OPEN_EVENT,
+  COOKIE_CONSENT_STORAGE_KEY,
+} from "@/lib/cookie-consent";
 
 type Consent = {
   necessary: true;
@@ -28,6 +32,29 @@ export function CookieConsent() {
     } catch {
       setOpen(true);
     }
+  }, []);
+
+  useEffect(() => {
+    const openSettings = () => {
+      try {
+        const raw = localStorage.getItem(COOKIE_CONSENT_STORAGE_KEY);
+        if (raw) {
+          const consent = JSON.parse(raw) as Partial<Consent>;
+          setAnalytics(consent.analytics === true);
+          setMarketing(consent.marketing === true);
+          setAiAssistant(consent.aiAssistant === true);
+        }
+      } catch {
+        setAnalytics(false);
+        setMarketing(false);
+        setAiAssistant(false);
+      }
+      setSettings(true);
+      setOpen(true);
+    };
+
+    window.addEventListener(COOKIE_CONSENT_OPEN_EVENT, openSettings);
+    return () => window.removeEventListener(COOKIE_CONSENT_OPEN_EVENT, openSettings);
   }, []);
 
   const save = (c: Omit<Consent, "date">) => {

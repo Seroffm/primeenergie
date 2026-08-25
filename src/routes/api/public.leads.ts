@@ -1,5 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { verifyTurnstile, consumeRateLimit, computeScore, ok, err } from "@/lib/api/helpers.server";
+import {
+  verifyTurnstile,
+  consumeRateLimit,
+  computeScore,
+  ok,
+  err,
+  methodNotAllowed,
+} from "@/lib/api/helpers.server";
 import { createServiceClient } from "@/lib/supabase.server";
 import {
   publicLeadPayloadSchema,
@@ -135,6 +142,7 @@ async function insertLeadWithNumber(
 export const Route = createFileRoute("/api/public/leads")({
   server: {
     handlers: {
+      GET: () => methodNotAllowed(["POST"]),
       POST: async ({ request }: { request: Request }) => {
         const contentType = request.headers.get("content-type") ?? "";
         const isMultipart = contentType.includes("multipart/form-data");

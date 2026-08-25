@@ -163,7 +163,12 @@ export function Header() {
             <button
               type="button"
               aria-label={mobileOpen ? "Menü schließen" : "Menü öffnen"}
-              onClick={() => setMobileOpen((o) => !o)}
+              onClick={() => {
+                setMobileOpen((current) => {
+                  if (current) setOpenKey(null);
+                  return !current;
+                });
+              }}
               className="grid h-10 w-10 place-items-center rounded-full border border-border text-primary md:hidden"
             >
               {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -347,7 +352,12 @@ export function Header() {
                   key={n.label}
                   item={n}
                   pathname={pathname}
-                  onNavigate={() => setMobileOpen(false)}
+                  open={openKey === n.label}
+                  onToggle={() => setOpenKey((current) => (current === n.label ? null : n.label))}
+                  onNavigate={() => {
+                    setMobileOpen(false);
+                    setOpenKey(null);
+                  }}
                 />
               ))}
               <div className="grid grid-cols-2 gap-2 py-4">
@@ -377,13 +387,16 @@ export function Header() {
 function MobileNavItem({
   item,
   pathname,
+  open,
+  onToggle,
   onNavigate,
 }: {
   item: NavItem;
   pathname: string;
+  open: boolean;
+  onToggle: () => void;
   onNavigate: () => void;
 }) {
-  const [open, setOpen] = useState(false);
   const isActive = isNavItemActive(item, pathname);
   if (!item.dropdown) {
     return (
@@ -404,7 +417,8 @@ function MobileNavItem({
     <div className="border-b border-border">
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={onToggle}
+        aria-expanded={open}
         aria-current={isActive ? "page" : undefined}
         className={cn(
           "flex w-full items-center justify-between px-3 py-3 text-sm font-medium",

@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { consumeRateLimit, ok, err } from "@/lib/api/helpers.server";
+import { consumeRateLimit, ok, err, methodNotAllowed } from "@/lib/api/helpers.server";
 import { createServiceClient } from "@/lib/supabase.server";
 
 export const Route = createFileRoute("/api/referral-validate")({
   server: {
     handlers: {
+      GET: () => methodNotAllowed(["POST"]),
       POST: async ({ request }: { request: Request }) => {
         const contentType = request.headers.get("content-type")?.split(";", 1)[0]?.trim();
         const declaredLength = Number(request.headers.get("content-length") ?? 0);

@@ -1,5 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { consumeRateLimit, ok, err, generateReferralCode } from "@/lib/api/helpers.server";
+import {
+  consumeRateLimit,
+  ok,
+  err,
+  generateReferralCode,
+  methodNotAllowed,
+} from "@/lib/api/helpers.server";
 import { createServiceClient } from "@/lib/supabase.server";
 import { sendEmail } from "@/lib/email.server";
 import { referralCodeRequestTemplate } from "@/lib/email-templates.server";
@@ -8,6 +14,7 @@ import process from "node:process";
 export const Route = createFileRoute("/api/referral-request")({
   server: {
     handlers: {
+      GET: () => methodNotAllowed(["POST"]),
       POST: async ({ request }: { request: Request }) => {
         const contentType = request.headers.get("content-type")?.split(";", 1)[0]?.trim();
         const declaredLength = Number(request.headers.get("content-length") ?? 0);

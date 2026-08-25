@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { createOpenAIProvider } from "@/lib/ai-gateway.server";
-import { consumeRateLimit } from "@/lib/api/helpers.server";
+import { consumeRateLimit, methodNotAllowed } from "@/lib/api/helpers.server";
 import { chatRequestSchema } from "@/lib/api/chat-schema";
 
 function chatError(message: string, status: number): Response {
@@ -44,6 +44,7 @@ Bei unklaren Angaben gezielt nachfragen (PLZ, Verbrauch, Personen, aktueller Anb
 export const Route = createFileRoute("/api/chat")({
   server: {
     handlers: {
+      GET: () => methodNotAllowed(["POST"]),
       POST: async ({ request }) => {
         const contentType = request.headers.get("content-type")?.split(";", 1)[0]?.trim();
         const declaredLength = Number(request.headers.get("content-length") ?? 0);

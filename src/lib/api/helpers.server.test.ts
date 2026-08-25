@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getPagination, requireLeadAccess } from "./helpers.server";
+import { getPagination, methodNotAllowed, requireLeadAccess } from "./helpers.server";
 import type { AuthedUser } from "./helpers.server";
 import type { createServiceClient } from "../supabase.server";
 
@@ -31,6 +31,15 @@ describe("getPagination", () => {
       from: 0,
       to: 24,
     });
+  });
+});
+
+describe("methodNotAllowed", () => {
+  it("returns a JSON 405 response with an Allow header", async () => {
+    const response = methodNotAllowed(["POST"]);
+    expect(response.status).toBe(405);
+    expect(response.headers.get("Allow")).toBe("POST");
+    await expect(response.json()).resolves.toEqual({ error: "Method Not Allowed" });
   });
 });
 

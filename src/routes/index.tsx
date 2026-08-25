@@ -261,6 +261,18 @@ function QuickCalculator() {
   const kwhPresets =
     energy === "gas" ? [5000, 12000, 18000, 25000, 35000] : [1500, 2500, 3500, 4500, 5500];
 
+  function selectEnergy(nextEnergy: Energy) {
+    setEnergy(nextEnergy);
+    setKwh((current) => {
+      const nextPresets =
+        nextEnergy === "gas"
+          ? [5000, 12000, 18000, 25000, 35000]
+          : [1500, 2500, 3500, 4500, 5500];
+      if (nextPresets.includes(current)) return current;
+      return nextEnergy === "gas" ? 12000 : 2500;
+    });
+  }
+
   function selectInvoices(files: File[]) {
     if (files.length === 0) return;
     const availableSlots = 2 - invoiceFiles.length;
@@ -358,7 +370,7 @@ function QuickCalculator() {
                   <button
                     key={t.k}
                     type="button"
-                    onClick={() => setEnergy(t.k)}
+                    onClick={() => selectEnergy(t.k)}
                     className="relative flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-md px-1 py-2 text-xs font-medium sm:flex-row sm:gap-1.5 sm:px-2 sm:text-sm"
                   >
                     {active && (

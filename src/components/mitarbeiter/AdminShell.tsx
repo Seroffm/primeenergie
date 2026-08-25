@@ -6,7 +6,6 @@ import {
   BarChart3,
   Settings,
   LogOut,
-  Bell,
   Search,
   Building2,
   Tag,
@@ -165,9 +164,6 @@ export function AdminShell({
             />
           </form>
           <div className="flex flex-1 items-center justify-end gap-2">
-            <Button variant="ghost" size="icon">
-              <Bell className="h-5 w-5" />
-            </Button>
             {user && (
               <div className="flex items-center gap-2 rounded-full border px-2 py-1">
                 <Avatar className="h-7 w-7">

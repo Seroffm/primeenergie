@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Phone, ChevronUp } from "lucide-react";
 import { BrandLogo } from "./BrandLogo";
+import { COOKIE_CONSENT_OPEN_EVENT } from "@/lib/cookie-consent";
 
 type Col = { title: string; links: { to: string; label: string }[] };
 
@@ -76,7 +77,10 @@ export function Footer() {
               <ul className="mt-5 space-y-3 text-sm text-muted-foreground">
                 {c.links.map((l) => (
                   <li key={l.label}>
-                    <Link to={l.to} className="transition hover:text-success">
+                    <Link
+                      to={l.to}
+                      className="inline-flex min-h-6 items-center transition hover:text-success"
+                    >
                       {l.label}
                     </Link>
                   </li>
@@ -113,18 +117,28 @@ export function Footer() {
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-5 text-xs text-muted-foreground">
           <div>© {year} PRIME ENERGIE · Persönlich beraten · Transparent entscheiden</div>
           <div className="flex flex-wrap gap-x-6 gap-y-1">
-            <Link to="/impressum" className="hover:text-success">
+            <Link to="/impressum" className="inline-flex min-h-8 items-center hover:text-success">
               Impressum
             </Link>
-            <Link to="/datenschutz" className="hover:text-success">
+            <Link
+              to="/datenschutz"
+              className="inline-flex min-h-8 items-center hover:text-success"
+            >
               Datenschutz
             </Link>
-            <Link to="/widerruf" className="hover:text-success">
+            <Link to="/widerruf" className="inline-flex min-h-8 items-center hover:text-success">
               Widerruf
             </Link>
-            <Link to="/agb" className="hover:text-success">
+            <Link to="/agb" className="inline-flex min-h-8 items-center hover:text-success">
               AGB
             </Link>
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event(COOKIE_CONSENT_OPEN_EVENT))}
+              className="inline-flex min-h-8 items-center hover:text-success"
+            >
+              Cookie Einstellungen
+            </button>
           </div>
         </div>
       </div>

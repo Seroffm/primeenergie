@@ -23,6 +23,7 @@ import {
   MoreVertical,
   CalendarClock,
   Loader2,
+  Trash2,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -81,6 +82,7 @@ import {
   patchLeadStatus,
   assignLead,
   uploadDocument,
+  deleteDocument,
   getTeam,
 } from "@/lib/api-client";
 import type { TeamMember } from "@/lib/api-client";
@@ -307,6 +309,15 @@ function LeadDetail() {
   const [allDoneKeepsCurrent, setAllDoneKeepsCurrent] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [documentToDelete, setDocumentToDelete] = useState<BackendDocument | null>(null);
+  const [downloadingDocId, setDownloadingDocId] = useState<string | null>(null);
+  const [previewingDocId, setPreviewingDocId] = useState<string | null>(null);
+  const [previewDocument, setPreviewDocument] = useState<{
+    documentId: string;
+    fileName: string;
+    mimeType: string;
+    url: string;
+  } | null>(null);
 
   useEffect(() => {
     setAssignedToId(loaderAssignedToId);
@@ -488,6 +499,17 @@ function LeadDetail() {
     onError: () => toast.error("Upload fehlgeschlagen"),
   });
 
+  const deleteDocumentMutation = useMutation({
+    mutationFn: (documentId: string) => deleteDocument(id, documentId),
+    onSuccess: (_data, documentId) => {
+      queryClient.invalidateQueries({ queryKey: ["lead-documents", id] });
+      if (previewDocument?.documentId === documentId) setPreviewDocument(null);
+      setDocumentToDelete(null);
+      toast.success("Dokument gelöscht");
+    },
+    onError: () => toast.error("Dokument konnte nicht gelöscht werden"),
+  });
+
   // ── Handler ───────────────────────────────────────────────────────────────
 
   function handleSaveNote() {
@@ -498,14 +520,6 @@ function LeadDetail() {
 
   // Optimistic toggle (kein Backend-Endpoint für is_important)
   const [importantIds, setImportantIds] = useState<Set<string>>(new Set());
-  const [downloadingDocId, setDownloadingDocId] = useState<string | null>(null);
-  const [previewingDocId, setPreviewingDocId] = useState<string | null>(null);
-  const [previewDocument, setPreviewDocument] = useState<{
-    documentId: string;
-    fileName: string;
-    mimeType: string;
-    url: string;
-  } | null>(null);
 
   useEffect(
     () => () => {
@@ -905,6 +919,17 @@ function LeadDetail() {
                             <Download className="h-4 w-4" />
                           )}
                         </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title={`${d.file_name} löschen`}
+                          aria-label={`${d.file_name} löschen`}
+                          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                          disabled={deleteDocumentMutation.isPending}
+                          onClick={() => setDocumentToDelete(d)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -1268,6 +1293,46 @@ function LeadDetail() {
               />
             ) : null}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={!!documentToDelete}
+        onOpenChange={(isOpen) => {
+          if (!isOpen && !deleteDocumentMutation.isPending) setDocumentToDelete(null);
+        }}
+      >
+        <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Dokument wirklich löschen?</DialogTitle>
+          </DialogHeader>
+          <p className="break-words text-sm text-muted-foreground">
+            {documentToDelete?.file_name} wird dauerhaft aus dem Lead und dem geschützten Speicher
+            entfernt.
+          </p>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={deleteDocumentMutation.isPending}
+              onClick={() => setDocumentToDelete(null)}
+            >
+              Abbrechen
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={!documentToDelete || deleteDocumentMutation.isPending}
+              onClick={() => {
+                if (documentToDelete) deleteDocumentMutation.mutate(documentToDelete.id);
+              }}
+            >
+              {deleteDocumentMutation.isPending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              Dauerhaft löschen
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

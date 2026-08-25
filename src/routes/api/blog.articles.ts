@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ok, err } from "@/lib/api/helpers.server";
+import { ok, err, methodNotAllowed } from "@/lib/api/helpers.server";
 import { createServiceClient } from "@/lib/supabase.server";
 
 export const Route = createFileRoute("/api/blog/articles")({
   server: {
     handlers: {
+      POST: () => methodNotAllowed(["GET"]),
       GET: async ({ request }: { request: Request }) => {
         try {
           const url = new URL(request.url);

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /mitarbeiter/
+Disallow: /danke
+
+Sitemap: https://www.primeenergie.de/sitemap.xml

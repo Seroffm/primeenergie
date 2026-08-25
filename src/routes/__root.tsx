@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import primeLogoBlack from "../assets/prime-energie-logo-black.png";
+import favicon from "../assets/logo.svg";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "../lib/auth-context";
 import { AiChatWidget } from "../components/site/AiChatWidget";
@@ -119,6 +120,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "icon", type: "image/svg+xml", href: favicon },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
@@ -151,7 +153,6 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const hideChat = pathname.startsWith("/danke") || pathname.startsWith("/mitarbeiter");
-  const hideConsent = pathname === "/datenschutz";
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -159,7 +160,7 @@ function RootComponent() {
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
         {!hideChat && <AiChatWidget />}
-        {!hideConsent && <CookieConsent />}
+        <CookieConsent />
       </AuthProvider>
     </QueryClientProvider>
   );

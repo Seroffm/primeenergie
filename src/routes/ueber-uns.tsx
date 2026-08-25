@@ -135,7 +135,7 @@ function UeberUnsPage() {
           >
             Energieberatung,
             <br />
-            die Sie verstehen.
+            {" "}die Sie verstehen.
           </motion.h1>
           <motion.p
             {...fadeUp}

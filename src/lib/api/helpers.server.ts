@@ -200,6 +200,17 @@ export function generateReferralCode(): string {
   return Array.from(random, (value) => chars[value % chars.length]).join("");
 }
 
+export function methodNotAllowed(allowedMethods: string[]): Response {
+  return new Response(JSON.stringify({ error: "Method Not Allowed" }), {
+    status: 405,
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "private, no-store",
+      Allow: allowedMethods.join(", "),
+    },
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Lead-Score Berechnung (Initial)
 // ---------------------------------------------------------------------------
