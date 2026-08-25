@@ -488,6 +488,7 @@ export const Route = createFileRoute("/api/public/leads")({
               subject: delivery.subject,
               html: delivery.html,
               replyTo: delivery.replyTo,
+              idempotencyKey: `prime-lead-${leadId}-${delivery.direction}-v1`,
             }),
           ),
         );

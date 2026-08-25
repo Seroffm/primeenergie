@@ -55,6 +55,7 @@ import { Route as ApiReferralRequestRouteImport } from './routes/api/referral-re
 import { Route as ApiProvidersRouteImport } from './routes/api/providers'
 import { Route as ApiMeRouteImport } from './routes/api/me'
 import { Route as ApiLeadsRouteImport } from './routes/api/leads'
+import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiEmailTemplatesRouteImport } from './routes/api/email-templates'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as MitarbeiterRedaktionNeuRouteImport } from './routes/mitarbeiter.redaktion.neu'
@@ -315,6 +316,11 @@ const ApiLeadsRoute = ApiLeadsRouteImport.update({
   path: '/api/leads',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiEmailTemplatesRoute = ApiEmailTemplatesRouteImport.update({
   id: '/api/email-templates',
   path: '/api/email-templates',
@@ -474,6 +480,7 @@ export interface FileRoutesByFullPath {
   '/wissen': typeof WissenRouteWithChildren
   '/api/chat': typeof ApiChatRoute
   '/api/email-templates': typeof ApiEmailTemplatesRouteWithChildren
+  '/api/health': typeof ApiHealthRoute
   '/api/leads': typeof ApiLeadsRouteWithChildren
   '/api/me': typeof ApiMeRoute
   '/api/providers': typeof ApiProvidersRouteWithChildren
@@ -547,6 +554,7 @@ export interface FileRoutesByTo {
   '/wissen': typeof WissenRouteWithChildren
   '/api/chat': typeof ApiChatRoute
   '/api/email-templates': typeof ApiEmailTemplatesRouteWithChildren
+  '/api/health': typeof ApiHealthRoute
   '/api/leads': typeof ApiLeadsRouteWithChildren
   '/api/me': typeof ApiMeRoute
   '/api/providers': typeof ApiProvidersRouteWithChildren
@@ -622,6 +630,7 @@ export interface FileRoutesById {
   '/wissen': typeof WissenRouteWithChildren
   '/api/chat': typeof ApiChatRoute
   '/api/email-templates': typeof ApiEmailTemplatesRouteWithChildren
+  '/api/health': typeof ApiHealthRoute
   '/api/leads': typeof ApiLeadsRouteWithChildren
   '/api/me': typeof ApiMeRoute
   '/api/providers': typeof ApiProvidersRouteWithChildren
@@ -698,6 +707,7 @@ export interface FileRouteTypes {
     | '/wissen'
     | '/api/chat'
     | '/api/email-templates'
+    | '/api/health'
     | '/api/leads'
     | '/api/me'
     | '/api/providers'
@@ -771,6 +781,7 @@ export interface FileRouteTypes {
     | '/wissen'
     | '/api/chat'
     | '/api/email-templates'
+    | '/api/health'
     | '/api/leads'
     | '/api/me'
     | '/api/providers'
@@ -845,6 +856,7 @@ export interface FileRouteTypes {
     | '/wissen'
     | '/api/chat'
     | '/api/email-templates'
+    | '/api/health'
     | '/api/leads'
     | '/api/me'
     | '/api/providers'
@@ -920,6 +932,7 @@ export interface RootRouteChildren {
   WissenRoute: typeof WissenRouteWithChildren
   ApiChatRoute: typeof ApiChatRoute
   ApiEmailTemplatesRoute: typeof ApiEmailTemplatesRouteWithChildren
+  ApiHealthRoute: typeof ApiHealthRoute
   ApiLeadsRoute: typeof ApiLeadsRouteWithChildren
   ApiMeRoute: typeof ApiMeRoute
   ApiProvidersRoute: typeof ApiProvidersRouteWithChildren
@@ -1255,6 +1268,13 @@ declare module '@tanstack/react-router' {
       path: '/api/leads'
       fullPath: '/api/leads'
       preLoaderRoute: typeof ApiLeadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/email-templates': {
@@ -1687,6 +1707,7 @@ const rootRouteChildren: RootRouteChildren = {
   WissenRoute: WissenRouteWithChildren,
   ApiChatRoute: ApiChatRoute,
   ApiEmailTemplatesRoute: ApiEmailTemplatesRouteWithChildren,
+  ApiHealthRoute: ApiHealthRoute,
   ApiLeadsRoute: ApiLeadsRouteWithChildren,
   ApiMeRoute: ApiMeRoute,
   ApiProvidersRoute: ApiProvidersRouteWithChildren,

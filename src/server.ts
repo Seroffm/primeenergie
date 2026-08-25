@@ -52,7 +52,7 @@ const CONTENT_SECURITY_POLICY = [
   "upgrade-insecure-requests",
 ].join("; ");
 
-function withSecurityHeaders(response: Response): Response {
+function withSecurityHeaders(response: Response, requestId: string): Response {
   const headers = new Headers(response.headers);
   headers.set("Content-Security-Policy", CONTENT_SECURITY_POLICY);
   headers.set("X-Content-Type-Options", "nosniff");
@@ -61,6 +61,7 @@ function withSecurityHeaders(response: Response): Response {
   headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()");
   headers.set("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
   headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+  headers.set("X-Request-Id", requestId);
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,
@@ -70,17 +71,27 @@ function withSecurityHeaders(response: Response): Response {
 
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    const requestId = crypto.randomUUID();
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return withSecurityHeaders(await normalizeCatastrophicSsrResponse(response));
+      return withSecurityHeaders(await normalizeCatastrophicSsrResponse(response), requestId);
     } catch (error) {
-      console.error(error);
+      console.error(
+        JSON.stringify({
+          event: "unhandled_server_error",
+          requestId,
+          method: request.method,
+          path: new URL(request.url).pathname,
+          errorType: error instanceof Error ? error.name : "UnknownError",
+        }),
+      );
       return withSecurityHeaders(
         new Response(renderErrorPage(), {
           status: 500,
           headers: { "content-type": "text/html; charset=utf-8" },
         }),
+        requestId,
       );
     }
   },
