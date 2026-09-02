@@ -61,7 +61,7 @@ export function TopicHero({
         </motion.div>
         <div className="relative">
           <div className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-gradient-to-br from-success/20 via-success/5 to-transparent blur-2xl" />
-          <div className="overflow-hidden rounded-3xl border border-border shadow-card">
+          <div className="ios-image-frame overflow-hidden rounded-3xl border border-border shadow-card">
             <img
               src={image}
               alt={imageAlt}
@@ -70,7 +70,7 @@ export function TopicHero({
               loading="eager"
               decoding="async"
               fetchPriority="high"
-              className="aspect-[16/9] w-full object-cover"
+              className="ios-image-stable aspect-[16/9] w-full object-cover"
             />
           </div>
         </div>
@@ -158,7 +158,7 @@ export function ImageSplit({
           <motion.div
             {...fadeUp}
             transition={{ ...fadeUp.transition, delay: 0.1 }}
-            className="overflow-hidden rounded-3xl border border-border shadow-card"
+            className="ios-image-frame overflow-hidden rounded-3xl border border-border shadow-card"
           >
             <img
               src={image}
@@ -166,7 +166,7 @@ export function ImageSplit({
               loading="lazy"
               width={1600}
               height={1200}
-              className="aspect-[4/3] w-full object-cover"
+              className="ios-image-stable aspect-[4/3] w-full object-cover"
             />
           </motion.div>
         </div>
@@ -193,7 +193,7 @@ export function FinalCta({
         alt=""
         aria-hidden
         loading="lazy"
-        className="absolute inset-0 -z-10 h-full w-full object-cover"
+        className="ios-image-stable absolute inset-0 -z-10 h-full w-full object-cover"
       />
       <div className="absolute inset-0 -z-10 bg-primary/85" />
       <div className="mx-auto max-w-5xl px-4 py-20 text-center text-primary-foreground md:py-28">

@@ -156,28 +156,9 @@ function HomePage() {
 /* ---------------------------------- HERO ---------------------------------- */
 
 function Hero() {
-  const [bgReady, setBgReady] = useState(false);
-
-  useEffect(() => {
-    const img = new Image();
-    img.src = heroBg;
-    if (img.decode) {
-      img
-        .decode()
-        .then(() => setBgReady(true))
-        .catch(() => setBgReady(true));
-    } else {
-      img.onload = () => setBgReady(true);
-      img.onerror = () => setBgReady(true);
-    }
-    // Failsafe
-    const t = setTimeout(() => setBgReady(true), 600);
-    return () => clearTimeout(t);
-  }, []);
-
   return (
     <section
-      className="relative isolate overflow-hidden"
+      className="ios-hero-image relative isolate overflow-hidden"
       style={{
         backgroundImage: `linear-gradient(rgba(10,31,68,0.02), rgba(10,31,68,0.02)), linear-gradient(to right, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.74) 38%, rgba(255,255,255,0.34) 70%, rgba(255,255,255,0.1) 100%), linear-gradient(to bottom, rgba(255,255,255,0) 64%, rgba(255,255,255,0.94) 100%), url(${heroBg})`,
         backgroundSize: "cover",
@@ -191,11 +172,7 @@ function Hero() {
 
       <div className="mx-auto max-w-6xl px-4 pt-10 pb-8 md:pt-20 md:pb-16">
         <div className="grid items-start gap-10 lg:grid-cols-[1.05fr_1fr]">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: bgReady ? 1 : 0 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-          >
+          <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-success/50 bg-white/70 px-3.5 py-1.5 text-sm font-extrabold text-success shadow-sm">
               <BadgeCheck className="h-3.5 w-3.5" /> Persönliche Tarifprüfung
             </span>
@@ -217,16 +194,12 @@ function Hero() {
                 <PhoneCall className="h-5 w-5 text-success" /> Persönlich beraten
               </span>
             </div>
-          </motion.div>
+          </div>
 
           {/* Quick Calculator (Check24-Style) */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: bgReady ? 1 : 0 }}
-            transition={{ duration: 0.4, delay: 0.08, ease: "easeOut" }}
-          >
+          <div>
             <QuickCalculator />
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>
@@ -939,11 +912,11 @@ function ComparisonCard() {
     <div className="grid gap-4">
       {/* Wir */}
       <article className="relative overflow-hidden rounded-3xl border border-success/30 bg-card shadow-card">
-        <div className="relative aspect-[16/9] overflow-hidden">
+        <div className="ios-image-frame relative aspect-[16/9] overflow-hidden">
           <img
             src={comparisonHero}
             alt="Zufriedene Kunden mit persönlicher Energieberatung"
-            className="h-full w-full object-cover"
+            className="ios-image-stable h-full w-full object-cover"
             loading="lazy"
             width={800}
             height={512}
@@ -1025,12 +998,12 @@ function AudienceSection() {
             {...fadeUp}
             className="group overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition hover:shadow-card"
           >
-            <div className="relative aspect-[4/3] overflow-hidden bg-surface">
+            <div className="ios-image-frame relative aspect-[4/3] overflow-hidden bg-surface">
               <img
                 src={z.img}
                 alt={z.t}
                 loading="lazy"
-                className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                className="ios-image-stable h-full w-full object-cover transition duration-500 group-hover:scale-105"
               />
               <div className="absolute left-4 top-4 grid h-10 w-10 place-items-center rounded-xl bg-card/95 text-success shadow-soft">
                 <z.icon className="h-5 w-5" />
@@ -1384,14 +1357,14 @@ function MoreSolutions() {
               transition={{ ...fadeUp.transition, delay: i * 0.08 }}
               className="flex flex-col overflow-hidden rounded-2xl bg-card shadow-soft transition hover:-translate-y-1 hover:shadow-card"
             >
-              <div className="aspect-[4/3] overflow-hidden bg-success-soft">
+              <div className="ios-image-frame aspect-[4/3] overflow-hidden bg-success-soft">
                 <img
                   src={it.img}
                   alt={it.title}
                   loading="lazy"
                   width={1024}
                   height={768}
-                  className="h-full w-full object-cover transition duration-500 hover:scale-[1.03]"
+                  className="ios-image-stable h-full w-full object-cover transition duration-500 hover:scale-[1.03]"
                 />
               </div>
               <div className="flex flex-1 flex-col p-8">
@@ -1472,12 +1445,12 @@ function RatgeberSection() {
               to={r.to}
               className="group block overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition hover:shadow-card"
             >
-              <div className="aspect-[16/10] overflow-hidden bg-surface">
+              <div className="ios-image-frame aspect-[16/10] overflow-hidden bg-surface">
                 <img
                   src={r.img}
                   alt={r.t}
                   loading="lazy"
-                  className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  className="ios-image-stable h-full w-full object-cover transition duration-500 group-hover:scale-105"
                 />
               </div>
               <div className="p-6">

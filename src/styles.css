@@ -117,15 +117,33 @@
     scroll-behavior: auto;
   }
 
-  /* Avoid an extra compositing animation while a finger is scrolling. */
-  img.object-cover {
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    transform: translateZ(0);
+  /* Touch browsers can retain a hover transform after a tap. During scroll
+     that causes Mobile Safari to repeatedly repaint rounded image layers. */
+  .group:hover .group-hover\:scale-105,
+  .hover\:scale-\[1\.03\]:hover {
+    transform: none;
   }
+}
 
-  .group:hover img {
-    transform: translateZ(0);
+/* A small, explicit Safari workaround for the few large image frames.  It is
+   deliberately opt-in: forcing every image onto its own GPU layer caused the
+   flash we are preventing on long mobile pages. */
+@supports (-webkit-touch-callout: none) {
+  @media (max-width: 767px) {
+    .ios-image-frame {
+      isolation: isolate;
+      background-color: var(--surface);
+    }
+
+    .ios-image-stable {
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      transform: translate3d(0, 0, 0);
+    }
+
+    .ios-hero-image {
+      background-attachment: scroll;
+    }
   }
 }
 
