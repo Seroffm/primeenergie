@@ -7,6 +7,7 @@ import { MultiStepForm } from "@/components/lead/MultiStepForm";
 import { energyTypes } from "@/lib/lead-schema";
 import { BrandLogo } from "@/components/site/BrandLogo";
 import { resolveOfferSelection } from "@/lib/offer-selection";
+import comparisonHero from "@/assets/comparison-hero.jpg";
 
 const search = z
   .object({
@@ -147,14 +148,15 @@ function AngebotPage() {
           </p>
 
           {/* 4th hero element: lifestyle image */}
-          <div className="mt-7 overflow-hidden rounded-2xl">
+          <div className="ios-image-frame mt-7 overflow-hidden rounded-2xl">
             <img
-              src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=500&fit=crop&q=80"
-              alt="Zuhause in Deutschland"
+              src={comparisonHero}
+              alt="Familie zuhause bei der persönlichen Tarifberatung"
               width={800}
               height={500}
-              className="w-full object-cover"
-              loading="lazy"
+              className="ios-image-stable w-full object-cover"
+              loading="eager"
+              decoding="async"
             />
           </div>
         </motion.div>
