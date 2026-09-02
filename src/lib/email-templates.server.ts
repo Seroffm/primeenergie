@@ -3,6 +3,10 @@
 const BRAND_GREEN = "#16a34a";
 const BRAND_DARK = "#0f172a";
 const BRAND_LIGHT = "#f0fdf4";
+// Content hashed asset from the live website. It remains cacheable and gives
+// email clients an absolute HTTPS source they can load outside the application.
+const EMAIL_LOGO_URL =
+  "https://www.primeenergie.de/assets/prime-energie-logo-white-CMn5ezlS.png";
 
 function escapeHtml(value: string): string {
   return value
@@ -29,9 +33,7 @@ function layout(content: string, previewText = ""): string {
         <!-- Header -->
         <tr>
           <td style="background:${BRAND_DARK};padding:24px 32px;text-align:center;">
-            <span style="font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">
-              PRIME ENERGIE
-            </span>
+            <img src="${EMAIL_LOGO_URL}" alt="PRIME ENERGIE" width="220" style="display:block;width:220px;max-width:100%;height:auto;margin:0 auto;border:0;outline:none;text-decoration:none;" />
             <p style="margin:4px 0 0;font-size:13px;color:#94a3b8;">Persönliche Tarifberatung für Strom und Gas</p>
           </td>
         </tr>
