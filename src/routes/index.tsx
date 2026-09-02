@@ -49,6 +49,9 @@ import solutionSolar from "@/assets/solution-solar.jpg";
 import heroBg from "@/assets/hero-bg.jpg";
 import finalCtaBg from "@/assets/final-cta-bg.jpg";
 import comparisonHero from "@/assets/comparison-hero.jpg";
+import audiencePrivate from "@/assets/page-strom.jpg";
+import audienceBusiness from "@/assets/page-service.jpg";
+import audienceProperty from "@/assets/page-strom-gas.jpg";
 import { getPendingInvoice, setPendingInvoice, validateInvoice } from "@/lib/pending-invoice";
 
 import { z } from "zod";
@@ -969,19 +972,19 @@ function AudienceSection() {
       icon: Home,
       t: "Privathaushalte",
       d: "Singles, Familien, WGs. Den passenden Tarif für jeden Verbrauch.",
-      img: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=70",
+      img: audiencePrivate,
     },
     {
       icon: Briefcase,
       t: "Gewerbe",
       d: "Sondertarife für Selbstständige, Praxen und kleine Betriebe.",
-      img: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=800&q=70",
+      img: audienceBusiness,
     },
     {
       icon: Building2,
       t: "Hausverwaltungen",
       d: "Effizienz für Mehrobjektportfolios mit Bündelung mehrerer Standorte.",
-      img: "https://images.unsplash.com/photo-1486325212027-8081e485255e?auto=format&fit=crop&w=800&q=70",
+      img: audienceProperty,
     },
   ];
   return (
@@ -993,17 +996,18 @@ function AudienceSection() {
       </motion.div>
       <div className="mt-12 grid gap-5 md:grid-cols-3">
         {items.map((z) => (
-          <motion.div
+          <article
             key={z.t}
-            {...fadeUp}
             className="group overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition hover:shadow-card"
           >
             <div className="ios-image-frame relative aspect-[4/3] overflow-hidden bg-surface">
               <img
                 src={z.img}
                 alt={z.t}
-                loading="lazy"
-                className="ios-image-stable h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                loading="eager"
+                width={800}
+                height={600}
+                className="ios-image-stable h-full w-full object-cover"
               />
               <div className="absolute left-4 top-4 grid h-10 w-10 place-items-center rounded-xl bg-card/95 text-success shadow-soft">
                 <z.icon className="h-5 w-5" />
@@ -1013,7 +1017,7 @@ function AudienceSection() {
               <h3 className="font-display text-xl font-bold text-primary">{z.t}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{z.d}</p>
             </div>
-          </motion.div>
+          </article>
         ))}
       </div>
     </section>
