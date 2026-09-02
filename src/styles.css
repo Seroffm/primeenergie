@@ -123,26 +123,40 @@
   .hover\:scale-\[1\.03\]:hover {
     transform: none;
   }
+
+  .ai-chat-launcher {
+    transition: none;
+  }
 }
 
-/* A small, explicit Safari workaround for the few large image frames.  It is
-   deliberately opt-in: forcing every image onto its own GPU layer caused the
-   flash we are preventing on long mobile pages. */
+/* WebKit can flash missing tiles while scrolling when an overflowing rounded
+   container or an animated element gets promoted to a GPU layer.  This is not
+   Lovable specific; Lovable generated pages expose it often because they use
+   many motion cards. Keep the frames paint-only on iOS. */
 @supports (-webkit-touch-callout: none) {
   @media (max-width: 767px) {
     .ios-image-frame {
-      isolation: isolate;
       background-color: var(--surface);
     }
 
     .ios-image-stable {
-      -webkit-backface-visibility: hidden;
-      backface-visibility: hidden;
-      transform: translate3d(0, 0, 0);
+      transform: none !important;
     }
 
     .ios-hero-image {
       background-attachment: scroll;
+    }
+
+    /* Framer Motion writes transforms inline. On iPhones the content stays
+       visible, but without compositor promotion while the page is scrolled. */
+    [style*="transform"] {
+      transform: none !important;
+    }
+
+    .blur-2xl,
+    .blur-3xl {
+      filter: none;
+      opacity: 0.35;
     }
   }
 }

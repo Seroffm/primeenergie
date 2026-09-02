@@ -157,7 +157,7 @@ export function AiChatWidget() {
         aria-label={open ? "Chat schließen" : "Prime Assistent öffnen"}
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          "fixed bottom-5 right-5 z-40 grid h-14 w-14 place-items-center rounded-full text-primary-foreground shadow-hero transition-all hover:scale-105",
+          "ai-chat-launcher fixed bottom-5 right-5 z-40 grid h-14 w-14 place-items-center rounded-full text-primary-foreground shadow-hero transition-all hover:scale-105",
           "bg-gradient-to-br from-primary to-success",
           open && "hidden sm:grid",
         )}
