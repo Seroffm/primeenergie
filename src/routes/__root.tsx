@@ -16,6 +16,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "../lib/auth-context";
 import { AiChatWidget } from "../components/site/AiChatWidget";
 import { CookieConsent } from "../components/site/CookieConsent";
+import { MotionPreferences } from "../components/site/MotionPreferences";
 import { useRouterState } from "@tanstack/react-router";
 
 function NotFoundComponent() {
@@ -156,12 +157,14 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
-        {!hideChat && <AiChatWidget />}
-        <CookieConsent />
-      </AuthProvider>
+      <MotionPreferences>
+        <AuthProvider>
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+          {!hideChat && <AiChatWidget />}
+          <CookieConsent />
+        </AuthProvider>
+      </MotionPreferences>
     </QueryClientProvider>
   );
 }

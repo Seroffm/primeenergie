@@ -246,6 +246,12 @@ export interface PublicLeadPayload {
   rechnung_dateiname?: string;
   rechnung_groesse_kb?: number;
   referral_code?: string;
+  invoice_uploads?: Array<{
+    path: string;
+    file_name: string;
+    mime_type: string;
+    size_bytes: number;
+  }>;
 }
 
 // ---------------------------------------------------------------------------

@@ -24,6 +24,13 @@ const gasPayloadSchema = energyPayloadSchema.extend({
   household_size: z.number().int().min(1).max(1000).optional(),
 });
 
+const invoiceUploadSchema = z.object({
+  path: z.string().trim().min(1).max(500),
+  file_name: z.string().trim().min(1).max(255),
+  mime_type: z.enum(["application/pdf", "image/jpeg", "image/png"]),
+  size_bytes: z.number().int().positive().max(10 * 1024 * 1024),
+});
+
 export const publicLeadPayloadSchema = z
   .object({
     first_name: z.string().trim().min(2).max(100),
@@ -47,6 +54,7 @@ export const publicLeadPayloadSchema = z
     rechnung_dateiname: z.string().trim().max(500).optional(),
     rechnung_groesse_kb: z.number().finite().nonnegative().max(30_000).optional(),
     referral_code: z.string().trim().max(32).optional(),
+    invoice_uploads: z.array(invoiceUploadSchema).max(2).optional(),
     website: z.string().max(0).optional(),
   })
   .superRefine((payload, context) => {

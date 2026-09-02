@@ -1064,7 +1064,7 @@ function InvoiceUpload({
             : "Rechnung fotografieren oder Datei auswählen"}
         </div>
         <div className="max-w-full break-words text-xs text-muted-foreground">
-          PDF, JPG oder PNG · maximal 2 MB je Datei{required ? " · erforderlich" : " · optional"}
+          PDF, JPG oder PNG · maximal 10 MB je Datei{required ? " · erforderlich" : " · optional"}
         </div>
         <input
           type="file"

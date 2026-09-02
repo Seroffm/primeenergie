@@ -322,20 +322,25 @@ export async function assignLead(leadId: string, assignedTo: string | null): Pro
 // ---------------------------------------------------------------------------
 
 export async function uploadDocument(leadId: string, file: File): Promise<BackendDocument> {
-  const headers = await authHeaders();
-  const fd = new FormData();
-  fd.append("file", file);
-  const res = await fetch(`${API_BASE}/api/leads/${leadId}/documents/upload`, {
-    method: "POST",
-    headers, // kein Content-Type — Browser setzt multipart/form-data automatisch
-    body: fd,
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new ApiError(res.status, err.error ?? res.statusText);
-  }
-  const body = await res.json();
-  return body.data;
+  const prepared = await post<{ data: { path: string; token: string } }>(
+    `/api/leads/${leadId}/documents/upload-url`,
+    { file_name: file.name, mime_type: file.type, size_bytes: file.size },
+  );
+  const { error: uploadError } = await supabase.storage
+    .from("lead-documents")
+    .uploadToSignedUrl(prepared.data.path, prepared.data.token, file, { contentType: file.type });
+  if (uploadError) throw new ApiError(502, "Dokument konnte nicht hochgeladen werden");
+
+  const completed = await post<{ data: BackendDocument }>(
+    `/api/leads/${leadId}/documents/upload-complete`,
+    {
+      path: prepared.data.path,
+      file_name: file.name,
+      mime_type: file.type,
+      size_bytes: file.size,
+    },
+  );
+  return completed.data;
 }
 
 // ---------------------------------------------------------------------------
@@ -389,20 +394,29 @@ export async function submitPublicLead(
   lead_number: string;
   invoice_uploaded: boolean;
 }> {
-  const hasInvoiceFiles = invoiceFiles.length > 0;
-  const requestBody = hasInvoiceFiles
-    ? (() => {
-        const formData = new FormData();
-        formData.append("payload", JSON.stringify(payload));
-        invoiceFiles.forEach((invoiceFile) => formData.append("invoice", invoiceFile));
-        return formData;
-      })()
-    : JSON.stringify(payload);
+  const invoiceUploads = await Promise.all(
+    invoiceFiles.map(async (file) => {
+      const prepared = await post<{ data: { path: string; token: string } }>(
+        "/api/public/invoices/upload-url",
+        { file_name: file.name, mime_type: file.type, size_bytes: file.size },
+      );
+      const { error: uploadError } = await supabase.storage
+        .from("lead-documents")
+        .uploadToSignedUrl(prepared.data.path, prepared.data.token, file, { contentType: file.type });
+      if (uploadError) throw new ApiError(502, "Rechnung konnte nicht hochgeladen werden");
+      return {
+        path: prepared.data.path,
+        file_name: file.name,
+        mime_type: file.type,
+        size_bytes: file.size,
+      };
+    }),
+  );
 
   const res = await fetch(`${API_BASE}/api/public/leads`, {
     method: "POST",
-    headers: hasInvoiceFiles ? undefined : { "Content-Type": "application/json" },
-    body: requestBody,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...payload, ...(invoiceUploads.length ? { invoice_uploads: invoiceUploads } : {}) }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));

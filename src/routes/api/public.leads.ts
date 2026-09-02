@@ -17,13 +17,23 @@ import { sendEmail } from "@/lib/email.server";
 import { leadConfirmationTemplate, newLeadInternalTemplate } from "@/lib/email-templates.server";
 import process from "node:process";
 import { generateLeadNumber } from "@/lib/lead-number";
+import { MAX_UPLOAD_BYTES, MAX_UPLOAD_FILES, MAX_UPLOAD_MB, PUBLIC_INVOICE_TYPES } from "@/lib/upload-limits";
 
-// Vercel Functions reject request bodies above 4.5 MB before this route runs.
-// Two files plus the JSON payload therefore need a smaller per-file limit.
+// Legacy multipart requests remain capped below Vercel's 4.5 MB function body
+// limit. New requests upload directly to private storage and reference the
+// signed upload in JSON, so the customer-facing limit is 10 MB per file.
 const MAX_INVOICE_SIZE = 2 * 1024 * 1024;
-const MAX_INVOICE_FILES = 2;
-const ALLOWED_INVOICE_TYPES = new Set(["application/pdf", "image/jpeg", "image/png"]);
+const MAX_INVOICE_FILES = MAX_UPLOAD_FILES;
+const ALLOWED_INVOICE_TYPES = new Set<string>(PUBLIC_INVOICE_TYPES);
 const MAX_LEAD_NUMBER_ATTEMPTS = 5;
+
+type InvoiceAttachment = {
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  buffer: ArrayBuffer;
+  pendingPath?: string;
+};
 
 function formatKwh(value: number | null | undefined): string {
   return value == null ? "Nicht angegeben" : `${value.toLocaleString("de-DE")} kWh`;
@@ -150,7 +160,7 @@ export const Route = createFileRoute("/api/public/leads")({
         if (!isMultipart && !isJson) return err("Ungültiger Inhaltstyp", 415);
 
         const declaredLength = Number(request.headers.get("content-length") ?? 0);
-        if (Number.isFinite(declaredLength) && declaredLength > 4_400_000) {
+        if (isMultipart && Number.isFinite(declaredLength) && declaredLength > 4_400_000) {
           return err("Anfrage ist zu groß", 413);
         }
 
@@ -180,10 +190,14 @@ export const Route = createFileRoute("/api/public/leads")({
         if (!withinIpLimit) {
           return err("Zu viele Anfragen. Bitte versuchen Sie es später erneut.", 429);
         }
-        if (invoiceFiles.length > MAX_INVOICE_FILES) {
+        const invoiceAttachments: InvoiceAttachment[] = [];
+        const invoiceUploads = payload.invoice_uploads ?? [];
+        if (invoiceFiles.length > 0 && invoiceUploads.length > 0) {
+          return err("Rechnung wurde mehrfach übertragen", 400);
+        }
+        if (invoiceFiles.length + invoiceUploads.length > MAX_INVOICE_FILES) {
           return err(`Maximal ${MAX_INVOICE_FILES} Rechnungsdateien erlaubt`, 400);
         }
-        const invoiceBuffers = new Map<File, ArrayBuffer>();
         for (const invoiceFile of invoiceFiles) {
           if (invoiceFile.size > MAX_INVOICE_SIZE) {
             return err("Rechnungsdatei ist zu groß (maximal 2 MB je Datei)", 413);
@@ -195,7 +209,47 @@ export const Route = createFileRoute("/api/public/leads")({
           if (!hasValidFileSignature(invoiceFile.type, buffer)) {
             return err("Dateiinhalt stimmt nicht mit dem Dateityp überein", 415);
           }
-          invoiceBuffers.set(invoiceFile, buffer);
+          invoiceAttachments.push({
+            fileName: invoiceFile.name,
+            mimeType: invoiceFile.type,
+            sizeBytes: invoiceFile.size,
+            buffer,
+          });
+        }
+
+        const pendingInvoicePaths: string[] = [];
+        if (invoiceUploads.length > 0) {
+          const supabase = createServiceClient();
+          for (const upload of invoiceUploads) {
+            if (!upload.path.startsWith("pending-invoices/")) {
+              return err("Ungültiger Uploadpfad", 400);
+            }
+            if (pendingInvoicePaths.includes(upload.path)) {
+              return err("Rechnung wurde mehrfach übertragen", 400);
+            }
+            if (upload.size_bytes > MAX_UPLOAD_BYTES || !ALLOWED_INVOICE_TYPES.has(upload.mime_type)) {
+              return err(`Rechnungsdatei ist ungültig oder größer als ${MAX_UPLOAD_MB} MB`, 413);
+            }
+            const { data: blob, error: downloadError } = await supabase.storage
+              .from("lead-documents")
+              .download(upload.path);
+            if (downloadError || !blob || blob.size !== upload.size_bytes) {
+              return err("Hochgeladene Rechnung wurde nicht gefunden", 400);
+            }
+            const buffer = await blob.arrayBuffer();
+            if (!hasValidFileSignature(upload.mime_type, buffer)) {
+              await supabase.storage.from("lead-documents").remove([upload.path]);
+              return err("Dateiinhalt stimmt nicht mit dem Dateityp überein", 415);
+            }
+            pendingInvoicePaths.push(upload.path);
+            invoiceAttachments.push({
+              fileName: upload.file_name,
+              mimeType: upload.mime_type,
+              sizeBytes: blob.size,
+              buffer,
+              pendingPath: upload.path,
+            });
+          }
         }
 
         // Turnstile wird zusätzlich geprüft, sobald echte Cloudflare Schlüssel hinterlegt sind.
@@ -226,7 +280,7 @@ export const Route = createFileRoute("/api/public/leads")({
           annualKwhElectricity: payload.electricity?.annual_consumption_kwh,
           annualKwhGas: payload.gas?.annual_consumption_kwh,
           hasPhone: Boolean(payload.phone),
-          hasInvoiceRef: invoiceFiles.length > 0,
+          hasInvoiceRef: invoiceAttachments.length > 0,
           consumptionKnown:
             payload.electricity?.consumption_known ?? payload.gas?.consumption_known,
         });
@@ -247,6 +301,9 @@ export const Route = createFileRoute("/api/public/leads")({
 
         if (leadError || !lead) {
           console.error("Lead insert error:", leadError);
+          if (pendingInvoicePaths.length > 0) {
+            await supabase.storage.from("lead-documents").remove(pendingInvoicePaths);
+          }
           return err("Lead konnte nicht angelegt werden", 500);
         }
 
@@ -255,26 +312,29 @@ export const Route = createFileRoute("/api/public/leads")({
         const uploadedStoragePaths: string[] = [];
         let persistenceError: unknown = null;
 
-        for (const invoiceFile of invoiceFiles) {
-          const safeName = invoiceFile.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        for (const invoiceFile of invoiceAttachments) {
+          const safeName = invoiceFile.fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
           const storagePath = `${leadId}/${Date.now()}-${crypto.randomUUID()}_${safeName}`;
-          const arrayBuffer = invoiceBuffers.get(invoiceFile)!;
-          const { error: uploadError } = await supabase.storage
-            .from("lead-documents")
-            .upload(storagePath, arrayBuffer, {
-              contentType: invoiceFile.type,
-              upsert: false,
-            });
+          const { error: uploadError } = invoiceFile.pendingPath
+            ? await supabase.storage.from("lead-documents").move(invoiceFile.pendingPath, storagePath)
+            : await supabase.storage.from("lead-documents").upload(storagePath, invoiceFile.buffer, {
+                contentType: invoiceFile.mimeType,
+                upsert: false,
+              });
 
           if (!uploadError) {
+            if (invoiceFile.pendingPath) {
+              const pendingIndex = pendingInvoicePaths.indexOf(invoiceFile.pendingPath);
+              if (pendingIndex !== -1) pendingInvoicePaths.splice(pendingIndex, 1);
+            }
             const { error: documentError } = await supabase.from("lead_documents").insert({
               lead_id: leadId,
               uploaded_by: null,
               document_type: "invoice",
-              file_name: invoiceFile.name,
+              file_name: invoiceFile.fileName,
               storage_path: storagePath,
-              mime_type: invoiceFile.type,
-              file_size_bytes: invoiceFile.size,
+              mime_type: invoiceFile.mimeType,
+              file_size_bytes: invoiceFile.sizeBytes,
             });
 
             if (documentError) {
@@ -288,8 +348,9 @@ export const Route = createFileRoute("/api/public/leads")({
             console.error("Public invoice upload error:", uploadError);
           }
         }
-        const invoiceUploaded = invoiceFiles.length > 0 && uploadedInvoiceCount === invoiceFiles.length;
-        if (invoiceFiles.length > 0 && !invoiceUploaded) {
+        const invoiceUploaded =
+          invoiceAttachments.length > 0 && uploadedInvoiceCount === invoiceAttachments.length;
+        if (invoiceAttachments.length > 0 && !invoiceUploaded) {
           persistenceError = new Error("Rechnungsupload unvollständig");
         }
 
@@ -423,10 +484,11 @@ export const Route = createFileRoute("/api/public/leads")({
 
         if (persistenceError) {
           console.error("Lead child data could not be stored:", persistenceError);
-          if (uploadedStoragePaths.length > 0) {
+          const cleanupPaths = [...uploadedStoragePaths, ...pendingInvoicePaths];
+          if (cleanupPaths.length > 0) {
             const { error: cleanupStorageError } = await supabase.storage
               .from("lead-documents")
-              .remove(uploadedStoragePaths);
+              .remove(cleanupPaths);
             if (cleanupStorageError) console.error("Storage cleanup failed:", cleanupStorageError);
           }
           const { error: cleanupLeadError } = await supabase.from("leads").delete().eq("id", leadId);
