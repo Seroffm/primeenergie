@@ -98,7 +98,7 @@ function KontaktPage() {
             className="mx-auto mt-5 max-w-2xl text-lg text-muted-foreground md:text-xl"
           >
             Unser Team unterstützt Sie persönlich bei Fragen zu Tarifen, Verträgen und Ihrer
-            Energieversorgung. Rufen Sie uns an oder nutzen Sie unsere digitalen Kontaktwege.
+            Energieversorgung. Rufen Sie uns bei Fragen einfach an.
           </motion.p>
         </div>
       </section>

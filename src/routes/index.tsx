@@ -161,11 +161,9 @@ function HomePage() {
 function Hero() {
   return (
     <section
-      className="ios-hero-image relative isolate overflow-hidden"
+      className="home-hero-background ios-hero-image relative isolate overflow-hidden"
       style={{
         backgroundImage: `linear-gradient(rgba(10,31,68,0.02), rgba(10,31,68,0.02)), linear-gradient(to right, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.74) 38%, rgba(255,255,255,0.34) 70%, rgba(255,255,255,0.1) 100%), linear-gradient(to bottom, rgba(255,255,255,0) 64%, rgba(255,255,255,0.94) 100%), url(${heroBg})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
       }}
     >
       <div

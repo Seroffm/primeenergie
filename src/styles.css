@@ -112,6 +112,12 @@
   }
 }
 
+.home-hero-background {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
 @media (max-width: 767px) {
   html {
     scroll-behavior: auto;
@@ -126,6 +132,22 @@
 
   .ai-chat-launcher {
     transition: none;
+  }
+
+  /* The calculator changes the hero height when switching audiences. Keep the
+     photo at a fixed mobile scale so that `cover` cannot recrop it sideways. */
+  .home-hero-background {
+    background-position:
+      center,
+      center,
+      center,
+      top center;
+    background-repeat: no-repeat;
+    background-size:
+      100% 100%,
+      100% 100%,
+      100% 100%,
+      112rem auto;
   }
 }
 
